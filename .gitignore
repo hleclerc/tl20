@@ -1,0 +1,5 @@
+.tl20.*
+.vscode/
+.qtc_clangd/
+*.pyc
+
