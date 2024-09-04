@@ -2,11 +2,12 @@
 #include "display/DisplayItem_List.h"
 #include "display/DisplayContext.h"
 #include "Displayer.h"
+// #include "TODO.h"
 
 BEG_TL_NAMESPACE
 
 Displayer::Displayer() {
-    last = nullptr;
+    last_container = pool.create<DisplayItem_List>();
 }
 
 Displayer::~Displayer() {
@@ -16,11 +17,15 @@ void Displayer::set_next_name( const Str &name ) {
     next_name = name;
 }
 
+void Displayer::set_next_type( const Str &name ) {
+    next_name = name;
+}
+
 void Displayer::append_number( const Number &number ) {
     auto *res = pool.create<DisplayItem_Number>();
     res->name = std::exchange( next_name, {} );
-    res->prev_sibling = res;
-    last = res;
+    res->type = std::exchange( next_type, {} );
+    last_container->append( res );
     
     res->denominator = number.denominator;
     res->base_shift  = number.base_shift;
@@ -35,12 +40,10 @@ void Displayer::append_list( const std::function<void()> &cb ) {
 }
 
 void Displayer::write_to( Str &out, const DisplayParameters &prf ) const {
-    if ( ! last )
-        return;
-
     DisplayContext ctx;
-    last->write_to( out, ctx, prf );
+    last_container->write_to( out, ctx, prf );
 
+    // ensure endline if necessary
     if ( prf.ensure_endline && ! out.ends_with( "\n" ) )
         out += '\n';
 }
@@ -48,12 +51,15 @@ void Displayer::write_to( Str &out, const DisplayParameters &prf ) const {
 void Displayer::start_list() {
     auto *res = pool.create<DisplayItem_List>();
     res->name = std::exchange( next_name, {} );
-    res->prev_parent = res;
-    last = res;
+    res->type = std::exchange( next_type, {} );
+    last_container->append( res );
+
+    res->parent = last_container;
+    last_container = res;
 }
 
 void Displayer::end_list() {
-    last = last->prev_parent;
+    last_container = last_container->parent;
 }
 
 void display( Displayer &ds, SI32 value ) { ds.append_number( { .numerator = std::to_string( value ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }

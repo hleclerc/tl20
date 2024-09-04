@@ -24,3 +24,4 @@ Prop:
   lin: LF SP*
   
   
+Pb: il faudrait que Displayer 

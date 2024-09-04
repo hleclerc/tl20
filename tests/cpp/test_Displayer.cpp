@@ -5,7 +5,8 @@ TEST_CASE( "Displayer", "" ) {
     Displayer ds;
 
     ds.start_list();
-
+    ds << 17;
+    ds << 18;
     ds.end_list();
 
     Str res;

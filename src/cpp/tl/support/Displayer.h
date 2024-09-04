@@ -19,6 +19,7 @@ public:
     /**/           ~Displayer    ();
 
     void            set_next_name( const Str &name ); ///< set the name of the next item to be appended
+    void            set_next_type( const Str &type ); ///< set the type of the next item to be appended
     TT Displayer&   operator<<   ( const T &value ) { display( *this, value ); return *this; }
     virtual void    write_to     ( Str &out, const DisplayParameters &dp ) const;
 
@@ -30,8 +31,9 @@ public:
     void            start_list   ();
     void            end_list     ();
 
+    DisplayItem*    last_container;
     Str             next_name;
-    DisplayItem*    last;
+    Str             next_type;
     BumpPointerPool pool;
 };
 
