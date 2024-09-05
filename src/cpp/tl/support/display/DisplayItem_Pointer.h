@@ -6,11 +6,9 @@ BEG_TL_NAMESPACE
 
 /**
 */
-class DisplayItem_List : public DisplayItem {
+class DisplayItem_Pointer : public DisplayItem {
 public:
     virtual void write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const override;
-
-    bool         is_an_object    = false;
 };
 
 END_TL_NAMESPACE

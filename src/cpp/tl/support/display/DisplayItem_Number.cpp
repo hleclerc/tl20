@@ -2,7 +2,7 @@
 
 BEG_TL_NAMESPACE
 
-void DisplayItem_Number::write_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
+void DisplayItem_Number::write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
     out += numerator;
 }
 

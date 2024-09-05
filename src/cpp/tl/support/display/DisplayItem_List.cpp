@@ -3,10 +3,10 @@
 
 BEG_TL_NAMESPACE
 
-void DisplayItem_List::write_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
+void DisplayItem_List::write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
     // if no child
     if ( ! has_children() ) {
-        out += "[]";
+        out += is_an_object ? "{}" : "[]";
         return;
     }
 
@@ -14,7 +14,7 @@ void DisplayItem_List::write_to( Str &out, DisplayContext &ctx, const DisplayPar
     bool may_need_a_space = false;
     if ( ! is_the_root_item() ) {
         may_need_a_space = true;
-        out += '[';
+        out += is_an_object ? '{' : '[';
     }
 
     // children
@@ -34,7 +34,7 @@ void DisplayItem_List::write_to( Str &out, DisplayContext &ctx, const DisplayPar
     if ( ! is_the_root_item() ) {
         if ( prf.add_spaces_for_reading && may_need_a_space )
             out += ' ';
-        out += ']';
+        out += is_an_object ? '}' : ']';
     }
 }
 

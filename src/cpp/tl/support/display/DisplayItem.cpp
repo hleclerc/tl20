@@ -5,6 +5,12 @@ BEG_TL_NAMESPACE
 DisplayItem::~DisplayItem() {
 }
 
+void DisplayItem::write_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
+    if ( name.size() )
+        out += name + ": ";
+    write_content_to( out, ctx, prf );
+}
+
 bool DisplayItem::is_the_first_child() const{
     return ! prev_sibling;
 }

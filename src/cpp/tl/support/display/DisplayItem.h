@@ -14,9 +14,10 @@ public:
 
     bool          is_the_first_child() const;
     bool          is_the_root_item  () const;
+    virtual void  write_content_to  ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const = 0;
     void          for_each_child    ( const std::function<void( DisplayItem *child )> &f ) const;
     bool          has_children      () const;
-    virtual void  write_to          ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const = 0;
+    void          write_to          ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const;
     void          append            ( DisplayItem *res );
 
     DisplayItem*  prev_sibling      = nullptr;

@@ -1,2 +1,2 @@
 all:
-	vfs_build run tests/cpp/test_Displayer.cpp
+	vfs_build run tests/cpp/test_Vec.cpp
