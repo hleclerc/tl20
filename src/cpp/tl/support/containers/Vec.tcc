@@ -365,6 +365,17 @@ DTP void UTP::reserve( PI tgt_capa ) {
     data_ = new_data;
 }
 
+DTP void UTP::remove( PI beg, PI len ) {
+    if ( len == 0 )
+        return;
+    const PI new_size = size_ - len;
+    for( PI i = beg; i < new_size; ++i )
+        data_[ i ] = std::move( data_[ len + i ] );
+    for( PI i = new_size; i < size_; ++i )
+        data_[ i ].~Item();
+    size_ = new_size;
+}
+
 DTP void UTP::copy_data_to( void *data ) const {
     for( PI i = 0; i < size_; ++i )
         new ( reinterpret_cast<Item *>( data ) + i ) Item( data_[ i ] );

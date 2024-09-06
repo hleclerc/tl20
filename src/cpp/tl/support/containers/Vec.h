@@ -6,6 +6,7 @@
 
 #include "WithDefaultOperators.h"
 #include "CtInt.h"
+#include "Span.h"
 
 BEG_TL_NAMESPACE
 
@@ -32,6 +33,10 @@ public:
 
     Vec&                operator=     ( const Vec & );
     Vec&                operator=     ( Vec && );
+
+    operator            Span<Item,static_size>() const { return { data() }; }
+    operator            Span<Item>    () const { return { data(), size() }; }
+
 
     const Item&         operator[]    ( PI index ) const;
     Item&               operator[]    ( PI index );
@@ -74,6 +79,8 @@ public:
     /**/                Vec             ();
     /**/               ~Vec             ();
 
+    operator            Span<Item>      () const { return { data(), size() }; }
+
     static Vec          range           ( Item end );
 
     Vec&                operator=       ( const Vec &that );
@@ -86,6 +93,8 @@ public:
     PI                  size_tot        () const { return size(); }
     const Item*         begin           () const { return data(); }
     Item*               begin           () { return data(); }
+    const Item&         front           () const { return operator[]( 0 ); }
+    Item&               front           () { return operator[]( 0 ); }
     const Item*         data            ( PI index ) const;
     Item*               data            ( PI index );
     const Item*         data            () const;
@@ -105,6 +114,7 @@ public:
     Item*               push_back_br    ( auto&&...args ); ///< push_back with Item{ FORWARD( args )... }
     Item*               push_back       ( auto&&...args ); ///< push_back with Item( FORWARD( args )... )
     void                reserve         ( PI capa );
+    void                remove          ( PI beg, PI len );
     void                resize          ( PI size, auto&&...ctor_args );
     void                append          ( auto &&that );
     void                clear           ();
