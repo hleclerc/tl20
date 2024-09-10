@@ -46,10 +46,10 @@ void Displayer::append_string( StrView str ) {
     res->str = str;
 }
 
-void Displayer::append_list( const std::function<void()> &cb ) {
-    start_list();
+void Displayer::append_array( const std::function<void()> &cb ) {
+    start_array();
     cb();
-    end_list();
+    end_array();
 }
 
 void Displayer::write_to( Str &out, const DisplayParameters &prf ) const {
@@ -98,7 +98,7 @@ void Displayer::end_object() {
     last_container = last_container->parent;
 }
 
-void Displayer::start_list() {
+void Displayer::start_array() {
     auto *res = pool.create<DisplayItem_List>();
     res->name = std::exchange( next_name, {} );
     res->type = std::exchange( next_type, {} );
@@ -108,7 +108,7 @@ void Displayer::start_list() {
     last_container = res;
 }
 
-void Displayer::end_list() {
+void Displayer::end_array() {
     last_container = last_container->parent;
 }
 

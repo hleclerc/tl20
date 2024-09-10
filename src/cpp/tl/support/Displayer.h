@@ -34,10 +34,10 @@ public:
     void            append_pointer  ( bool valid, const Str &id, const std::function<void()> &cb );
     void            append_number   ( const Number &number );
     void            append_string   ( StrView str );
-    void            append_list     ( const std::function<void()> &cb );
+    void            append_array    ( const std::function<void()> &cb );
 
-    void            start_list      ();
-    void            end_list        ();
+    void            start_array     ();
+    void            end_array       ();
 
     void            start_object    ();
     void            end_object      ();
@@ -107,11 +107,11 @@ void display( Displayer &ds, const T &value ) {
 
     // for_each_item (for arrays)
     else if constexpr( requires { for_each_item( value, []( const auto & ) {} ); } ) {
-        ds.start_list();
+        ds.start_array();
         for_each_item( value, [&]( const auto &value ) {
             ds << value;
         } );
-        ds.end_list();
+        ds.end_array();
         return;
     }
 
@@ -133,6 +133,16 @@ void display( Displayer &ds, const T &value ) {
         // ss << value;
         // return ds.display( ss.str() );
         TODO;
+    }
+
+    // os << ...
+    else if constexpr( requires { std::apply( []( const auto &...items ) {}, value ); } ) {
+        ds.start_array();
+        std::apply( [&]( const auto &...items ) {
+            ( ds << ... << items );
+        }, value );
+        ds.end_array();
+        return;
     }
 
     // T::template_type_name() (for empty structures)
