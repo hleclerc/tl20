@@ -24,7 +24,7 @@ public:
     char*       allocate       ( PI size, PI alig );
     char*       allocate       ( PI size );
 
-    TTA T*      create         ( A &&...args );
+    T_TA T*     create         ( A &&...args );
 
     void        clear          ();
     void        free           ();
@@ -37,7 +37,7 @@ private:
     struct      Item           { virtual ~Item() {} Item *prev; };
     union       Exof           { char *cp; PI vp; };
 
-    TT struct   Inst : Item    { template<class... Args> Inst( Args &&...args ) : object{ std::forward<Args>( args )... } {} virtual ~Inst() {} T object; };
+    T_T struct  Inst : Item    { template<class... Args> Inst( Args &&...args ) : object{ std::forward<Args>( args )... } {} virtual ~Inst() {} T object; };
 
     Exof        current_ptr;   ///<
     char*       ending_ptr;    ///<

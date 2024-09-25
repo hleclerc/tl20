@@ -20,11 +20,11 @@ class Vec : public WithDefaultOperators {
 public:
     // static auto      with_item_type( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
-    Tis                 Vec           ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    T_is                Vec           ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec           ( FromItemValues, auto &&...values );
     /**/                Vec           ( FromItemValue, auto &&...ctor_args );
     /**/                Vec           ( FromIterator, auto iter );
-    TT                  Vec           ( const std::initializer_list<T> &lst );
+    T_T                 Vec           ( const std::initializer_list<T> &lst );
     /**/                Vec           ( const HasSizeAndAccess auto &l );
     /**/                Vec           ( const Vec &that );
     /**/                Vec           ( Vec && );
@@ -66,7 +66,7 @@ template<class Item>
 class Vec<Item,-1> : public WithDefaultOperators {
 public:
     /**/                Vec             ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
-    Tis                 Vec             ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    T_is                Vec             ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec             ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
     /**/                Vec             ( FromSizeAndIterator, PI size, auto iterator );
     /**/                Vec             ( FromReservationSize, PI capa, PI raw_size = 0 );

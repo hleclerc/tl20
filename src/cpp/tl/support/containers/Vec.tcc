@@ -11,7 +11,7 @@ BEG_TL_NAMESPACE
 #define DTP template<class Item,int static_size>
 #define UTP Vec<Item,static_size>
 
-DTP Tis UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
+DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
     for( PI index = 0; index < size(); ++index )
         new ( data( index ) ) Item( functor( select_with_n_indices( lists, CtInt<i>(), index )... ) );
 }
@@ -36,7 +36,7 @@ DTP UTP::Vec( FromIterator, auto iter ) {
         new ( data( index ) ) Item( *( iter++ ) );
 }
 
-DTP TT UTP::Vec( const std::initializer_list<T> &lst ) {
+DTP T_T UTP::Vec( const std::initializer_list<T> &lst ) {
     auto iter = lst.begin();
     for( PI index = 0; index < std::min( PI( lst.size() ), PI( size() ) ); ++index )
         new ( data( index ) ) Item( *(iter++) );
@@ -154,7 +154,7 @@ DTP UTP::Vec( FromSize, PI size ) : Vec( FromReservationSize(), size, size ) {
         new ( data_ + index ) Item;
 }
 
-DTP Tis UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
+DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
     // compute size
     PI size = std::numeric_limits<PI>::max();
     auto get_size = [&]( auto nb_to_take, const auto &list ) {
