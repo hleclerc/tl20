@@ -24,7 +24,7 @@ public:
     /**/                Vec           ( FromItemValues, auto &&...values );
     /**/                Vec           ( FromItemValue, auto &&...ctor_args );
     /**/                Vec           ( FromIterator, auto iter );
-    TT                  Vec           ( const std::initializer_list<T> &lst );
+    T_T                 Vec           ( const std::initializer_list<T> &lst );
     /**/                Vec           ( const HasSizeAndAccess auto &l );
     /**/                Vec           ( const Vec &that );
     /**/                Vec           ( Vec && );

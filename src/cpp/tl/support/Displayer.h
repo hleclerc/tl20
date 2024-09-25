@@ -26,7 +26,7 @@ public:
 
     void            set_next_name   ( StrView name ); ///< set the name of the next item to be appended
     void            set_next_type   ( StrView type ); ///< set the type of the next item to be appended
-    TT Displayer&   operator<<      ( const T &value ) { display( *this, value ); return *this; }
+    T_T Displayer&  operator<<      ( const T &value ) { display( *this, value ); return *this; }
     virtual void    write_to        ( Str &out, const DisplayParameters &dp ) const;
 
     // helpers

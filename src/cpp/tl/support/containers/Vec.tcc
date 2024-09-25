@@ -36,7 +36,7 @@ DTP UTP::Vec( FromIterator, auto iter ) {
         new ( data( index ) ) Item( *( iter++ ) );
 }
 
-DTP TT UTP::Vec( const std::initializer_list<T> &lst ) {
+DTP T_T UTP::Vec( const std::initializer_list<T> &lst ) {
     auto iter = lst.begin();
     for( PI index = 0; index < std::min( PI( lst.size() ), PI( size() ) ); ++index )
         new ( data( index ) ) Item( *(iter++) );
