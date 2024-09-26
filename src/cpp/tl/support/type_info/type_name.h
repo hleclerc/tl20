@@ -76,6 +76,8 @@ T_T Str type_name( CtType<T> ) {
         STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( "", 0, "found no way to get type_name" );
 }
 
+T_T auto CtType<T>::to_string() { return tyne_name( CtType<T>() ); }
+
 // shortcut type_name<T>()
 T_T Str type_name() { return type_name( CtType<T>() ); }
 

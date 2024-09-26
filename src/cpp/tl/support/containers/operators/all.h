@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../../common_macros.h"
+#include "../../common_types.h"
 #include "../TensorOrder.h"
-#include "../TypeConfig.h"
 
 BEG_TL_NAMESPACE
 

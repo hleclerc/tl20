@@ -127,6 +127,14 @@ DTP Item *UTP::data() {
     return reinterpret_cast<Item *>( data_ );
 }
 
+DTP Vec<Item,static_size-1> UTP::without_index( PI index ) const {
+    Vec<Item,static_size-1> res;
+    for( PI i = 0, j = 0; i < PI( size() ); ++i )
+        if ( i != index )
+            res[ j++ ] = operator[]( i );
+    return res;
+}
+
 #undef DTP
 #undef UTP
 
@@ -311,6 +319,12 @@ DTP Item UTP::pop_back_val() {
 DTP Item *UTP::push_back_br( auto&&...args ) {
     reserve( size_ + 1 );
     return new ( data_ + size_++ ) Item{ FORWARD( args )... };
+}
+
+DTP PI UTP::push_back_ind( auto&&...args ) {
+    PI res = size();
+    push_back( FORWARD( args )... );
+    return res;
 }
 
 DTP Item *UTP::push_back( auto&&...args ) {

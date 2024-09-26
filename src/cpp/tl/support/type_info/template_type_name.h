@@ -6,7 +6,7 @@
 BEG_TL_NAMESPACE
 
 /// common types
-TTA auto template_type_name( CtType<std::function<T(A...)>> ) { return "std::function"; }
+T_TA auto template_type_name( CtType<std::function<T(A...)>> ) { return "std::function"; }
 
 #define DECL_BASE_TYPE_INFO_UV( NAME ) template<class U,class V> auto template_type_name( CtType<NAME<U,V>> ) { return #NAME; }
 #define DECL_BASE_TYPE_INFO_A_( NAME ) template<class... A> auto template_type_name( CtType<NAME<A...>> ) { return #NAME; }
@@ -25,9 +25,9 @@ DECL_BASE_TYPE_INFO_T_( CtType                );
 #undef DECL_BASE_TYPE_INFO_T_
 
 // as method
-TU auto template_type_name( CtType<U> ) -> decltype( U::template_type_name() ) { return U::template_type_name(); }
+T_U auto template_type_name( CtType<U> ) -> decltype( U::template_type_name() ) { return U::template_type_name(); }
 
 // shortcut
-TU auto template_type_name() { return template_type_name( CtType<U>() ); }
+T_U auto template_type_name() { return template_type_name( CtType<U>() ); }
 
 END_TL_NAMESPACE

@@ -12,6 +12,7 @@ struct CtType {
 
     static void   for_each_template_arg( auto &&f ) { f( CtType<Value>() ); }
     static auto   template_type_name   () { return "CtType"; }
+    static auto   to_string            ();
     static auto   fake_ptr             () -> std::decay_t<Value> * { return nullptr; }
     static void   display              ( auto &ds ); ///< defined in type_name.h
     const auto*   cast                 ( const auto *v ) const { return reinterpret_cast<const value *>( v ); }
