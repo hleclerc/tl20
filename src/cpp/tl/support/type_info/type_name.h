@@ -9,16 +9,16 @@
 BEG_TL_NAMESPACE
 
 // qualifiers
-TTI inline auto type_name( CtType<const T(&)[i]> ) { return type_name( CtType<const T *>() ); } // send the size ??
-TTI inline auto type_name( CtType<T(&)[i]> ) { return type_name( CtType<T *>() ); } // send the size ??
+T_TI inline auto type_name( CtType<const T(&)[i]> ) { return type_name( CtType<const T *>() ); } // send the size ??
+T_TI inline auto type_name( CtType<T(&)[i]> ) { return type_name( CtType<T *>() ); } // send the size ??
 
-TTI inline auto type_name( CtType<const T[i]> ) { return type_name( CtType<const T *>() ); } // send the size ??
-TTI inline auto type_name( CtType<T[i]> ) { return type_name( CtType<T *>() ); } // send the size ??
+T_TI inline auto type_name( CtType<const T[i]> ) { return type_name( CtType<const T *>() ); } // send the size ??
+T_TI inline auto type_name( CtType<T[i]> ) { return type_name( CtType<T *>() ); } // send the size ??
 
-TT  inline auto type_name( CtType<const T> ) { return Str( "const " ) + type_name( CtType<T>() ); }
-TT  inline auto type_name( CtType<T &&> ) { return Str( type_name( CtType<T>() ) ) + " &&"; }
-TT  inline auto type_name( CtType<T &> ) { return Str( type_name( CtType<T>() ) ) + " &"; }
-TT  inline auto type_name( CtType<T *> ) { return Str( type_name( CtType<T>() ) ) + " *"; }
+T_T  inline auto type_name( CtType<const T> ) { return Str( "const " ) + type_name( CtType<T>() ); }
+T_T  inline auto type_name( CtType<T &&> ) { return Str( type_name( CtType<T>() ) ) + " &&"; }
+T_T  inline auto type_name( CtType<T &> ) { return Str( type_name( CtType<T>() ) ) + " &"; }
+T_T  inline auto type_name( CtType<T *> ) { return Str( type_name( CtType<T>() ) ) + " *"; }
 
 // common types
 #define DECL_TYPE_NAME( NAME ) inline auto type_name( CtType<NAME> ) { return #NAME; }
@@ -53,10 +53,10 @@ template<class T,class... A> Str type_name( CtType<std::function<T(A...)>> ) {
 }
 
 // def for CtType
-TT void CtType<T>::display( auto &ds ) { ds << type_name( CtType<T>() ); }
+T_T void CtType<T>::display( auto &ds ) { ds << type_name( CtType<T>() ); }
 
 // generic version
-TT Str type_name( CtType<T> ) {
+T_T Str type_name( CtType<T> ) {
     if constexpr( requires { T::type_name(); } ) {
         return T::type_name();
     } else if constexpr( requires { template_type_name( CtType<T>() ); } ) {
@@ -76,7 +76,9 @@ TT Str type_name( CtType<T> ) {
         STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( "", 0, "found no way to get type_name" );
 }
 
+T_T auto CtType<T>::to_string() { return tyne_name( CtType<T>() ); }
+
 // shortcut type_name<T>()
-TT Str type_name() { return type_name( CtType<T>() ); }
+T_T Str type_name() { return type_name( CtType<T>() ); }
 
 END_TL_NAMESPACE

@@ -56,6 +56,8 @@ struct Span<T,-1> {
 
     bool               empty     () const { return size_ == 0; }
 
+    void               resize    ( PI size ) { size_ = size; }
+
 private:
     T*                 data_;
     PI                 size_;

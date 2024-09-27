@@ -19,6 +19,10 @@ bool DisplayItem::is_the_root_item() const {
     return ! parent;
 }
 
+int DisplayItem::max_tensor_order() const {
+    return 0;
+}
+
 void DisplayItem::for_each_child( const std::function<void( DisplayItem *child )> &f ) const {
     std::function<void( DisplayItem *child )> fecr = [&]( DisplayItem *child ) {
         if ( child ) {

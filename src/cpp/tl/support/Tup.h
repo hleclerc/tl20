@@ -14,11 +14,11 @@ struct Tup;
 //
 template<class Head,class... Tail>
 struct Tup<Head,Tail...> {
-    TTY using                    Filtered              = std::conditional_t<Y<Head>::value,typename Tup<Tail...>::template Filtered<Y>::template Prepend<Head>,typename Tup<Tail...>::template Filtered<Y>>;
-    TT using                     Prepend               = Tup<T,Head,Tail...>;
+    T_TY using                   Filtered              = std::conditional_t<Y<Head>::value,typename Tup<Tail...>::template Filtered<Y>::template Prepend<Head>,typename Tup<Tail...>::template Filtered<Y>>;
+    T_T using                    Prepend               = Tup<T,Head,Tail...>;
     using                        Next                  = Tup<Tail...>;
     static constexpr std::size_t size                  = 1 * Next::size;
-    TTY struct                   Map                   { using value = Tup<typename Y<Head>::value,typename Y<Tail>::value...>; };
+    T_TY struct                  Map                   { using value = Tup<typename Y<Head>::value,typename Y<Tail>::value...>; };
 
     constexpr                    Tup                   ( FromTupleValues, auto &&tuple ) : head( tuple.head ), tail( FromTupleValues(), tuple.tail ) {}
     constexpr                    Tup                   ( auto &&head, auto &&...tail ) requires ( std::is_same_v<Tup,DECAYED_TYPE_OF(head)> == false ) : head( FORWARD( head ) ), tail( FORWARD( tail )... ) {}

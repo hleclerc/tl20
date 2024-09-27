@@ -1,0 +1,6 @@
+-I
+src/cpp/
+-std=c++20
+-I
+/home/leclerc/.vfs_build/ext/Catch2/install/include
+-xc++

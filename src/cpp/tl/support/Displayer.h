@@ -51,6 +51,7 @@ public:
 
 void display( Displayer &ds, SI32 value );
 
+#define STD_TL_TYPE_INFO( ... )
 
 // =======================================================================================================================================
 void display( Displayer &ds, const Str&  str );

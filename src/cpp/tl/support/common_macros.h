@@ -4,26 +4,26 @@
 #include <utility> // IWYU pragma: export
 
 // shortcuts for template<...>
-#define     TAUV                          template<class... A,class U,class V>
-#define     TTij                          template<class T,int i,int j>
-#define     TUVi                          template<class U,class V,int i>
-#define     Tijs                          template<int i,int... j>
-#define     TTY                           template<template<typename...> class Y>
-#define     TTA                           template<class T,class... A>
-#define     TTI                           template<class T,std::size_t i>
-#define     TTi                           template<class T,int i>
-#define     TiT                           template<int i,class T>
-#define     TUV                           template<class U,class V>
-#define     TiA                           template<int i,class... A>
-#define     Tij                           template<int i,int j>
-#define     TSs                           template<CtStringValue... S>
-#define     Tis                           template<int... i>
-#define     TS                            template<CtStringValue S>
-#define     TA                            template<class... A>
+#define     T_AUV                         template<class... A,class U,class V>
+#define     T_Tij                         template<class T,int i,int j>
+#define     T_UVi                         template<class U,class V,int i>
+#define     T_ijs                         template<int i,int... j>
+#define     T_TY                          template<template<typename...> class Y>
+#define     T_TA                          template<class T,class... A>
+#define     T_TI                          template<class T,std::size_t i>
+#define     T_Ti                          template<class T,int i>
+#define     T_iT                          template<int i,class T>
+#define     T_UV                          template<class U,class V>
+#define     T_iA                          template<int i,class... A>
+#define     T_ij                          template<int i,int j>
+#define     T_Ss                          template<CtStringValue... S>
+#define     T_is                          template<int... i>
+#define     T_S                           template<CtStringValue S>
+#define     T_A                           template<class... A>
 #define     T_T                           template<class T>
-#define     TU                            template<class U>
-#define     TI                            template<std::size_t i>
-#define     Ti                            template<int i>
+#define     T_U                           template<class U>
+#define     T_I                           template<std::size_t i>
+#define     T_i                           template<int i>
 
 //
 #define     SCPI                          static constexpr PI
@@ -41,3 +41,6 @@
 
 //
 #define     NUA                           [[no_unique_address]]
+
+//
+#define     TL_OBJECT( NAME, INCL, ... )  static auto type_name() { return #NAME; } void for_each_attribute( auto &&f ) const { auto fea = [&f]( StrView names, const auto &...args ) { ( f( read_arg_name( names ), args ), ... ); }; fea( #__VA_ARGS__, ##__VA_ARGS__ ); }

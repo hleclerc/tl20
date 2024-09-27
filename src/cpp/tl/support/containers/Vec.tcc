@@ -11,7 +11,7 @@ BEG_TL_NAMESPACE
 #define DTP template<class Item,int static_size>
 #define UTP Vec<Item,static_size>
 
-DTP Tis UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
+DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
     for( PI index = 0; index < size(); ++index )
         new ( data( index ) ) Item( functor( select_with_n_indices( lists, CtInt<i>(), index )... ) );
 }
@@ -127,6 +127,14 @@ DTP Item *UTP::data() {
     return reinterpret_cast<Item *>( data_ );
 }
 
+DTP Vec<Item,static_size-1> UTP::without_index( PI index ) const {
+    Vec<Item,static_size-1> res;
+    for( PI i = 0, j = 0; i < PI( size() ); ++i )
+        if ( i != index )
+            res[ j++ ] = operator[]( i );
+    return res;
+}
+
 #undef DTP
 #undef UTP
 
@@ -154,7 +162,7 @@ DTP UTP::Vec( FromSize, PI size ) : Vec( FromReservationSize(), size, size ) {
         new ( data_ + index ) Item;
 }
 
-DTP Tis UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
+DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
     // compute size
     PI size = std::numeric_limits<PI>::max();
     auto get_size = [&]( auto nb_to_take, const auto &list ) {
@@ -311,6 +319,12 @@ DTP Item UTP::pop_back_val() {
 DTP Item *UTP::push_back_br( auto&&...args ) {
     reserve( size_ + 1 );
     return new ( data_ + size_++ ) Item{ FORWARD( args )... };
+}
+
+DTP PI UTP::push_back_ind( auto&&...args ) {
+    PI res = size();
+    push_back( FORWARD( args )... );
+    return res;
 }
 
 DTP Item *UTP::push_back( auto&&...args ) {

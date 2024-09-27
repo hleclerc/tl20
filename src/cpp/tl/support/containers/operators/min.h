@@ -13,7 +13,7 @@ struct Functor_min {
 constexpr auto min( auto &&a, auto &&b ) {
     DEFAULT_BIN_OPERATOR_CODE( min )
 
-    return a >= b ? FORWARD( a ) : FORWARD( b );
+    return a <= b ? FORWARD( a ) : FORWARD( b );
 }
 
 /// more than 2 operands

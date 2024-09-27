@@ -20,7 +20,7 @@ class Vec : public WithDefaultOperators {
 public:
     // static auto      with_item_type( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
-    Tis                 Vec           ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    T_is                Vec           ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec           ( FromItemValues, auto &&...values );
     /**/                Vec           ( FromItemValue, auto &&...ctor_args );
     /**/                Vec           ( FromIterator, auto iter );
@@ -57,6 +57,8 @@ public:
     CtInt<static_size>  size          ( PI d ) const { return {}; }
     CtInt<static_size>  size          () const { return {}; }
 
+    auto                without_index ( PI index ) const -> Vec<Item,static_size-1>;
+
     static constexpr PI nbch          = static_size * sizeof( Item );
     char                data_         [ nbch ]; ///<
 };
@@ -66,7 +68,7 @@ template<class Item>
 class Vec<Item,-1> : public WithDefaultOperators {
 public:
     /**/                Vec             ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
-    Tis                 Vec             ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    T_is                Vec             ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec             ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
     /**/                Vec             ( FromSizeAndIterator, PI size, auto iterator );
     /**/                Vec             ( FromReservationSize, PI capa, PI raw_size = 0 );
@@ -110,14 +112,18 @@ public:
     PI                  size            () const;
 
     Item*               push_back_unique( auto &&value );
-    Item                pop_back_val    ();
+    PI                  push_back_ind   ( auto&&...args ); ///< push_back with Item( FORWARD( args )... ) and return index of the new item
     Item*               push_back_br    ( auto&&...args ); ///< push_back with Item{ FORWARD( args )... }
     Item*               push_back       ( auto&&...args ); ///< push_back with Item( FORWARD( args )... )
-    void                reserve         ( PI capa );
-    void                remove          ( PI beg, PI len );
-    void                resize          ( PI size, auto&&...ctor_args );
+
     void                append          ( auto &&that );
+
+    Item                pop_back_val    ();
+    void                remove          ( PI beg, PI len );
     void                clear           ();
+
+    void                reserve         ( PI capa );
+    void                resize          ( PI size, auto&&...ctor_args );
 
     void                copy_data_to    ( void *data ) const;
     // TUV void            set_item        ( CtType<U> array_type, CtType<V> item_type, auto &&value, const auto &index ) {

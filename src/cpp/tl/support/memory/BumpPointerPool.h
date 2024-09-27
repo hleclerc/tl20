@@ -24,7 +24,7 @@ public:
     char*       allocate       ( PI size, PI alig );
     char*       allocate       ( PI size );
 
-    TTA T*      create         ( A &&...args );
+    T_TA T*     create         ( A &&...args );
 
     void        clear          ();
     void        free           ();
