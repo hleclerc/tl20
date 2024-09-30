@@ -7,6 +7,7 @@
 #include "TODO.h"
 
 #include <functional>
+#include <sstream>
 #include <map>
 
 BEG_TL_NAMESPACE
@@ -130,10 +131,10 @@ void display( Displayer &ds, const T &value ) {
 
     // os << ...
     else if constexpr( requires ( std::ostream &os ) { os << value; } ) {
-        // std::ostringstream ss;
-        // ss << value;
-        // return ds.display( ss.str() );
-        TODO;
+        std::ostringstream ss;
+        ss << value;
+        ds << ss.str();
+        return;
     }
 
     // os << ...
