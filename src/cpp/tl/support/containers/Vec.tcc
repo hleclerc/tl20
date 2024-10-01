@@ -36,6 +36,9 @@ DTP UTP::Vec( FromIterator, auto iter ) {
         new ( data( index ) ) Item( *( iter++ ) );
 }
 
+DTP UTP::Vec( FromUninit ) {
+}
+
 DTP T_T UTP::Vec( const std::initializer_list<T> &lst ) {
     auto iter = lst.begin();
     for( PI index = 0; index < std::min( PI( lst.size() ), PI( size() ) ); ++index )
@@ -127,11 +130,20 @@ DTP Item *UTP::data() {
     return reinterpret_cast<Item *>( data_ );
 }
 
+DTP Vec<Item,static_size+1> UTP::with_pushed_value( auto&&...ctor_args ) const {
+    Vec<Item,static_size+1> res = FromUninit();
+    for( PI i = 0; i < static_size; ++i )
+        new ( res.data() + i ) Item( operator[]( i ) );
+    new ( res.data() + static_size ) Item( FORWARD( ctor_args )... );
+    return res;
+}
+
 DTP Vec<Item,static_size-1> UTP::without_index( PI index ) const {
     Vec<Item,static_size-1> res;
-    for( PI i = 0, j = 0; i < PI( size() ); ++i )
-        if ( i != index )
-            res[ j++ ] = operator[]( i );
+    for( PI i = 0; i < index; ++i )
+        res[ i ] = operator[]( i );
+    for( PI i = index; i < PI( static_size - 1 ); ++i )
+        res[ i ] = operator[]( i + 1 );
     return res;
 }
 

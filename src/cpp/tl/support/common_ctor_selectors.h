@@ -37,6 +37,7 @@ DECL_VOID_STRUCT_STD( FromAttributes                 );
 DECL_VOID_STRUCT_STD( FromItemValues                 ); ///< will make copies
 DECL_VOID_STRUCT_STD( FromItemValue                  );
 DECL_VOID_STRUCT_STD( FromIterator                   ); ///<
+DECL_VOID_STRUCT_STD( FromUninit                     ); ///<
 DECL_VOID_STRUCT_STD( FromValue                      );
 DECL_VOID_STRUCT_STD( FromSize                       );
 

@@ -18,49 +18,53 @@ BEG_TL_NAMESPACE
 template<class Item,int static_size=-1>
 class Vec : public WithDefaultOperators {
 public:
-    // static auto      with_item_type( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
+    static constexpr PI ct_size          = static_size;
 
-    T_is                Vec           ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
-    /**/                Vec           ( FromItemValues, auto &&...values );
-    /**/                Vec           ( FromItemValue, auto &&...ctor_args );
-    /**/                Vec           ( FromIterator, auto iter );
-    T_T                 Vec           ( const std::initializer_list<T> &lst );
-    /**/                Vec           ( const HasSizeAndAccess auto &l );
-    /**/                Vec           ( const Vec &that );
-    /**/                Vec           ( Vec && );
-    /**/                Vec           ();
-    /**/               ~Vec           ();
+    // static auto      with_item_type   ( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
-    Vec&                operator=     ( const Vec & );
-    Vec&                operator=     ( Vec && );
+    T_is                Vec              ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    /**/                Vec              ( FromItemValues, auto &&...values );
+    /**/                Vec              ( FromItemValue, auto &&...ctor_args );
+    /**/                Vec              ( FromIterator, auto iter );
+    /**/                Vec              ( FromUninit );
+    T_T                 Vec              ( const std::initializer_list<T> &lst );
+    /**/                Vec              ( const HasSizeAndAccess auto &l );
+    /**/                Vec              ( const Vec &that );
+    /**/                Vec              ( Vec && );
+    /**/                Vec              ();
+    /**/               ~Vec              ();
+
+    Vec&                operator=        ( const Vec & );
+    Vec&                operator=        ( Vec && );
 
     operator            Span<Item,static_size>() const { return { data() }; }
-    operator            Span<Item>    () const { return { data(), size() }; }
+    operator            Span<Item>       () const { return { data(), size() }; }
 
 
-    const Item&         operator[]    ( PI index ) const;
-    Item&               operator[]    ( PI index );
-    const Item&         operator()    ( PI index ) const;
-    Item&               operator()    ( PI index );
-    PI                  size_tot      () const { return size(); }
-    const Item*         begin         () const { return data(); }
-    Item*               begin         () { return data(); }
-    const Item*         data          ( PI index ) const;
-    Item*               data          ( PI index );
-    const Item*         data          () const;
-    Item*               data          ();
-    const Item&         back          () const { return operator[]( size() - 1 ); }
-    Item&               back          () { return operator[]( size() - 1 ); }
-    const Item*         end           () const { return begin() + size(); }
-    Item*               end           () { return begin() + size(); }
+    const Item&         operator[]       ( PI index ) const;
+    Item&               operator[]       ( PI index );
+    const Item&         operator()       ( PI index ) const;
+    Item&               operator()       ( PI index );
+    PI                  size_tot         () const { return size(); }
+    const Item*         begin            () const { return data(); }
+    Item*               begin            () { return data(); }
+    const Item*         data             ( PI index ) const;
+    Item*               data             ( PI index );
+    const Item*         data             () const;
+    Item*               data             ();
+    const Item&         back             () const { return operator[]( size() - 1 ); }
+    Item&               back             () { return operator[]( size() - 1 ); }
+    const Item*         end              () const { return begin() + size(); }
+    Item*               end              () { return begin() + size(); }
 
-    CtInt<static_size>  size          ( PI d ) const { return {}; }
-    CtInt<static_size>  size          () const { return {}; }
+    CtInt<static_size>  size             ( PI d ) const { return {}; }
+    CtInt<static_size>  size             () const { return {}; }
 
-    auto                without_index ( PI index ) const -> Vec<Item,static_size-1>;
+    auto                with_pushed_value( auto&&...ctor_args ) const -> Vec<Item,static_size+1>;
+    auto                without_index    ( PI index ) const -> Vec<Item,static_size-1>;
 
-    static constexpr PI nbch          = static_size * sizeof( Item );
-    char                data_         [ nbch ]; ///<
+    static constexpr PI nbch             = static_size * sizeof( Item );
+    char                data_            [ nbch ]; ///<
 };
 
 // dynamic size, items fully on the heap
@@ -126,16 +130,8 @@ public:
     void                resize          ( PI size, auto&&...ctor_args );
 
     void                copy_data_to    ( void *data ) const;
-    // TUV void            set_item        ( CtType<U> array_type, CtType<V> item_type, auto &&value, const auto &index ) {
-    //     if ( ! reassign( operator[]( index ), FORWARD( value ) ) ) {
-    //         using Dst = VALUE_IN_DECAYED_TYPE_OF( type_promote( CtString<"reassign">(),
-    //             vfs_dt_impl_type( item_type, FORWARD( value ) ),
-    //             CtType<Item>()
-    //         ) );
-    //         P( type_name( CT_DECAYED_TYPE_OF( value ) ), type_name<Dst>() );
-    //         throw typename U::template TypeException<Vec<Dst>,Vec>{ std::move( *this ) };
-    //     }
-    // }
+
+    void                set_item        ( PI index, auto &&value ) { operator[]( index ) = value; }
     const Item&         get_item        ( const auto &index ) const { return operator[]( index ); }
 
     static Item*        allocate        ( PI nb_items );

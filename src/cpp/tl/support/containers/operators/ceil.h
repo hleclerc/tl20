@@ -1,6 +1,7 @@
 #pragma once
 
 #include "default_operators.h"
+#include <cmath>
 
 BEG_TL_NAMESPACE
 

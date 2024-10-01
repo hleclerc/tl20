@@ -9,6 +9,7 @@ BEG_TL_NAMESPACE
 /// ct known size version
 template<class T,int size_=-1>
 struct Span {
+    constexpr          Span      ( const T *data ) : data_( const_cast<T *>( data ) ) {}
     constexpr          Span      ( T *data ) : data_( data ) {}
 
     constexpr auto     size      () const { return CtInt<size_>(); }
@@ -35,6 +36,7 @@ private:
 template<class T>
 struct Span<T,-1> {
     constexpr          Span      ( const T *data, PI size ) : data_( const_cast<T *>( data ) ), size_( size ) {}
+    T_i constexpr      Span      ( Span<T,i> data ) : data_( data.data() ), size_( data.size() ) {}
     constexpr          Span      () : data_( nullptr ), size_( 0 ) {}
 
     constexpr auto     size      () const { return size_; }
