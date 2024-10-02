@@ -128,6 +128,7 @@ public:
 
     void                reserve         ( PI capa );
     void                resize          ( PI size, auto&&...ctor_args );
+    void                fill            ( auto&&...ctor_args ); ///<
 
     void                copy_data_to    ( void *data ) const;
 

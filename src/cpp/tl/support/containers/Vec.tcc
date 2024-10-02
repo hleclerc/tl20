@@ -366,6 +366,12 @@ DTP void UTP::append( auto &&that ) {
             new ( data_ + size_++ ) Item( that[ i ] );
 }
 
+DTP void UTP::fill( auto&&...ctor_args ) {
+    for( PI i = 0; i < size(); ++i )
+        operator[]( i ) = Item( FORWARD( ctor_args )... );
+}
+
+
 DTP void UTP::clear() {
     while( size_ )
         data_[ --size_ ].~Item();
