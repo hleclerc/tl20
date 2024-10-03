@@ -138,6 +138,17 @@ DTP Vec<Item,static_size+1> UTP::with_pushed_value( auto&&...ctor_args ) const {
     return res;
 }
 
+DTP T_i auto UTP::without_index( CtInt<i> index ) const {
+    Vec<Item,static_size-1> res;
+    CtRange<0,i>::for_each_item( [&]( int ind ) {
+        res[ ind ] = operator[]( ind );
+    } );
+    CtRange<i,static_size-1>::for_each_item( [&]( int ind ) {
+        res[ ind ] = operator[]( ind + 1 );
+    } );
+    return res;
+}
+
 DTP Vec<Item,static_size-1> UTP::without_index( PI index ) const {
     Vec<Item,static_size-1> res;
     for( PI i = 0; i < index; ++i )

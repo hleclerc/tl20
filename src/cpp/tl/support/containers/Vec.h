@@ -5,7 +5,7 @@
 #include "../common_types.h"
 
 #include "WithDefaultOperators.h"
-#include "CtInt.h"
+#include "CtRange.h"
 #include "Span.h"
 
 BEG_TL_NAMESPACE
@@ -61,6 +61,7 @@ public:
     CtInt<static_size>  size             () const { return {}; }
 
     auto                with_pushed_value( auto&&...ctor_args ) const -> Vec<Item,static_size+1>;
+    T_i auto            without_index    ( CtInt<i> index ) const;
     auto                without_index    ( PI index ) const -> Vec<Item,static_size-1>;
 
     static constexpr PI nbch             = static_size * sizeof( Item );
