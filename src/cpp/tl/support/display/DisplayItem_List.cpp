@@ -62,7 +62,7 @@ int DisplayItem_List::max_tensor_order() const {
     for_each_child( [&]( DisplayItem *child ) {
         res = std::max( res, child->max_tensor_order() );
     } );
-    return res + 1;
+    return res + ( ! is_an_object );
 }
 
 END_TL_NAMESPACE

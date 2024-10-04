@@ -1,28 +1,28 @@
 #pragma once
 
-#include "operators/self_add.h"
-#include "operators/self_sub.h"
-#include "operators/self_mul.h"
-#include "operators/self_div.h"
-#include "operators/self_mod.h"
+#include "../operators/self_add.h"
+#include "../operators/self_sub.h"
+#include "../operators/self_mul.h"
+#include "../operators/self_div.h"
+#include "../operators/self_mod.h"
 
-#include "operators/add.h"
-#include "operators/sub.h"
-#include "operators/mul.h"
-#include "operators/div.h"
-#include "operators/mod.h"
+#include "../operators/add.h"
+#include "../operators/sub.h"
+#include "../operators/mul.h"
+#include "../operators/div.h"
+#include "../operators/mod.h"
 
-#include "operators/inf.h"
-#include "operators/sup.h"
-#include "operators/leq.h"
-#include "operators/geq.h"
-#include "operators/equ.h"
-#include "operators/neq.h"
+#include "../operators/inf.h"
+#include "../operators/sup.h"
+#include "../operators/leq.h"
+#include "../operators/geq.h"
+#include "../operators/equ.h"
+#include "../operators/neq.h"
 
-#include "operators/neg.h"
+#include "../operators/neg.h"
 
-#include "operators/max.h" // IWYU pragma: export
-#include "operators/min.h" // IWYU pragma: export
+#include "../operators/max.h" // IWYU pragma: export
+#include "../operators/min.h" // IWYU pragma: export
 
 BEG_TL_NAMESPACE
 

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../containers/IsAlwaysZero.h"
 #include "default_operators.h"
-#include "../IsAlwaysZero.h"
 
 BEG_TL_NAMESPACE
 

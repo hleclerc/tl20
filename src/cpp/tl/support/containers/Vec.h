@@ -18,130 +18,130 @@ BEG_TL_NAMESPACE
 template<class Item,int static_size=-1>
 class Vec : public WithDefaultOperators {
 public:
-    static constexpr PI ct_size          = static_size;
+    static constexpr PI ct_size           = static_size;
 
-    // static auto      with_item_type   ( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
+    // static auto      with_item_type    ( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
-    /**/                Vec              ( FromInitFunctionOnIndex, auto &&func );
-    T_is                Vec              ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
-    /**/                Vec              ( FromItemValues, auto &&...values );
-    /**/                Vec              ( FromItemValue, auto &&...ctor_args );
-    /**/                Vec              ( FromIterator, auto iter );
-    /**/                Vec              ( FromUninit );
-    T_T                 Vec              ( const std::initializer_list<T> &lst );
-    /**/                Vec              ( const HasSizeAndAccess auto &l );
-    /**/                Vec              ( const Vec &that );
-    /**/                Vec              ( Vec && );
-    /**/                Vec              ();
-    /**/               ~Vec              ();
+    /**/                Vec               ( FromInitFunctionOnIndex, auto &&func );
+    T_is                Vec               ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    /**/                Vec               ( FromItemValues, auto &&...values );
+    /**/                Vec               ( FromItemValue, auto &&...ctor_args );
+    /**/                Vec               ( FromIterator, auto iter );
+    /**/                Vec               ( FromUninit );
+    T_T                 Vec               ( const std::initializer_list<T> &lst );
+    /**/                Vec               ( const HasSizeAndAccess auto &l );
+    /**/                Vec               ( const Vec &that );
+    /**/                Vec               ( Vec && );
+    /**/                Vec               ();
+    /**/               ~Vec               ();
 
-    Vec&                operator=        ( const Vec & );
-    Vec&                operator=        ( Vec && );
+    Vec&                operator=         ( const Vec & );
+    Vec&                operator=         ( Vec && );
 
-    operator            Span<Item,static_size>() const { return { data() }; }
-    operator            Span<Item>       () const { return { data(), size() }; }
+    operator            Span<Item,ct_size>() const { return { data() }; }
+    operator            Span<Item>        () const { return { data(), size() }; }
 
 
-    const Item&         operator[]       ( PI index ) const;
-    Item&               operator[]       ( PI index );
-    const Item&         operator()       ( PI index ) const;
-    Item&               operator()       ( PI index );
-    PI                  size_tot         () const { return size(); }
-    const Item*         begin            () const { return data(); }
-    Item*               begin            () { return data(); }
-    const Item*         data             ( PI index ) const;
-    Item*               data             ( PI index );
-    const Item*         data             () const;
-    Item*               data             ();
-    const Item&         back             () const { return operator[]( size() - 1 ); }
-    Item&               back             () { return operator[]( size() - 1 ); }
-    const Item*         end              () const { return begin() + size(); }
-    Item*               end              () { return begin() + size(); }
+    const Item&         operator[]        ( PI index ) const;
+    Item&               operator[]        ( PI index );
+    const Item&         operator()        ( PI index ) const;
+    Item&               operator()        ( PI index );
+    PI                  size_tot          () const { return size(); }
+    const Item*         begin             () const { return data(); }
+    Item*               begin             () { return data(); }
+    const Item*         data              ( PI index ) const;
+    Item*               data              ( PI index );
+    const Item*         data              () const;
+    Item*               data              ();
+    const Item&         back              () const { return operator[]( size() - 1 ); }
+    Item&               back              () { return operator[]( size() - 1 ); }
+    const Item*         end               () const { return begin() + size(); }
+    Item*               end               () { return begin() + size(); }
 
-    CtInt<static_size>  size             ( PI d ) const { return {}; }
-    CtInt<static_size>  size             () const { return {}; }
+    CtInt<static_size>  size              ( PI d ) const { return {}; }
+    CtInt<static_size>  size              () const { return {}; }
 
-    auto                with_pushed_value( auto&&...ctor_args ) const -> Vec<Item,static_size+1>;
-    T_i auto            without_index    ( CtInt<i> index ) const;
-    auto                without_index    ( PI index ) const -> Vec<Item,static_size-1>;
+    auto                with_pushed_value ( auto&&...ctor_args ) const -> Vec<Item,static_size+1>;
+    T_i auto            without_index     ( CtInt<i> index ) const;
+    auto                without_index     ( PI index ) const -> Vec<Item,static_size-1>;
 
-    static constexpr PI nbch             = static_size * sizeof( Item );
-    char                data_            [ nbch ]; ///<
+    static constexpr PI nbch              = static_size * sizeof( Item );
+    char                data_             [ nbch ]; ///<
 };
 
 // dynamic size, items fully on the heap
 template<class Item>
 class Vec<Item,-1> : public WithDefaultOperators {
 public:
-    /**/                Vec             ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
-    T_is                Vec             ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
-    /**/                Vec             ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
-    /**/                Vec             ( FromSizeAndIterator, PI size, auto iterator );
-    /**/                Vec             ( FromReservationSize, PI capa, PI raw_size = 0 );
-    /**/                Vec             ( FromItemValues, auto &&...values );
-    /**/                Vec             ( FromSize, PI size );
-    /**/                Vec             ( const std::initializer_list<Item> &l );
-    /**/                Vec             ( const HasSizeAndAccess auto &l );
-    /**/                Vec             ( const Vec & );
-    /**/                Vec             ( Vec && );
-    /**/                Vec             ();
-    /**/               ~Vec             ();
+    /**/                Vec               ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
+    T_is                Vec               ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    /**/                Vec               ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
+    /**/                Vec               ( FromSizeAndIterator, PI size, auto iterator );
+    /**/                Vec               ( FromReservationSize, PI capa, PI raw_size = 0 );
+    /**/                Vec               ( FromItemValues, auto &&...values );
+    /**/                Vec               ( FromSize, PI size );
+    /**/                Vec               ( const std::initializer_list<Item> &l );
+    /**/                Vec               ( const HasSizeAndAccess auto &l );
+    /**/                Vec               ( const Vec & );
+    /**/                Vec               ( Vec && );
+    /**/                Vec               ();
+    /**/               ~Vec               ();
 
-    operator            Span<Item>      () const { return { data(), size() }; }
+    operator            Span<Item>        () const { return { data(), size() }; }
 
-    static Vec          range           ( Item end );
+    static Vec          range             ( Item end );
 
-    Vec&                operator=       ( const Vec &that );
-    Vec&                operator=       ( Vec &&that );
+    Vec&                operator=         ( const Vec &that );
+    Vec&                operator=         ( Vec &&that );
 
-    Vec&                operator<<      ( auto &&value ) { push_back( FORWARD( value) ); return *this; }
+    Vec&                operator<<        ( auto &&value ) { push_back( FORWARD( value) ); return *this; }
 
-    const Item&         operator[]      ( PI index ) const;
-    Item&               operator[]      ( PI index );
-    PI                  size_tot        () const { return size(); }
-    const Item*         begin           () const { return data(); }
-    Item*               begin           () { return data(); }
-    const Item&         front           () const { return operator[]( 0 ); }
-    Item&               front           () { return operator[]( 0 ); }
-    const Item*         data            ( PI index ) const;
-    Item*               data            ( PI index );
-    const Item*         data            () const;
-    Item*               data            ();
-    const Item&         back            () const { return operator[]( size() - 1 ); }
-    Item&               back            () { return operator[]( size() - 1 ); }
-    const Item*         end             () const { return begin() + size(); }
-    Item*               end             () { return begin() + size(); }
+    const Item&         operator[]        ( PI index ) const;
+    Item&               operator[]        ( PI index );
+    PI                  size_tot          () const { return size(); }
+    const Item*         begin             () const { return data(); }
+    Item*               begin             () { return data(); }
+    const Item&         front             () const { return operator[]( 0 ); }
+    Item&               front             () { return operator[]( 0 ); }
+    const Item*         data              ( PI index ) const;
+    Item*               data              ( PI index );
+    const Item*         data              () const;
+    Item*               data              ();
+    const Item&         back              () const { return operator[]( size() - 1 ); }
+    Item&               back              () { return operator[]( size() - 1 ); }
+    const Item*         end               () const { return begin() + size(); }
+    Item*               end               () { return begin() + size(); }
 
-    bool                contains        ( const auto &v ) const { for( const auto &r : *this ) if ( r == v ) return true; return false; }
-    bool                empty           () const { return size_ == 0; }
-    PI                  size            ( PI d ) const { return size(); }
-    PI                  size            () const;
+    bool                contains          ( const auto &v ) const { for( const auto &r : *this ) if ( r == v ) return true; return false; }
+    bool                empty             () const { return size_ == 0; }
+    PI                  size              ( PI d ) const { return size(); }
+    PI                  size              () const;
 
-    Item*               push_back_unique( auto &&value );
-    PI                  push_back_ind   ( auto&&...args ); ///< push_back with Item( FORWARD( args )... ) and return index of the new item
-    Item*               push_back_br    ( auto&&...args ); ///< push_back with Item{ FORWARD( args )... }
-    Item*               push_back       ( auto&&...args ); ///< push_back with Item( FORWARD( args )... )
+    Item*               push_back_unique  ( auto &&value );
+    PI                  push_back_ind     ( auto&&...args ); ///< push_back with Item( FORWARD( args )... ) and return index of the new item
+    Item*               push_back_br      ( auto&&...args ); ///< push_back with Item{ FORWARD( args )... }
+    Item*               push_back         ( auto&&...args ); ///< push_back with Item( FORWARD( args )... )
 
-    void                append          ( auto &&that );
+    void                append            ( auto &&that );
 
-    Item                pop_back_val    ();
-    void                remove          ( PI beg, PI len );
-    void                clear           ();
+    Item                pop_back_val      ();
+    void                remove            ( PI beg, PI len );
+    void                clear             ();
 
-    void                reserve         ( PI capa );
-    void                resize          ( PI size, auto&&...ctor_args );
-    void                fill            ( auto&&...ctor_args ); ///<
+    void                reserve           ( PI capa );
+    void                resize            ( PI size, auto&&...ctor_args );
+    void                fill              ( auto&&...ctor_args ); ///<
 
-    void                copy_data_to    ( void *data ) const;
+    void                copy_data_to      ( void *data ) const;
 
-    void                set_item        ( PI index, auto &&value ) { operator[]( index ) = value; }
-    const Item&         get_item        ( const auto &index ) const { return operator[]( index ); }
+    void                set_item          ( PI index, auto &&value ) { operator[]( index ) = value; }
+    const Item&         get_item          ( const auto &index ) const { return operator[]( index ); }
 
-    static Item*        allocate        ( PI nb_items );
+    static Item*        allocate          ( PI nb_items );
 
-    Item*               data_;          ///<
-    PI                  size_;          ///<
-    PI                  capa_;          ///<
+    Item*               data_;            ///<
+    PI                  size_;            ///<
+    PI                  capa_;            ///<
 };
 
 // // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -153,9 +153,9 @@ public:
 // DTP auto           template_type_name   ( CtType<UTP> ) { return "Vec"; }
 // DTP constexpr auto tensor_order         ( CtType<UTP> ) { return CtInt<1>(); }
 
-DTP struct         StaticSizesOf<UTP> { using value = PrimitiveCtIntList<static_size>; };
-DTP struct         TensorOrder<UTP> { enum { value = 1 }; };
-DTP struct         ItemTypeOf<UTP> { using value = Item; };
+DTP struct StaticSizesOf<UTP> { using value = PrimitiveCtIntList<static_size>; };
+DTP struct TensorOrder<UTP> { enum { value = 1 }; };
+DTP struct ItemTypeOf<UTP> { using value = Item; };
 
 // // DTP constexpr auto ct_sizes_of( CtType<UTP> ) { return CtIntList<static_size>(); }
 // // DTP auto memory_of( const UTP &a ) { return Memory_Cpu(); }

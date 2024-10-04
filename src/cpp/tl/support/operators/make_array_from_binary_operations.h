@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../PrimitiveCtIntList.h"
-#include "../StaticSizesOf.h"
-#include "../ArrayTypeFor.h"
-#include "../ItemTypeOf.h"
+#include "../containers/PrimitiveCtIntList.h"
+#include "../containers/StaticSizesOf.h"
+#include "../containers/ArrayTypeFor.h"
+#include "../containers/ItemTypeOf.h"
 
-#include "../../common_ctor_selectors.h"
-#include "../../common_macros.h"
+#include "../common_ctor_selectors.h"
+#include "../common_macros.h"
 
 BEG_TL_NAMESPACE
 
