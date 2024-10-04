@@ -23,6 +23,7 @@ BEG_TL_NAMESPACE
 
 DECL_VOID_STRUCT_STD( FromSizeAndInitFunctionOnIndex );
 DECL_VOID_STRUCT_STD( FromTypeAndCtorArguments       );
+DECL_VOID_STRUCT_STD( FromInitFunctionOnIndex        );
 DECL_VOID_STRUCT_STD( FromOperationOnItemsOf         );
 DECL_VOID_STRUCT_STD( FromPointerOnBorrowed          ); ///<
 DECL_VOID_STRUCT_STD( FromShapeAndItemValue          );

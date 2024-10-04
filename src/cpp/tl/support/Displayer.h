@@ -4,6 +4,7 @@
 #include "containers/accessors/for_each_item.h"
 #include "display/DisplayParameters.h"
 #include "memory/BumpPointerPool.h"
+#include "string/read_arg_name.h"
 #include "TODO.h"
 
 #include <functional>
@@ -52,7 +53,12 @@ public:
 
 void display( Displayer &ds, SI32 value );
 
-#define STD_TL_TYPE_INFO( ... )
+// STD_TL_TYPE_INFO
+auto _for_each_attribute( auto &&func, std::string_view names, const auto &...values ) { ( func( read_arg_name( names ), values ), ... ); }
+
+#define STD_TL_TYPE_INFO( NAME, INCL, ... ) public: void for_each_attribute( auto &&func ) const { _for_each_attribute( func, #__VA_ARGS__, __VA_ARGS__ ); }
+
+T_T Str pointer_repr( const T *ptr ) { return std::to_string( PI( ptr ) ); }
 
 // =======================================================================================================================================
 void display( Displayer &ds, const Str&  str );
@@ -97,11 +103,11 @@ void display( Displayer &ds, const T &value ) {
     }
 
     // for_each_attribute (for objects)
-    else if constexpr( requires { for_each_attribute( value, []( const auto &, const auto & ) {} ); } ) {
+    else if constexpr( requires { value.for_each_attribute( []( const auto &, const auto & ) {} ); } ) {
         ds.start_object();
-        for_each_attribute( value, [&]( const auto &name, const auto &value ) {
+        value.for_each_attribute( [&]( const auto &name, const auto &attr ) {
             ds.set_next_name( name );
-            ds << value;
+            ds << attr;
         } );
         ds.end_object();
         return;
@@ -119,7 +125,7 @@ void display( Displayer &ds, const T &value ) {
 
     // *value
     else if constexpr( requires { bool( value ), *value; } ) {
-        ds.append_pointer( bool( value ), std::to_string( value ), [&]() { ds << *value; } );
+        ds.append_pointer( bool( value ), pointer_repr( value ), [&]() { ds << *value; } );
         return;
     }
 
@@ -137,7 +143,7 @@ void display( Displayer &ds, const T &value ) {
         return;
     }
 
-    // os << ...
+    // apply( ... );
     else if constexpr( requires { std::apply( []( const auto &...items ) {}, value ); } ) {
         ds.start_array();
         std::apply( [&]( const auto &...items ) {

@@ -11,6 +11,11 @@ BEG_TL_NAMESPACE
 #define DTP template<class Item,int static_size>
 #define UTP Vec<Item,static_size>
 
+DTP UTP::Vec( FromInitFunctionOnIndex, auto &&func ) {
+    for( PI index = 0; index < size(); ++index )
+        func( data( index ), index );
+}
+
 DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists ) {
     for( PI index = 0; index < size(); ++index )
         new ( data( index ) ) Item( functor( select_with_n_indices( lists, CtInt<i>(), index )... ) );

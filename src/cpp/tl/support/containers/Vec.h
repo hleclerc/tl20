@@ -22,6 +22,7 @@ public:
 
     // static auto      with_item_type   ( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
+    /**/                Vec              ( FromInitFunctionOnIndex, auto &&func );
     T_is                Vec              ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec              ( FromItemValues, auto &&...values );
     /**/                Vec              ( FromItemValue, auto &&...ctor_args );
