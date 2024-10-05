@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../ASSERT.h"
+#include "../containers/Vec.h"
+#include "../ASSERT.h"
 #include <functional>
-#include "../Vec.h"
 
 /// return false to stop, true to continue
 inline bool for_each_selection_cont( const std::function<bool( const Vec<PI> & )> &f, PI n_sel, PI n_tot ) {

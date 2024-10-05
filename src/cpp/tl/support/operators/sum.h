@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../common_macros.h"
-#include "../../common_types.h"
+#include "../common_macros.h"
+#include "../common_types.h"
 
 BEG_TL_NAMESPACE
 
