@@ -1,7 +1,6 @@
 #pragma once
 
 #include "select_with_n_indices.h"
-// #include "call_by_name.h"
 #include <limits>
 #include "Vec.h"
 
@@ -409,6 +408,7 @@ DTP void UTP::reserve( PI tgt_capa ) {
 
     if ( capa_ )
         std::free( data_ );
+
     capa_ = new_capa;
     data_ = new_data;
 }
