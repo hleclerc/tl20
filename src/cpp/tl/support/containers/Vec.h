@@ -19,6 +19,7 @@ template<class Item,int static_size=-1>
 class Vec : public WithDefaultOperators {
 public:
     static constexpr PI ct_size           = static_size;
+    using               value_type        = Item;
 
     // static auto      with_item_type    ( auto item_type ) { return CtType< Vec<typename VALUE_IN_DECAYED_TYPE_OF(item_type),static_size> >{}; }
 
@@ -73,6 +74,8 @@ public:
 template<class Item>
 class Vec<Item,-1> : public WithDefaultOperators {
 public:
+    using               value_type        = Item;
+    
     /**/                Vec               ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
     T_is                Vec               ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec               ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
