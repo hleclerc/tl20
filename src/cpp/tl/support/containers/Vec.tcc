@@ -447,7 +447,7 @@ DTP Item *UTP::allocate( PI nb_items, auto alig ) {
     // 8ul because std::aligned_alloc seems to return bad results if al if < 8...
     constexpr PI al = std::max( PI( alig ), alignof( Item ) );
     if constexpr ( al > 8ul )
-        return reinterpret_cast<Item *>( std::aligned_alloc( sizeof( Item ) * nb_items, alig ) );
+        return reinterpret_cast<Item *>( std::aligned_alloc( alig, sizeof( Item ) * nb_items ) );
 
     return reinterpret_cast<Item *>( std::malloc( sizeof( Item ) * nb_items ) );
 }
