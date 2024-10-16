@@ -1,6 +1,7 @@
 #pragma once
 
 #include "select_with_n_indices.h"
+#include "CtRange.h"
 #include <cstdlib>
 #include <limits>
 #include "Vec.h"
@@ -210,7 +211,7 @@ DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i.
 }
 
 DTP UTP::Vec( FromReservationSize, PI capa, PI raw_size ) {
-    data_ = allocate( capa );
+    data_ = allocate( capa, CtInt<1>() );
     size_ = raw_size;
     capa_ = capa;
 }
@@ -361,7 +362,7 @@ DTP Item *UTP::push_back( auto&&...args ) {
 }
 
 DTP void UTP::resize( PI size, auto&&...ctor_args ) {
-    aligned_resize( size, 1, FORWARD( ctor_args )... );
+    aligned_resize( size, CtInt<1>(), FORWARD( ctor_args )... );
 }
 
 DTP void UTP::append( auto &&that ) {
@@ -420,7 +421,7 @@ DTP void UTP::aligned_reserve( PI tgt_capa, auto alig ) {
 
 
 DTP void UTP::reserve( PI tgt_capa ) {
-    aligned_reserve( tgt_capa, 1 );
+    aligned_reserve( tgt_capa, CtInt<1>() );
 }
 
 DTP void UTP::remove( PI beg, PI len ) {
@@ -444,11 +445,11 @@ DTP Item *UTP::allocate( PI nb_items, auto alig ) {
         return nullptr;
 
     // 8ul because std::aligned_alloc seems to return bad results if al if < 8...
-    constexpr PI al = std::max( 8ul, std::max( PI( alig ), alignof( Item ) ) );
-    if constexpr ( al > 1 )
+    constexpr PI al = std::max( PI( alig ), alignof( Item ) );
+    if constexpr ( al > 8ul )
         return reinterpret_cast<Item *>( std::aligned_alloc( sizeof( Item ) * nb_items, alig ) );
 
-    return std::malloc( sizeof( Item ) * nb_items );
+    return reinterpret_cast<Item *>( std::malloc( sizeof( Item ) * nb_items ) );
 }
 
 DTP UTP UTP::range( Item end ) {

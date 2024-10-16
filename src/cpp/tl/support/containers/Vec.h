@@ -5,7 +5,6 @@
 #include "../common_types.h"
 
 #include "WithDefaultOperators.h"
-#include "CtRange.h"
 #include "Span.h"
 
 BEG_TL_NAMESPACE
