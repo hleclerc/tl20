@@ -56,7 +56,7 @@ void display( Displayer &ds, SI32 value );
 // STD_TL_TYPE_INFO
 auto _for_each_attribute( auto &&func, std::string_view names, const auto &...values ) { ( func( read_arg_name( names ), values ), ... ); }
 
-#define STD_TL_TYPE_INFO( NAME, INCL, ... ) public: void for_each_attribute( auto &&func ) const { _for_each_attribute( func, #__VA_ARGS__, __VA_ARGS__ ); }
+#define STD_TL_TYPE_INFO( NAME, INCL, ... ) public: void for_each_attribute( auto &&func ) const { _for_each_attribute( func, #__VA_ARGS__, ##__VA_ARGS__ ); }
 
 T_T Str pointer_repr( const T *ptr ) { return std::to_string( PI( ptr ) ); }
 

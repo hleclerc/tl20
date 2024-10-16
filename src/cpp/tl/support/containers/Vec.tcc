@@ -1,6 +1,7 @@
 #pragma once
 
 #include "select_with_n_indices.h"
+#include <cstdlib>
 #include <limits>
 #include "Vec.h"
 
@@ -360,13 +361,7 @@ DTP Item *UTP::push_back( auto&&...args ) {
 }
 
 DTP void UTP::resize( PI size, auto&&...ctor_args ) {
-    reserve( size );
-
-    while( size_ > size )
-        data_[ --size_ ].~Item();
-
-    while( size_ < size )
-        new ( data_ + size_++ ) Item( FORWARD( ctor_args )... );
+    aligned_resize( size, 1, FORWARD( ctor_args )... );
 }
 
 DTP void UTP::append( auto &&that ) {
@@ -392,7 +387,17 @@ DTP void UTP::clear() {
         data_[ --size_ ].~Item();
 }
 
-DTP void UTP::reserve( PI tgt_capa ) {
+DTP void UTP::aligned_resize( PI size, auto alig, auto&&...ctor_args ) {
+    aligned_reserve( size, alig );
+
+    while( size_ > size )
+        data_[ --size_ ].~Item();
+
+    while( size_ < size )
+        new ( data_ + size_++ ) Item( FORWARD( ctor_args )... );
+}
+
+DTP void UTP::aligned_reserve( PI tgt_capa, auto alig ) {
     if ( capa_ >= tgt_capa )
         return;
 
@@ -400,7 +405,7 @@ DTP void UTP::reserve( PI tgt_capa ) {
     while ( new_capa < tgt_capa )
         new_capa *= 2;
 
-    Item *new_data = allocate( new_capa );
+    Item *new_data = allocate( new_capa, alig );
     for( PI i = 0; i < size_; ++i )
         new ( new_data + i ) Item( std::move( data_[ i ] ) );
     for( PI i = size_; i--; )
@@ -411,6 +416,11 @@ DTP void UTP::reserve( PI tgt_capa ) {
 
     capa_ = new_capa;
     data_ = new_data;
+}
+
+
+DTP void UTP::reserve( PI tgt_capa ) {
+    aligned_reserve( tgt_capa, 1 );
 }
 
 DTP void UTP::remove( PI beg, PI len ) {
@@ -429,11 +439,16 @@ DTP void UTP::copy_data_to( void *data ) const {
         new ( reinterpret_cast<Item *>( data ) + i ) Item( data_[ i ] );
 }
 
-DTP Item *UTP::allocate( PI nb_items ) {
+DTP Item *UTP::allocate( PI nb_items, auto alig ) {
+    if ( nb_items == 0 )
+        return nullptr;
+
     // 8ul because std::aligned_alloc seems to return bad results if al if < 8...
-    // constexpr PI al = std::max( 8ul, std::max( PI( alignment ), alignof( Item ) ) );
-    // return nb_items ? reinterpret_cast<Item *>( std::aligned_alloc( al, sizeof( Item ) * nb_items ) ) : nullptr;
-    return nb_items ? reinterpret_cast<Item *>( std::malloc( sizeof( Item ) * nb_items ) ) : nullptr;
+    constexpr PI al = std::max( 8ul, std::max( PI( alig ), alignof( Item ) ) );
+    if constexpr ( al > 1 )
+        return reinterpret_cast<Item *>( std::aligned_alloc( sizeof( Item ) * nb_items, alig ) );
+
+    return std::malloc( sizeof( Item ) * nb_items );
 }
 
 DTP UTP UTP::range( Item end ) {

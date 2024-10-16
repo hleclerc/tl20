@@ -131,6 +131,9 @@ public:
     void                remove            ( PI beg, PI len );
     void                clear             ();
 
+    void                aligned_reserve   ( PI capa, auto alig );
+    void                aligned_resize    ( PI size, auto alig, auto&&...ctor_args );
+
     void                reserve           ( PI capa );
     void                resize            ( PI size, auto&&...ctor_args );
     void                fill              ( auto&&...ctor_args ); ///<
@@ -140,7 +143,7 @@ public:
     void                set_item          ( PI index, auto &&value ) { operator[]( index ) = value; }
     const Item&         get_item          ( const auto &index ) const { return operator[]( index ); }
 
-    static Item*        allocate          ( PI nb_items );
+    static Item*        allocate          ( PI nb_items, auto alig );
 
     Item*               data_;            ///<
     PI                  size_;            ///<
