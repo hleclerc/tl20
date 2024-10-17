@@ -273,7 +273,7 @@ DTP UTP &UTP::operator=( const Vec &that ) {
         while ( capa_ < that.size() )
             capa_ *= 2;
 
-        data_ = allocate( capa_ );
+        data_ = allocate( capa_, CtInt<1>() );
         size_ = that.size_;
         for( PI i = 0; i < that.size_; ++i )
             new ( data_ + i ) Item( that[ i ] );
