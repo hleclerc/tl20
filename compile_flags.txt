@@ -3,5 +3,3 @@
 -march=native
 -std=c++20
 -xc++
--DPOWER_DIAGRAM_CONFIG_module=PowerDiagram_bindings_for_FP64_3
--DPOWER_DIAGRAM_CONFIG_suffix=FP64_3
