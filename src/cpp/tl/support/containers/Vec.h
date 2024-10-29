@@ -159,6 +159,7 @@ public:
 // DTP constexpr auto tensor_order         ( CtType<UTP> ) { return CtInt<1>(); }
 
 DTP struct StaticSizesOf<UTP> { using value = PrimitiveCtIntList<static_size>; };
+DTP struct StaticSizeOf<UTP> { static constexpr PI value = static_size; };
 DTP struct TensorOrder<UTP> { enum { value = 1 }; };
 DTP struct ItemTypeOf<UTP> { using value = Item; };
 
@@ -177,6 +178,23 @@ template<class ItemType,int static_size>
 struct ArrayTypeFor<ItemType,PrimitiveCtIntList<static_size>,1> {
     using value = Vec<ItemType,static_size>;
 };
+
+/// return a vector containing func( input( i ) )
+auto map_vec( auto &&input, auto &&func ) {
+    using TR = DECAYED_TYPE_OF( func( *input.begin() ) );
+    auto iter = input.begin();
+    if constexpr ( requires { StaticSizeOf<DECAYED_TYPE_OF( input )>::value; } ) {
+        using R = Vec<TR,StaticSizeOf<DECAYED_TYPE_OF( input )>::value>;
+        return R{ FromInitFunctionOnIndex(), [&]( TR *v, PI i ) {
+            new ( v ) TR( func( *( iter++ ) ) );
+        } };
+    } else {
+        using R = Vec<TR>;
+        return R{ FromSizeAndInitFunctionOnIndex(), PI( input.size() ), [&]( TR *v, PI i ) {
+            new ( v ) TR( func( *( iter++ ) ) );
+        } };
+    }
+}
 
 END_TL_NAMESPACE
 

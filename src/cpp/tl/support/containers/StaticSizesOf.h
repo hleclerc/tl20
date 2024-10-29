@@ -15,4 +15,8 @@ struct StaticSizesOf<T> {
     using value = PrimitiveCtIntList<>;
 };
 
+///
+template<class T>
+struct StaticSizeOf;
+
 END_TL_NAMESPACE
