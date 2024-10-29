@@ -17,6 +17,21 @@ struct CtRange {
             CtRange<beg + 1, end>::for_each_item( FORWARD( f ) );
         }
     }
+
+    static bool find_item( auto &&f ) {
+        if constexpr ( end - beg == 3 ) {
+            if ( f( CtInt<beg+0>() ) ) return true;
+            if ( f( CtInt<beg+1>() ) ) return true;
+            if ( f( CtInt<beg+2>() ) ) return true;
+            return false;
+        } else if constexpr ( beg < end ) {
+            if ( f( CtInt<beg>() ) )
+                return true;
+            return CtRange<beg + 1, end>::find_item( FORWARD( f ) );
+        }
+        // hum
+        return false;
+    }
 };
 
 END_TL_NAMESPACE

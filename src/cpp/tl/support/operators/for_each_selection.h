@@ -1,14 +1,15 @@
 #pragma once
 
 #include "../containers/Vec.h"
-#include "../ASSERT.h"
 #include <functional>
 
 /// return false to stop, true to continue
 inline bool for_each_selection_cont( const std::function<bool( const Vec<PI> & )> &f, PI n_sel, PI n_tot ) {
+    if ( n_sel > n_tot )
+        return true;
+    
     // using TF = std::function<bool( const Vec<PI> & )>;
     Vec<PI> comb( FromSize(), n_sel );
-    ASSERT( n_sel <= n_tot );
 
     std::function<bool(PI)> _for_each_selection = [&]( PI n_val ) -> bool {
         if ( n_val == n_sel )
