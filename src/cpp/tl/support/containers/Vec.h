@@ -98,6 +98,11 @@ public:
 
     Vec&                operator<<        ( auto &&value ) { push_back( FORWARD( value) ); return *this; }
 
+    Vec&                operator+=        ( auto &&value ) { *this = *this + FORWARD( value ); }
+    Vec&                operator-=        ( auto &&value ) { *this = *this - FORWARD( value ); }
+    Vec&                operator*=        ( auto &&value ) { *this = *this * FORWARD( value ); }
+    Vec&                operator/=        ( auto &&value ) { *this = *this / FORWARD( value ); }
+
     const Item&         operator[]        ( PI index ) const;
     Item&               operator[]        ( PI index );
     PI                  size_tot          () const { return size(); }
