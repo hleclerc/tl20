@@ -24,6 +24,7 @@ public:
 
     /**/                Vec               ( FromInitFunctionOnIndex, auto &&func );
     T_is                Vec               ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
+    /**/                Vec               ( FromFunctionOnIndex, auto &&func );
     /**/                Vec               ( FromItemValues, auto &&...values );
     /**/                Vec               ( FromItemValue, auto &&...ctor_args );
     /**/                Vec               ( FromIterator, auto iter );
@@ -41,6 +42,10 @@ public:
     operator            Span<Item,ct_size>() const { return { data() }; }
     operator            Span<Item>        () const { return { data(), size() }; }
 
+    static Vec          zeros             () { return { FromItemValue(), 0 }; }
+    static Vec          ones              () { return { FromItemValue(), 1 }; }
+
+    Span<Item>          slice             ( PI beg, PI end ) const { return { data() + beg, end - beg }; }
 
     const Item&         operator[]        ( PI index ) const;
     Item&               operator[]        ( PI index );
@@ -164,7 +169,7 @@ public:
 // DTP constexpr auto tensor_order         ( CtType<UTP> ) { return CtInt<1>(); }
 
 DTP struct StaticSizesOf<UTP> { using value = PrimitiveCtIntList<static_size>; };
-DTP struct StaticSizeOf<UTP> { static constexpr PI value = static_size; };
+DTP requires ( static_size >= 0 ) struct StaticSizeOf<UTP> { static constexpr PI value = static_size; };
 DTP struct TensorOrder<UTP> { enum { value = 1 }; };
 DTP struct ItemTypeOf<UTP> { using value = Item; };
 
@@ -186,18 +191,33 @@ struct ArrayTypeFor<ItemType,PrimitiveCtIntList<static_size>,1> {
 
 /// return a vector containing func( input( i ) )
 auto map_vec( auto &&input, auto &&func ) {
-    using TR = DECAYED_TYPE_OF( func( *input.begin() ) );
-    auto iter = input.begin();
-    if constexpr ( requires { StaticSizeOf<DECAYED_TYPE_OF( input )>::value; } ) {
-        using R = Vec<TR,StaticSizeOf<DECAYED_TYPE_OF( input )>::value>;
-        return R{ FromInitFunctionOnIndex(), [&]( TR *v, PI i ) {
-            new ( v ) TR( func( *( iter++ ) ) );
-        } };
+    if constexpr ( requires { input.begin(); } ) {
+        using TR = DECAYED_TYPE_OF( func( *input.begin() ) );
+        auto iter = input.begin();
+        if constexpr ( requires { StaticSizeOf<DECAYED_TYPE_OF( input )>::value; } ) {
+            using R = Vec<TR,StaticSizeOf<DECAYED_TYPE_OF( input )>::value>;
+            return R{ FromInitFunctionOnIndex(), [&]( TR *v, PI i ) {
+                new ( v ) TR( func( *( iter++ ) ) );
+            } };
+        } else {
+            using R = Vec<TR>;
+            return R{ FromSizeAndInitFunctionOnIndex(), PI( input.size() ), [&]( TR *v, PI i ) {
+                new ( v ) TR( func( *( iter++ ) ) );
+            } };
+        }
     } else {
-        using R = Vec<TR>;
-        return R{ FromSizeAndInitFunctionOnIndex(), PI( input.size() ), [&]( TR *v, PI i ) {
-            new ( v ) TR( func( *( iter++ ) ) );
-        } };
+        using TR = DECAYED_TYPE_OF( func( input[ 0 ] ) );
+        if constexpr ( requires { StaticSizeOf<DECAYED_TYPE_OF( input )>::value; } ) {
+            using R = Vec<TR,StaticSizeOf<DECAYED_TYPE_OF( input )>::value>;
+            return R{ FromInitFunctionOnIndex(), [&]( TR *v, PI i ) {
+                new ( v ) TR( func( input[ i ] ) );
+            } };
+        } else {
+            using R = Vec<TR>;
+            return R{ FromSizeAndInitFunctionOnIndex(), PI( input.size() ), [&]( TR *v, PI i ) {
+                new ( v ) TR( func( input[ i ] ) );
+            } };
+        }
     }
 }
 
