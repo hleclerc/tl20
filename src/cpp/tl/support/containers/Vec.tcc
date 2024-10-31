@@ -393,6 +393,16 @@ DTP void UTP::clear() {
         data_[ --size_ ].~Item();
 }
 
+DTP void UTP::aligned_resize_woc( PI size, auto alig, auto&&...ctor_args ) {
+    aligned_reserve_woc( size, alig );
+
+    while( size_ > size )
+        data_[ --size_ ].~Item();
+
+    while( size_ < size )
+        new ( data_ + size_++ ) Item( FORWARD( ctor_args )... );
+}
+
 DTP void UTP::aligned_resize( PI size, auto alig, auto&&...ctor_args ) {
     aligned_reserve( size, alig );
 
@@ -401,6 +411,27 @@ DTP void UTP::aligned_resize( PI size, auto alig, auto&&...ctor_args ) {
 
     while( size_ < size )
         new ( data_ + size_++ ) Item( FORWARD( ctor_args )... );
+}
+
+DTP void UTP::aligned_reserve_woc( PI tgt_capa, auto alig ) {
+    if ( capa_ >= tgt_capa )
+        return;
+
+    PI new_capa = capa_ ? capa_ : 1;
+    while ( new_capa < tgt_capa )
+        new_capa *= 2;
+
+    Item *new_data = allocate( new_capa, alig );
+    for( PI i = 0; i < size_; ++i )
+        new ( new_data + i ) Item;
+    for( PI i = size_; i--; )
+        data_[ i ].~Item();
+
+    if ( capa_ )
+        std::free( data_ );
+
+    capa_ = new_capa;
+    data_ = new_data;
 }
 
 DTP void UTP::aligned_reserve( PI tgt_capa, auto alig ) {
