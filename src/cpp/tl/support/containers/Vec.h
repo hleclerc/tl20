@@ -54,6 +54,7 @@ public:
     Item&               operator[]        ( PI index );
     const Item&         operator()        ( PI index ) const;
     Item&               operator()        ( PI index );
+    bool                contains          ( const auto &v ) const { for( const auto &r : *this ) if ( r == v ) return true; return false; }
     PI                  size_tot          () const { return size(); }
     const Item*         begin             () const { return data(); }
     Item*               begin             () { return data(); }
