@@ -42,16 +42,11 @@ struct CstSpan<T,-1> {
     constexpr auto     size      () const { return _size; }
 
     constexpr const T& operator[]( PI index ) const { return _data[ index ]; }
-    constexpr T&       operator[]( PI index ) { return _data[ index ]; }
 
     const T*           data      () const { return _data; }
-    T*                 data      () { return _data; }
 
     const T*           begin     () const { return _data; }
-    T*                 begin     () { return _data; }
-
     const T*           end       () const { return _data + _size; }
-    T*                 end       () { return _data + _size; }
 
     auto               subspan   ( PI beg, PI end ) const { return CstSpan<T>( _data + beg, end - beg ); }
     auto               subspan   ( PI beg ) const { return CstSpan<T>( _data + beg, _size - beg ); }
