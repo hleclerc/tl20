@@ -4,10 +4,12 @@
 #include "../common_concepts.h"
 #include "../common_types.h"
 
+#include "../type_info/TriviallyCopiable.h"
 #include "../type_info/zero.h"
 
 #include "WithDefaultOperators.h"
 #include "CstSpan.h"
+// #include <type_traits>
 
 BEG_TL_NAMESPACE
 
@@ -191,6 +193,11 @@ DTP struct TensorOrder<UTP> { enum { value = 1 }; };
 DTP struct ItemTypeOf<UTP> { using value = Item; };
 
 DTP UTP zero( CtType<UTP> ) { return UTP::zeros(); }
+
+template<class T,int i> 
+struct IsTriviallyCopyable<Vec<T,i>> {
+    static constexpr bool value = i >= 0 && TriviallyCopyable<T>;
+};
 
 // // DTP constexpr auto ct_sizes_of( CtType<UTP> ) { return CtIntList<static_size>(); }
 // // DTP auto memory_of( const UTP &a ) { return Memory_Cpu(); }
