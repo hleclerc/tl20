@@ -25,6 +25,9 @@ public:
     const T*           begin        () const { return _data + _beg_index; }
     const T*           end          () const { return _data + _end_index; }
 
+    PI                 beg_index    () const { return _beg_index; }
+    PI                 end_index    () const { return _end_index; }
+
 private:
     PI                 _global_size;
     PI                 _beg_index;
