@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common_macros.h"
+#include "../Displayer.h"
 
 BEG_TL_NAMESPACE
 
@@ -49,6 +49,8 @@ struct RcPtr {
   
     T*          data;        ///<
 };
+
+T_T Str pointer_repr( const RcPtr<T> &ptr ) { return pointer_repr( ptr.data ); }
 
 END_TL_NAMESPACE
 
