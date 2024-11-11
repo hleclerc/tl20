@@ -53,6 +53,7 @@ public:
     static Vec          ones                 () { return { FromItemValue(), 1 }; }
    
     T_ij Vec<Item,j-i>  slice                ( CtInt<i> beg, CtInt<j> end ) const { return { FromIterator(), data() + i }; }
+    T_ij Vec<Item,j-i>  slice                () const { return slice( CtInt<i>(), CtInt<j>() ); }
     Vec<Item>           slice                ( PI beg, PI end ) const { return { FromSizeAndIterator(), end - beg, data() + beg }; }
    
     const Item&         operator[]           ( PI index ) const;
