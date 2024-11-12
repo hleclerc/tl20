@@ -10,6 +10,7 @@ struct CstSpan {
     T_i constexpr      CstSpan   ( CstSpan<T,i> data ) : _data( data.data() ) {}
     T_i constexpr      CstSpan   ( Span<T,i> data ) : _data( data.data() ) {}
     constexpr          CstSpan   ( const T *data ) : _data( data ) {}
+    constexpr          CstSpan   () { static_assert( size_ == 0, "ctor without arg works only when size == 0" );}
 
     constexpr auto     size      () const { return CtInt<size_>(); }
 
