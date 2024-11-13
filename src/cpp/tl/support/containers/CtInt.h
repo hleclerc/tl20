@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../type_info/has_ct_value.h"
 #include "WithDefaultOperators.h"
 #include <cstdint>
 
@@ -40,6 +41,7 @@ struct CtInt : public WithDefaultOperators {
 };
 
 template<> struct CtValueWrapperFor<int> { template<int i> static constexpr auto wrapper_for() { return CtInt<i>(); } };
+template<int i> constexpr bool has_ct_value( const CtInt<i> & ) { return true; }
 
 template<int i,int j> constexpr bool always_equal( CtInt<i>, CtInt<j> ) { return i == j; }
 template<int i>       constexpr bool always_equal( CtInt<i>, int v ) { return v == i; }
