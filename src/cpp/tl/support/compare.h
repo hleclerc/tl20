@@ -58,6 +58,12 @@ struct Less {
     }
 };
 
+struct Equal {
+    constexpr bool operator()( const auto &a, const auto &b ) const {
+        return compare( a, b ) == 0;
+    }
+};
+
 /// helper to compare sets of pairs of values
 inline auto compare_chain() {
     return 0;
