@@ -20,7 +20,8 @@ public:
     BI                read_positive_int( const BI &max_value );
     BI                read_positive_int();
     Str               read_string      ();
-
+    operator          bool             () const { return offset == str.size(); }
+    
 private:
     static const int  number_table     []; ///<
 

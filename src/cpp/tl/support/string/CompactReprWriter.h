@@ -13,25 +13,27 @@ BEG_TL_NAMESPACE
  */
 class CompactReprWriter {
 public:
-    using             BI                = boost::multiprecision::cpp_int; ///< num and den types
-
-    /* */             CompactReprWriter ();
-            
-    void              write_positive_int( const BI &value, const BI &max_value );
-    void              write_positive_int( const BI &value );
-    void              write_string      ( StrView value );
-            
-    Str               str               () const;
-
-private:
-    static const char number_table     []; ///<
-    
-    static void       write_number     ( Str &res, BI value );
-    void              flush_prefix     ();
-            
-    BI                prefix_coeff;
-    BI                prefix;
-    Str               output;
+    using              BI                = boost::multiprecision::cpp_int; ///< num and den types
+ 
+    /* */              CompactReprWriter ();
+             
+    void               write_positive_int( const BI &value, const BI &max_value );
+    void               write_positive_int( const BI &value );
+    void               write_string      ( StrView value );
+             
+    Str                str               () const;
+ 
+    CompactReprWriter& operator<<        ( const auto &v ) { v.write_to( *this ); return *this; }
+ 
+private: 
+    static const char  number_table     []; ///<
+     
+    static void        write_number     ( Str &res, BI value );
+    void               flush_prefix     ();
+             
+    BI                 prefix_coeff;
+    BI                 prefix;
+    Str                output;
 };
 
 END_TL_NAMESPACE

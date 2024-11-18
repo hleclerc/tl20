@@ -49,6 +49,8 @@ void CompactReprReader::read_prefix() {
 
 Str CompactReprReader::read_string() {
     PI size{ CompactReprReader::read_positive_int() };
+    ASSERT( offset + size < str.size() );
+    
     Str res = str.substr( offset, size );
     offset += size;
     return res;

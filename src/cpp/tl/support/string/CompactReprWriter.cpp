@@ -9,7 +9,7 @@ CompactReprWriter::CompactReprWriter() : prefix_coeff( 1 ), prefix( 0 ) {
  
 void CompactReprWriter::write_number( Str &res, BI value ) {
     for( ; value > 32; value /= 32 )
-        res += number_table[ int( value % 32 ) ];
+        res += number_table[ 32 + int( value % 32 ) ];
     res += number_table[ int( value ) ];
 }
 
