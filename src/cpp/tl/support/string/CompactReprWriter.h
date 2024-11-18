@@ -24,6 +24,7 @@ public:
     Str                str               () const;
  
     CompactReprWriter& operator<<        ( const auto &v ) { v.write_to( *this ); return *this; }
+    CompactReprWriter& operator<<        ( const Str &v ) { write_string( v ); return *this; }
  
 private: 
     static const char  number_table     []; ///<
