@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common_types.h"
 #include "default_operators.h"
 #include <cmath>
 
@@ -25,6 +26,10 @@ constexpr auto ceil( auto &&a, auto &&b ) {
     DEFAULT_BIN_OPERATOR_CODE( ceil )
 
     return ceil( ( a + b - 1 ) / b ) * b;
+}
+
+constexpr PI ceil( PI a, PI b ) {
+    return ( a + b - 1 ) / b * b;
 }
 
 ///
