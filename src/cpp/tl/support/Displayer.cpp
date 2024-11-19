@@ -4,7 +4,7 @@
 #include "display/DisplayItem_List.h"
 #include "display/DisplayContext.h"
 #include "Displayer.h"
-#include <format>
+// #include <format>
 // #include "TODO.h"
 
 BEG_TL_NAMESPACE
@@ -119,21 +119,21 @@ void display( Displayer &ds, StrView     str ) { ds.append_string( str ); }
 void display( Displayer &ds, const char* str ) { ds.append_string( str ); }
 void display( Displayer &ds, char        str ) { ds.append_string( { &str, 1 } ); }
 
-void display( Displayer &ds, PI64        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, PI32        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, PI16        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, PI8         val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, PI64        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, PI32        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, PI16        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, PI8         val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
-void display( Displayer &ds, SI64        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, SI32        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, SI16        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, SI8         val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, SI64        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, SI32        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, SI16        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, SI8         val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
-void display( Displayer &ds, bool        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, bool        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
-void display( Displayer &ds, FP80        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, FP64        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, FP32        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP80        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP64        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP32        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
 void display( Displayer &ds, const void* val ) { ds << std::to_string( PI( val ) ); }
 void display( Displayer &ds, void*       val ) { ds << std::to_string( PI( val ) ); }
