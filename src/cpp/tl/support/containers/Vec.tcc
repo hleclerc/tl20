@@ -181,6 +181,11 @@ DTP UTP::Vec( FromSizeAndInitFunctionOnIndex, PI size, auto &&func ) : Vec( From
         func( data_ + index, index );
 }
 
+DTP UTP::Vec( FromSizeAndFunctionOnIndex, PI size, auto &&func ) : Vec( FromReservationSize(), size, size ) {
+    for( PI index = 0; index < size; ++index )
+        new ( data_ + index ) Item( func( index ) );
+}
+
 DTP UTP::Vec( FromSizeAndItemValue, PI size, auto &&...ctor_args ) : Vec( FromReservationSize(), size, size ) {
     for( PI index = 0; index < size; ++index )
         new ( data_ + index ) Item( FORWARD( ctor_args )... );
@@ -348,6 +353,10 @@ DTP Item UTP::pop_back_val() {
     Item res = std::move( data_[ pos ] );
     data_[ pos ].~Item();
     return res;
+}
+
+DTP void UTP::pop_back() {
+    data_[ --size_ ].~Item();
 }
 
 DTP Item *UTP::push_back_br( auto&&...args ) {

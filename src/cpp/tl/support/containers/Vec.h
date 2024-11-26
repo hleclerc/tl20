@@ -103,6 +103,7 @@ public:
     using               value_type         = Item;
      
     /**/                Vec                ( FromSizeAndInitFunctionOnIndex, PI size, auto &&func );
+    /**/                Vec                ( FromSizeAndFunctionOnIndex, PI size, auto &&func );
     T_is                Vec                ( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i...>, auto &&...lists );
     /**/                Vec                ( FromSizeAndItemValue, PI size, auto &&...ctor_args );
     /**/                Vec                ( FromSizeAndIterator, PI size, auto iterator );
@@ -160,6 +161,7 @@ public:
     void                append             ( auto &&that );
  
     Item                pop_back_val       ();
+    void                pop_back           ();
     void                remove             ( PI beg, PI len );
     void                clear              ();
 
