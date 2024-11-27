@@ -211,7 +211,7 @@ DTP T_is UTP::Vec( FromOperationOnItemsOf, auto &&functor, PrimitiveCtIntList<i.
     ( get_size( CtInt<i>(), lists ), ... );
 
     // reserve
-    data_ = allocate( size );
+    data_ = allocate( size, CtInt<1>() );
     size_ = size;
     capa_ = size;
 
