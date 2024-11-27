@@ -11,7 +11,7 @@ struct Functor_self_div {
     auto operator()( auto &a, auto &&b ) const { return self_div( a, FORWARD( b ) ); }
 };
 
-constexpr auto self_div( auto &a, auto &&b ) {
+constexpr auto self_div( auto &a, const auto &b ) {
     // default behavior
     DEFAULT_BIN_SELF_OPERATOR_CODE_SIGN( self_div, /=, / )
 

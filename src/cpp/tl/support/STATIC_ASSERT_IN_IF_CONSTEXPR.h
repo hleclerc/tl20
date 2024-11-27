@@ -1,9 +1,11 @@
 #pragma once
 
-#ifdef SDOT_DEBUG_MODE
-    #define STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( RET, COND, MSG ) do { static_assert( COND, MSG ); return RET; } while( false )
-    #define STATIC_ASSERT_IN_IF_CONSTEXPR( COND, MSG ) static_assert( COND, MSG )
+#ifdef TL_STATIC_ASSERT
+#define STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( RET, COND, MSG ) do { static_assert( COND, MSG ); return RET; } while( false )
+#define STATIC_ASSERT_IN_IF_CONSTEXPR( COND, MSG ) static_assert( COND, MSG )
 #else
-    #define STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( RET, COND, MSG ) return RET
-    #define STATIC_ASSERT_IN_IF_CONSTEXPR( COND, MSG ) 
+#include <assert.h>
+
+#define STATIC_ASSERT_WITH_RETURN_IN_IF_CONSTEXPR( RET, COND, MSG ) do { assert( COND ); return RET; } while( false )
+#define STATIC_ASSERT_IN_IF_CONSTEXPR( COND, MSG ) assert( COND )
 #endif
