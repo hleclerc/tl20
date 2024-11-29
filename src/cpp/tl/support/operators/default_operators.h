@@ -162,7 +162,7 @@ template<class T> struct CtValueWrapperFor;
     if constexpr( requires { DECAYED_TYPE_OF( b )::ct_value(); } ) { \
         return NAME( FORWARD( a ), DECAYED_TYPE_OF( b )::ct_value() ); \
     } else \
-\
+    \
     /* arrays */ \
     if constexpr( TensorOrder<DECAYED_TYPE_OF( a )>::value || TensorOrder<DECAYED_TYPE_OF( b )>::value ) { \
         return make_array_from_binary_operations( Functor_##NAME(), FORWARD( a ), FORWARD( b ) ); \
@@ -185,7 +185,7 @@ template<class T> struct CtValueWrapperFor;
     if constexpr( TensorOrder<DECAYED_TYPE_OF( a )>::value ) { \
         return make_array_from_unary_operations( Functor_##NAME(), FORWARD( a ) ); \
     } else \
- \
+    \
 
 END_TL_NAMESPACE
 
