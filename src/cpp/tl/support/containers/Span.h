@@ -59,6 +59,13 @@ struct Span<T,-1> {
 
     void               resize    ( PI size ) { _size = size; }
 
+    const T&           front     () const { return _data[ 0 ]; }
+    T&                 front     () { return _data[ 0 ]; }
+
+    const T&           back      () const { return _data[ _size - 1 ]; }
+    T&                 back      () { return _data[ _size - 1 ]; }
+
+
 private:
     T*                 _data;
     PI                 _size;
