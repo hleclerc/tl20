@@ -66,25 +66,34 @@ void Displayer::write_to( Str &out, const DisplayParameters &prf ) const {
         out += '\n';
 }
 
+void Displayer::show( const DisplayParameters &dp ) const {
+    TODO;
+}
+
 void Displayer::append_pointer( bool valid, const Str &id, const std::function<void()> &cb ) {
-    auto iter = pointers.find( id );
-    if ( iter == pointers.end() ) {
-        auto *res = pool.create<DisplayItem_Pointer>();
-        res->name = std::exchange( next_name, {} );
-        res->type = std::exchange( next_type, {} );
+    if ( valid ) {
+        auto iter = pointers.find( id );
+        if ( iter == pointers.end() ) {
+            auto *res = pool.create<DisplayItem_Pointer>();
+            res->name = std::exchange( next_name, {} );
+            res->type = std::exchange( next_type, {} );
 
-        res->parent = last_container;
-        last_container = res;
+            res->parent = last_container;
+            last_container = res;
 
-        iter = pointers.insert( iter, { id, res } );
+            iter = pointers.insert( iter, { id, res } );
 
-        if ( valid )
-            cb();
+            if ( valid )
+                cb();
 
-        last_container = last_container->parent;
+            last_container = last_container->parent;
+        }
+
+        last_container->append( iter->second );
+        return;
     }
 
-    last_container->append( iter->second );
+    append_string( "NULL" );
 }
 
 void Displayer::start_object() {

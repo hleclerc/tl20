@@ -32,15 +32,12 @@ void __print_with_mutex( std::ostream &os, const DisplayParameters &prf, std::st
 // }
 
 template<class... ArgValues>
-void __show( const Str &arg_names, ArgValues &&...arg_values ) {
+void __show( std::string_view arg_names, ArgValues &&...arg_values ) {
     // create a root display item
-    // DisplayItemFactory ds;
-    // DisplayItem *item = ds.new_object( {}, [&]( DisplayObjectFiller &dof ) {
-    //     dof.add( arg_names, arg_values... );
-    // } );
+    Displayer ds;
+    ( ds.append_attribute( read_arg_name( arg_names ), arg_values ), ... );
 
-    // ds.show( item );
-    TODO;
+    ds.show();
 }
 
 #ifndef P
