@@ -92,7 +92,12 @@ public:
     T_i auto            without_index        ( CtInt<i> index ) const;
     auto                without_index        ( PI index ) const -> Vec<Item,static_size-1>;
    
+    #ifdef _MSC_VER
+    static constexpr PI nbch                 = max( static_size * sizeof( Item ), 1 );
+    #else
     static constexpr PI nbch                 = static_size * sizeof( Item );
+    #endif
+    
     char                data_                [ nbch ]; ///<
 };
 

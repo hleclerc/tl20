@@ -6,7 +6,7 @@
 BEG_TL_NAMESPACE
 
 /// seq any
-auto product( auto &&a ) -> DECAYED_TYPE_OF( a[ 0 ] ) {
+T_T auto product( T &&a ) -> DECAYED_TYPE_OF( a[ 0 ] ) {
     if ( ! a.size() )
         return 1;
 

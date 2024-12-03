@@ -12,7 +12,7 @@ void for_each_item( const auto &a, const auto &f ) requires ( requires { a.for_e
     } else
 
     if constexpr ( requires { a.size(); a[ 0 ]; } ) {
-        for( auto s = a.size(), i = 0; i < s; ++i )
+        for( std::size_t s = a.size(), i = 0; i < s; ++i )
             f( a[ i ] );
         return;
     } else

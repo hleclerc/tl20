@@ -6,7 +6,7 @@
 BEG_TL_NAMESPACE
 
 /// norm
-auto determinant( auto &&M ) -> DECAYED_TYPE_OF( M[ 0 ][ 0 ] ) {
+T_T auto determinant( T &&M ) -> DECAYED_TYPE_OF( M[ 0 ][ 0 ] ) {
     if ( M.size() == 0 )
         return 1;
 
