@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../type_info/has_ct_value.h"
+#include "../type_info/has_ct_value.h" // IWYU pragma: export
 #include "WithDefaultOperators.h"
 #include <cstdint>
 
@@ -29,6 +29,10 @@ struct CtInt : public WithDefaultOperators {
         }
     }
 
+    #ifdef __clang__
+    constexpr operator    unsigned long         () const { return value; }
+    constexpr operator    signed long           () const { return value; }
+    #endif
     constexpr operator    std::uint64_t         () const { return value; }
     constexpr operator    std::uint32_t         () const { return value; }
     constexpr operator    std::uint16_t         () const { return value; }
