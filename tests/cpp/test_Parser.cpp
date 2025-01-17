@@ -1,0 +1,11 @@
+#include <tl/parse/TlParser.h>
+#include "catch_main.h"
+#include "tl/parse/AstWriterStr.h"
+
+TEST_CASE( "Parser", "" ) {
+    AstWriter aw;
+
+    TlParser tp;
+    tp.parse( "StrView content", 0, aw.str( "file" ) );
+    tp.dump( aw );
+}

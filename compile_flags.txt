@@ -1,4 +1,4 @@
--I/home/leclerc/.vfs_build/ext/Catch2/install/include
+-Iext/catch2/include
 -Isrc/cpp/
 -march=native
 -std=c++20

@@ -146,9 +146,9 @@ void display( Displayer &ds, char        str ) { ds.append_string( { &str, 1 } )
 
     void display( Displayer &ds, bool        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
-    void display( Displayer &ds, FP80        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-    void display( Displayer &ds, FP64        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-    void display( Displayer &ds, FP32        val ) { ds.append_number( { .numerator = std::format( "{}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+    void display( Displayer &ds, FP80        val ) { ds.append_number( { .numerator = std::format( "{:.8e}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+    void display( Displayer &ds, FP64        val ) { ds.append_number( { .numerator = std::format( "{:.8e}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+    void display( Displayer &ds, FP32        val ) { ds.append_number( { .numerator = std::format( "{:.8e}", val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 #else
     void display( Displayer &ds, PI64        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
     void display( Displayer &ds, PI32        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }

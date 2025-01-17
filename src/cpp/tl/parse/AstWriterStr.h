@@ -1,0 +1,23 @@
+#pragma once
+
+#include "../support/common_types.h"
+#include <map>
+
+BEG_TL_NAMESPACE
+class AstWriter;
+
+/** 
+*/
+class AstWriterStr {
+public:
+    using    Map    = std::map<Str,PI>; ///< str to offset
+    using    Ptr    = Map::iterator;
+
+    operator StrView() const { auto beg = ptr->first.begin() + off; return { beg, beg + len }; }
+
+    Ptr      ptr;   ///<
+    PI       off;   ///<
+    PI       len;   ///<
+};
+
+END_TL_NAMESPACE
