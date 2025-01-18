@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../support/memory/BumpPointerPool.h"
+#include "../support/containers/Vec.h"
 #include "AstWriter.h"
+#include "TlToken.h"
 
 BEG_TL_NAMESPACE
 
@@ -13,28 +16,43 @@ BEG_TL_NAMESPACE
 */
 class TlParser {
 public:
-    /**/         TlParser      ();
-    
-    void         parse         ( StrView content, PI src_off, AstWriterStr src_url );
-    void         dump          ( AstWriter &writer );
-    
-private:      
-    enum {       eof  = -1 }; ///< internal codes for _parse
-    
-    void         _on_new_line  ();
-    void         _on_variable  ();
-    void         _on_operator  ();
-    void         _on_number    ();
-    void         _on_space     ();
+    /**/            TlParser              ();
+               
+    void            parse                 ( StrView content, PI src_off, AstWriterStr src_url );
+    void            dump                  ( AstWriter &writer );
+               
+private:
+    struct          StackItem             { TlToken *token; int closing_char; int nl_size; };
 
-    void         _parse        ( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url );
-    void         _init         ();
+    enum {          eof                   = -1 }; ///< internal codes for _parse
+               
+    void            _on_opening_paren     ( TlToken::Type call_type, char expected_closing );
+    void            _on_closing_paren     ( char c );
+    void            _on_semicolon         ();
+    void            _on_new_line          ();
+    void            _on_variable          ();
+    void            _on_operator          ();
+    void            _on_number            ();
+    void            _on_space             ();
+    void            _on_comma             ();
 
-    AstWriterStr curr_tok_src_url; ///<
-    PI           curr_tok_src_off; ///<
-    Str          curr_tok_content; ///<
-    int          prev_char_value;  ///< 
-    void*        restart_jump;     ///<
+    void            _push_token           ( TlToken::Type type, AstWriterStr src_url, PI src_off );
+    void            _error                ( Str msg, AstWriterStr src_url, PI src_off );
+    void            _parse                ( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url );
+    void            _init                 ();
+      
+    AstWriterStr    curr_tok_src_url;     ///<
+    PI              curr_tok_src_off;     ///<
+    Str             curr_tok_content;     ///<
+    int             prev_char_value;      ///< 
+    void*           restart_jump;         ///<
+
+    bool            just_seen_a_new_line; ///<
+    bool            just_seen_a_space;    ///<
+    Str             prev_line_beg;        ///<
+
+    Vec<StackItem>  token_stack;          ///<
+    BumpPointerPool pool;                 ///<
 };
 
 END_TL_NAMESPACE

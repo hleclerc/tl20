@@ -1,6 +1,8 @@
+#include "../support/ASSERT.h"
+#include "../support/ERROR.h"
 #include "../support/TODO.h"
 #include "../support/P.h"
-#include <utility>
+#include "tl/parse/TlToken.h"
 #include "TlParser.h"
 
 BEG_TL_NAMESPACE
@@ -30,6 +32,13 @@ TlParser::TlParser() {
 void TlParser::_init() {
     curr_tok_content.clear();
     restart_jump = nullptr;
+
+    just_seen_a_new_line = false;
+    just_seen_a_space = false;
+    prev_line_beg.clear();
+
+    token_stack.clear();
+    pool.clear();
 }
 
 void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url ) {
@@ -46,10 +55,10 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
         if ( oper  ( c ) ) goto beg_operator;
         if ( c == '\n'   ) goto beg_new_line;
         if ( c == '#'    ) goto beg_comment;
-        // if ( c == '('    ) { on_opening_paren( Token::Type::ParenthesisCall, ')' ); goto inc_switch; }
-        // if ( c == ')'    ) { on_closing_paren( ')' ); goto inc_switch; }
-        // if ( c == ';'    ) { on_semicolon(); goto inc_switch; }
-        // if ( c == ','    ) { on_comma(); goto inc_switch; }
+        if ( c == '('    ) { _on_opening_paren( TlToken::Type::ParenthesisCall, ')' ); goto inc_switch; }
+        if ( c == ')'    ) { _on_closing_paren( ')' ); goto inc_switch; }
+        if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
+        if ( c == ','    ) { _on_comma(); goto inc_switch; }
         if ( c == eof    ) return;
         // on_error( va_string( "Unknown char type '{0}'", char( c ) ) );
         TODO;
@@ -76,13 +85,13 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
 
     // spacing
     beg_space:
-        _on_space();
     cnt_space:
         if ( nxt == end )
             goto int_space;
         c = *( nxt++ );
         if ( space( c ) )
             goto cnt_space;
+        _on_space();
         goto char_switch;
     int_space:
         restart_jump = &&cnt_space;
@@ -135,10 +144,64 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
     #undef PARSE_TYPE
 }
 
+void TlParser::_on_opening_paren( TlToken::Type call_type, char expected_closing ) {
+
+}
+
+void TlParser::_on_closing_paren( char c ) {
+
+}
+
+void TlParser::_on_semicolon() {
+
+}
+
+void TlParser::_on_comma() {
+
+}
+
+void TlParser::_push_token( TlToken::Type type, AstWriterStr src_url, PI src_off ) {
+    ASSERT( curr_tok_src_url == src_url ); // for now tokens must be in the same src
+
+    // update the stack
+
+
+    //
+    TlToken *token = pool.create<TlToken>();
+    token->src_len = src_off - curr_tok_src_off;
+    token->src_url = curr_tok_src_url;
+    token->src_off = curr_tok_src_off;
+    token->content = curr_tok_content;
+
+    // ( first_token ? last_token->next : first_token ) = token;
+    // token->first_child = nullptr;
+    // token->parent = nullptr;
+    // token->prev = last_token;
+    // token->next = nullptr;
+    // last_token = token;
+}
+
 void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
+    // create the root token if not already done
+    if ( token_stack.empty() ) {
+        TlToken *token = pool.create<TlToken>();
+        token->src_url = src_url;
+        token->src_off = src_off;
+        token->src_len = 0;
+        token->type = TlToken::Type::Root;
+    
+        token_stack << StackItem{
+            .token = token,
+            .closing_char = -1,
+            .nl_size = -1
+        };
+    }
+
+    // empty string -> nothing to do
     if ( content.empty() )
         return;
 
+    //
     const char *cur = content.begin();
     const char *end = content.end();
     _parse( *cur, cur + 1, cur - src_off, end, src_url );
@@ -149,8 +212,22 @@ void TlParser::dump( AstWriter &writer ) {
     _init();
 }
 
-void TlParser::_on_new_line() {
+void TlParser::_error( Str msg, AstWriterStr src_url, PI src_off ) {
+    ERROR( msg );
+}
 
+void TlParser::_on_new_line() {
+    PI oc = curr_tok_content.starts_with( '\n' );
+    PI op = prev_line_beg.starts_with( '\n' );
+    for( PI i = 0; i < std::min( curr_tok_content.size() - oc, prev_line_beg.size() - op ); ++i ) {
+        if ( curr_tok_content[ i + oc ] != prev_line_beg[ i + op ] ) {
+            _error( "incoherent spacing between the beginning of this line and the previous one", curr_tok_src_url, curr_tok_src_off );
+            break;
+        }
+    }
+
+    prev_line_beg = curr_tok_content;
+    just_seen_a_new_line = true;
 }
 
 void TlParser::_on_variable() {
@@ -166,7 +243,7 @@ void TlParser::_on_number() {
 }
 
 void TlParser::_on_space() {
-
+    just_seen_a_space = true;
 }
 
 END_TL_NAMESPACE
