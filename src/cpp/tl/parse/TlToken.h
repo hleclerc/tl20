@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../support/Displayer.h"
 #include "AstWriterStr.h"
 
 BEG_TL_NAMESPACE
@@ -10,6 +11,8 @@ class TlToken {
 public:
     enum class   Type        { Root, Variable, Number, ParenthesisCall };
 
+    void         display     ( Displayer &ds ) const;
+
     AstWriterStr src_url;
     PI           src_off;
     PI           src_len;
@@ -17,6 +20,7 @@ public:
     Type         type;
     
     TlToken*     first_child = nullptr;
+    TlToken*     last_child  = nullptr;
     TlToken*     parent      = nullptr;
     TlToken*     prev        = nullptr;
     TlToken*     next        = nullptr;

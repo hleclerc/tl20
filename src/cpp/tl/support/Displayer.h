@@ -27,6 +27,7 @@ public:
     /**/           ~Displayer       ();
 
     void            set_next_name   ( StrView name ); ///< set the name of the next item to be appended
+    void            set_next_head   ( StrView head ); ///< set the head of the next item to be appended
     void            set_next_type   ( StrView type ); ///< set the type of the next item to be appended
     T_T Displayer&  operator<<      ( const T &value ) { display( *this, value ); return *this; }
     void            write_to        ( Str &out, const DisplayParameters &dp ) const;
@@ -45,9 +46,8 @@ public:
     void            start_object    ();
     void            end_object      ();
 
-
-
     DisplayItem*    last_container;
+    Str             next_head;
     Str             next_name;
     Str             next_type;
     Pointers        pointers;

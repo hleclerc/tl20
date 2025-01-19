@@ -29,6 +29,10 @@ TlParser::TlParser() {
     _init();
 }
 
+void TlParser::display( Displayer &ds ) const {
+    ds << *token_stack.front().token;
+}
+
 void TlParser::_init() {
     curr_tok_content.clear();
     restart_jump = nullptr;
@@ -112,7 +116,7 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
     cnt_number:
         if ( is_cnt_for_number( c, prev_char_value ) )
             goto psh_number;
-        _on_number();
+        _on_number( src_url, nxt - beg - 1 );
         goto char_switch;
     int_number:
         restart_jump = &&cnt_number;
@@ -131,7 +135,7 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
         cnt_##TYPE: \
             if ( is_cnt_for_##TYPE( c ) ) \
                 goto psh_##TYPE; \
-            _on_##TYPE(); \
+            _on_##TYPE( src_url, nxt - beg - 1 ); \
             goto char_switch; \
         int_##TYPE: \
             restart_jump = &&cnt_##TYPE; \
@@ -160,11 +164,25 @@ void TlParser::_on_comma() {
 
 }
 
+void TlParser::_update_stack_after_nl() {
+}
+
+void TlParser::_add_child_to( TlToken *parent, TlToken *child ) {
+    if ( parent->first_child )
+        parent->last_child->next = child;
+    else
+        parent->first_child = child;
+    child->prev = parent->last_child;
+    parent->last_child = child;
+    child->parent = parent;
+}
+
 void TlParser::_push_token( TlToken::Type type, AstWriterStr src_url, PI src_off ) {
-    ASSERT( curr_tok_src_url == src_url ); // for now tokens must be in the same src
+    // ASSERT( curr_tok_src_url == src_url ); // for now tokens must be in the same src
 
     // update the stack
-
+    if ( just_seen_a_new_line )
+        _update_stack_after_nl();
 
     //
     TlToken *token = pool.create<TlToken>();
@@ -172,6 +190,9 @@ void TlParser::_push_token( TlToken::Type type, AstWriterStr src_url, PI src_off
     token->src_url = curr_tok_src_url;
     token->src_off = curr_tok_src_off;
     token->content = curr_tok_content;
+
+    //
+    _add_child_to( token_stack.back().token, token );
 
     // ( first_token ? last_token->next : first_token ) = token;
     // token->first_child = nullptr;
@@ -216,7 +237,7 @@ void TlParser::_error( Str msg, AstWriterStr src_url, PI src_off ) {
     ERROR( msg );
 }
 
-void TlParser::_on_new_line() {
+void TlParser::_on_new_line( AstWriterStr src_url, PI src_off ) {
     PI oc = curr_tok_content.starts_with( '\n' );
     PI op = prev_line_beg.starts_with( '\n' );
     for( PI i = 0; i < std::min( curr_tok_content.size() - oc, prev_line_beg.size() - op ); ++i ) {
@@ -230,16 +251,16 @@ void TlParser::_on_new_line() {
     just_seen_a_new_line = true;
 }
 
-void TlParser::_on_variable() {
-    P( "v", curr_tok_content );
+void TlParser::_on_variable( AstWriterStr src_url, PI src_off ) {
+    _push_token( TlToken::Type::Variable, src_url, src_off );
 }
 
-void TlParser::_on_operator() {
-    P( "o", curr_tok_content );
+void TlParser::_on_operator( AstWriterStr src_url, PI src_off ) {
+    _push_token( TlToken::Type::Variable, src_url, src_off );
 }
 
-void TlParser::_on_number() {
-    P( "n", curr_tok_content );
+void TlParser::_on_number( AstWriterStr src_url, PI src_off ) {
+    _push_token( TlToken::Type::Number, src_url, src_off );
 }
 
 void TlParser::_on_space() {

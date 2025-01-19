@@ -24,7 +24,8 @@ public:
     DisplayItem*  prev_sibling      = nullptr;
     DisplayItem*  last_child        = nullptr;
     DisplayItem*  parent            = nullptr;
-    Str           name;
+    Str           name;             ///< attribute name
+    Str           head;
     Str           type;
 };
 

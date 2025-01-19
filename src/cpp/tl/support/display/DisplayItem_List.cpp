@@ -5,6 +5,10 @@
 BEG_TL_NAMESPACE
 
 void DisplayItem_List::write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
+    //
+    if ( head.size() )
+        out += head;
+
     // if no child
     if ( ! has_children() ) {
         out += is_an_object ? "{}" : "[]";
