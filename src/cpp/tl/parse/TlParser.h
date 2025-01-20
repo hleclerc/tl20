@@ -24,7 +24,7 @@ public:
     void            dump                  ( AstWriter &writer );
                
 private:
-    struct          StackItem             { TlToken *token; int closing_char; int nl_size; };
+    struct          StackItem             { TlToken *token; int closing_char; bool on_a_new_line; int newline_size; };
 
     enum {          eof                   = -1 }; ///< internal codes for _parse
                

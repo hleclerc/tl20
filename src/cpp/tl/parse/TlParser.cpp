@@ -165,6 +165,16 @@ void TlParser::_on_comma() {
 }
 
 void TlParser::_update_stack_after_nl() {
+    while ( token_stack.size() ) {
+        const StackItem &si = token_stack.back();
+        if ( si.closing_char ) {
+            break;
+        }
+        if ( si.on_a_new_line && si.newline_size < prev_line_beg.size() ) {
+            break;
+        }
+        token_stack.pop_back();
+    }
 }
 
 void TlParser::_add_child_to( TlToken *parent, TlToken *child ) {
@@ -190,16 +200,22 @@ void TlParser::_push_token( TlToken::Type type, AstWriterStr src_url, PI src_off
     token->src_url = curr_tok_src_url;
     token->src_off = curr_tok_src_off;
     token->content = curr_tok_content;
+    token->type = type;
 
     //
     _add_child_to( token_stack.back().token, token );
 
-    // ( first_token ? last_token->next : first_token ) = token;
-    // token->first_child = nullptr;
-    // token->parent = nullptr;
-    // token->prev = last_token;
-    // token->next = nullptr;
-    // last_token = token;
+    //
+    token_stack << StackItem{
+        .token = token,
+        .closing_char = 0,
+        .on_a_new_line = just_seen_a_new_line,
+        .newline_size = int( prev_line_beg.size() )
+    };
+
+    //
+    just_seen_a_new_line = false;
+    just_seen_a_space = false;
 }
 
 void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
@@ -214,7 +230,8 @@ void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
         token_stack << StackItem{
             .token = token,
             .closing_char = -1,
-            .nl_size = -1
+            .on_a_new_line = true,
+            .newline_size = -1
         };
     }
 
@@ -226,6 +243,7 @@ void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
     const char *cur = content.begin();
     const char *end = content.end();
     _parse( *cur, cur + 1, cur - src_off, end, src_url );
+    _parse( eof, end, end - src_off, end, src_url );
 }
 
 void TlParser::dump( AstWriter &writer ) {

@@ -6,7 +6,7 @@ TEST_CASE( "Parser", "" ) {
     AstWriter aw;
 
     TlParser tp;
-    tp.parse( " StrView + content 10\n  a\n   b", 0, aw.str( "file" ) );
+    tp.parse( "StrView + content 10\n  a\n  b", 0, aw.str( "file" ) );
     P( tp );
 
     tp.dump( aw );
