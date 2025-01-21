@@ -185,7 +185,8 @@ public:
     const Item&         get_item           ( const auto &index ) const { return operator[]( index ); }
  
     static Item*        allocate           ( PI nb_items, auto alig );
- 
+
+private:
     Item*               data_;             ///<
     PI                  size_;             ///<
     PI                  capa_;             ///<
