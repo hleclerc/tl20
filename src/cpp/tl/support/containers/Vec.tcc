@@ -464,6 +464,17 @@ DTP void UTP::aligned_reserve( PI tgt_capa, auto alig ) {
     data_ = new_data;
 }
 
+DTP void UTP::remove_first_unordered( const auto &value ) {
+    for( PI i = 0; i < size(); ++i ) {
+        if ( data_[ i ] == value ) {
+            if ( --size_ != i ) {
+                data_[ i ] = std::move( data_[ size_ ] );
+                data_[ size_ ].~Item();
+            }
+            return;
+        }
+    }
+}
 
 DTP void UTP::reserve( PI tgt_capa ) {
     aligned_reserve( tgt_capa, CtInt<1>() );
