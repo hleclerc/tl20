@@ -153,6 +153,7 @@ public:
     const Item*         end                   () const { return begin() + size(); }
     Item*               end                   () { return begin() + size(); }
     
+    SI                  index_first_checking  ( auto &&func ) const; ///< index of first item such that `bool( func( item ) )`. Else return -1
     bool                contains              ( const auto &v ) const { for( const auto &r : *this ) if ( r == v ) return true; return false; }
     bool                empty                 () const { return size_ == 0; }
     PI                  size                  ( PI d ) const { return size(); }

@@ -343,7 +343,7 @@ DTP PI UTP::size() const {
 
 DTP Item *UTP::push_back_unique( auto &&value ) {
     for( PI i = 0; i < size(); ++i )
-        if ( operator[]( i ) == value )
+        if ( compare( operator[]( i ), value ) == 0 )
             return &operator[]( i );
     return push_back( FORWARD( value ) );
 }
@@ -462,6 +462,13 @@ DTP void UTP::aligned_reserve( PI tgt_capa, auto alig ) {
 
     capa_ = new_capa;
     data_ = new_data;
+}
+
+DTP SI UTP::index_first_checking( auto &&func ) const {
+    for( PI i = 0; i < size(); ++i )
+        if ( func( data_[ i ] ) )
+            return i;
+    return -1;
 }
 
 DTP void UTP::remove_first_unordered( const auto &value ) {
