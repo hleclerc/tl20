@@ -24,7 +24,6 @@ inline bool is_cnt_for_number( int c, int prev_char_value ) {
     return alphan( c );
 }
 
-
 TlParser::TlParser() {
     _init();
 }
@@ -46,7 +45,7 @@ void TlParser::_init() {
 }
 
 void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url ) {
-    // restart (jump to the right place)
+    // restart (i.e. jump to the right place)
     if ( ! restart_jump )
         restart_jump = &&cnt_new_line;
     goto *restart_jump;
@@ -61,6 +60,10 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
         if ( c == '#'    ) goto beg_comment;
         if ( c == '('    ) { _on_opening_paren( TlToken::Type::ParenthesisCall, ')' ); goto inc_switch; }
         if ( c == ')'    ) { _on_closing_paren( ')' ); goto inc_switch; }
+        if ( c == '{'    ) { _on_opening_paren( TlToken::Type::BraceCall, '}' ); goto inc_switch; }
+        if ( c == '}'    ) { _on_closing_paren( '}' ); goto inc_switch; }
+        if ( c == '['    ) { _on_opening_paren( TlToken::Type::BracketCall, ']' ); goto inc_switch; }
+        if ( c == ']'    ) { _on_closing_paren( ']' ); goto inc_switch; }
         if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
         if ( c == ','    ) { _on_comma(); goto inc_switch; }
         if ( c == eof    ) return;
@@ -274,6 +277,7 @@ void TlParser::_on_variable( AstWriterStr src_url, PI src_off ) {
 }
 
 void TlParser::_on_operator( AstWriterStr src_url, PI src_off ) {
+
     _push_token( TlToken::Type::Variable, src_url, src_off );
 }
 

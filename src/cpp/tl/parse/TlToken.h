@@ -9,7 +9,7 @@ BEG_TL_NAMESPACE
 */
 class TlToken {
 public:
-    enum class   Type        { Root, Variable, Number, ParenthesisCall };
+    enum class   Type        { Root, Variable, Number, ParenthesisCall, BraceCall, BracketCall };
 
     void         display     ( Displayer &ds ) const;
 

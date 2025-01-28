@@ -5,10 +5,12 @@ BEG_TL_NAMESPACE
 void TlToken::display( Displayer &ds ) const {
     Str repr;
     switch ( type ) {
-        case Type::Root: repr = "R"; break;
-        case Type::Variable: repr = "V"; break;
-        case Type::Number: repr = "N"; break;
-        case Type::ParenthesisCall: repr = "P"; break;
+        case Type::Root: repr = "root"; break;
+        case Type::Variable: repr = "var"; break;
+        case Type::Number: repr = "num"; break;
+        case Type::ParenthesisCall: repr = "par"; break;
+        case Type::BraceCall: repr = "brc"; break;
+        case Type::BracketCall: repr = "brk"; break;
     }
 
     if ( content.size() )
