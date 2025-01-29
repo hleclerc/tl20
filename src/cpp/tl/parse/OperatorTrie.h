@@ -16,15 +16,12 @@ public:
             
     /**/          OperatorTrie            ();
     /**/         ~OperatorTrie            ();
-       
-    static auto   default_tl_operator_trie() -> OperatorTrie *;
 
     OperatorData* symbol_op               ( StrView str ); ///< may take only a subpart of str (cone have to check operator_data->str.size())
     OperatorData* letter_op               ( StrView str ); ///< 
   
     void          register_letter_operator( OperatorData *operator_data );
     void          register_symbol_operator( OperatorData *operator_data );
-    void          init_default_operators  ();
  
     LetterMap     letter_map;
     CharMap*      symbol_map;

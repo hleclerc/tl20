@@ -4,6 +4,7 @@
 #include "../support/TODO.h"
 #include "../support/P.h"
 #include "tl/parse/OperatorTrie.h"
+#include "tl/parse/OperatorTrie_Tl.h"
 #include "tl/parse/TlToken.h"
 #include <limits>
 #include "TlParser.h"
@@ -32,12 +33,15 @@ inline bool is_cnt_for_number( int c, int prev_char_value ) {
 }
 
 TlParser::TlParser() {
-    operator_trie = OperatorTrie::default_tl_operator_trie();
+    operator_trie = OperatorTrie_Tl::default_tl_operator_trie();
     _init();
 }
 
 void TlParser::display( Displayer &ds ) const {
-    ds << *token_stack.front().token;
+    Str res;
+    for( TlToken *beg = token_stack.front().token->first_child, *child = beg; child; child = child->next )
+        res += ( child == beg ? "" : "," ) + child->condensed();
+    ds << res;
 }
 
 void TlParser::_init() {
@@ -77,7 +81,7 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
         if ( c == '}'    ) { _on_closing_paren( '}' ); goto inc_switch; }
         if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
         if ( c == ','    ) { _on_comma(); goto inc_switch; }
-        if ( c == eof    ) return;
+        if ( c == eof    ) { restart_jump = &&restart_loop; return;}
 
         curr_tok_src_refs = { SrcRef{ src_url, PI( nxt - beg - 1 ), PI( nxt - beg ) } };
         _error( va_string( "Unknown char type '{0}'", char( c ) ) );
@@ -90,6 +94,11 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
         }
         c = *( nxt++ );
         goto char_switch;
+
+
+    // after an eof
+    restart_loop:
+        return;
 
     // comment
     beg_comment:
@@ -259,9 +268,7 @@ void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
     if ( token_stack.empty() ) {
         curr_tok_src_refs = { SrcRef{ src_url, src_off, src_off } };
 
-        TlToken *token = pool.create<TlToken>();
-        token->src_refs = { pool, curr_tok_src_refs };
-        token->type = TlToken::Type::Root;
+        TlToken *token = _new_token( TlToken::Type::ParenthesisCall );
     
         token_stack << StackItem{
             .token = token,
@@ -269,7 +276,7 @@ void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
             .on_a_new_line = true,
             .newline_size = -1,
             .max_nb_children = std::numeric_limits<int>::max(),
-            .prio = -1
+            .prio = std::numeric_limits<int>::max(),
         };
     }
 
@@ -309,22 +316,39 @@ void TlParser::_on_new_line() {
 
 void TlParser::_on_variable() {
     TlToken *tok = _new_token( TlToken::Type::Variable, curr_tok_content );
-    _append( tok, { .max_nb_children = 0 } );
+    _append_token( tok, { .max_nb_children = 0 } );
 }
 
 void TlParser::_on_operator() {
+    auto use_operator = [&]( OperatorTrie::OperatorData *od, TlToken *tok_call ) -> void {
+        if ( od->take_left ) {
+            // try to take a token
+            bool took = _take_token( tok_call, {
+                .max_nb_children = od->max_rch,
+                .right_prio = od->priority,
+                .left_prio = od->priority - od->l2r,
+            } );
+            if ( took )
+                return;
+
+            // error if it was mandatory
+            if ( od->take_left >= 2 )
+                return _error( "nothing to take on the left" );
+        }
+
+        _append_token( tok_call, {
+            .max_nb_children = od->max_rch,
+            .right_prio = od->priority,
+        } );
+    };
+
     StrView str = curr_tok_content;
     while ( OperatorTrie::OperatorData *od = operator_trie->symbol_op( str ) ) {
         TlToken *tok_func = _new_token( TlToken::Type::Variable, od->name );
         TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
         tok_call->add_child( tok_func );
 
-        _append( tok_call, {
-            .max_nb_children = od->max_rch,
-            .right_prio = od->priority,
-            .left_prio = od->priority - od->l2r,
-            .take_left = od->take_left
-        } );
+        use_operator( od, tok_call );
 
         curr_tok_src_refs.back().beg += od->str.size();
         str.remove_prefix( od->str.size() );
@@ -341,47 +365,50 @@ void TlParser::_on_number() {
     tok_call->add_child( tok_func );
 
     // seen as a variable
-    _append( tok_call, { .max_nb_children = 0 } );
+    _append_token( tok_call, { .max_nb_children = 0 } );
 }
 
 void TlParser::_on_space() {
     just_seen_a_space = true;
 }
 
+bool TlParser::_take_token( TlToken *token, const TakingInfo &ti ) {
+    // find the first item that can be taken (according to ti.left_prio)
+    while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > ti.left_prio )
+        _pop_stack_item();
+    StackItem &si = token_stack.back();
 
-void TlParser::_append( TlToken *token, const AppendingInfo &pti ) {
+    // repl token
+    si.token->repl_in_graph_by( token );
+    token->add_child( si.token );
+    si.token = token;
+
+    // update stack item
+    si.newline_size = int( prev_line_beg.size() );
+    si.on_a_new_line = just_seen_a_new_line;
+
+    si.max_nb_children = ti.max_nb_children;
+    si.closing_char = 0;
+    si.prio = ti.right_prio;
+
+    return true;
+}
+
+void TlParser::_append_token( TlToken *token, const AppendingInfo &pti ) {
     // update the stack
     if ( just_seen_a_new_line )
         _update_stack_after_nl();
 
-    // get the correct back item (according to pti.left_prio)
-    // while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > pti.left_prio )
-    //     _pop_stack_item();
-
-    //
-    if ( pti.take_left ) {
-        StackItem &last_stack_item = token_stack.back();
-        last_stack_item.token->repl_in_graph_by( token );
-        token->add_child( last_stack_item.token );
-        last_stack_item.token = token;
-
-        last_stack_item.max_nb_children = pti.max_nb_children;
-        last_stack_item.newline_size = int( prev_line_beg.size() );
-        last_stack_item.on_a_new_line = just_seen_a_new_line;
-        last_stack_item.closing_char = 0;
-        last_stack_item.prio = pti.right_prio;
-        return;
-    }
-
     // make a call token if last stack item does not take children
-    StackItem &last_stack_item = token_stack.back();
-    if ( last_stack_item.max_nb_children == 0 ) {
-        TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
-        last_stack_item.token->repl_in_graph_by( tok_call );
-        tok_call->add_child( last_stack_item.token );
-        last_stack_item.token = tok_call;
-
-        last_stack_item.max_nb_children = std::numeric_limits<int>::max();
+    if ( token_stack.back().max_nb_children == 0 ) {
+        TlToken *token_call = _new_token( TlToken::Type::ParenthesisCall );
+        bool took = _take_token( token_call, {
+            .max_nb_children = std::numeric_limits<int>::max(),
+            .right_prio = operator_trie->prio_call,
+            .left_prio = operator_trie->prio_call,
+        } );
+        if ( ! took )
+            return _error( "found no way to transform the previous token to a call." );
     }
 
     //

@@ -2,13 +2,7 @@
 
 BEG_TL_NAMESPACE
 
-OperatorTrie *OperatorTrie::default_tl_operator_trie() {
-    static OperatorTrie res;
-    return &res;
-}
-
 OperatorTrie::OperatorTrie() : symbol_map( nullptr ) {
-    init_default_operators();
 }
 
 OperatorTrie::~OperatorTrie() {
@@ -25,21 +19,6 @@ OperatorTrie::CharMap::~CharMap() {
 
 void OperatorTrie::OperatorData::display( Displayer &ds ) const {
     ds << name;
-}
-
-void OperatorTrie::init_default_operators() {
-    int curr_prio = 0;
-
-    ++curr_prio;
-    register_symbol_operator( new OperatorData{ .str = "++" , .name = "operator ++" , .priority = curr_prio, .take_left = 0, .l2r = true, .max_rch = 0 } );
-    register_symbol_operator( new OperatorData{ .str = "+"  , .name = "operator +"  , .priority = curr_prio, .take_left = 1, .l2r = true, .max_rch = 1 } );
-
-    ++curr_prio;
-    register_symbol_operator( new OperatorData{ .str = "*"  , .name = "operator *"  , .priority = curr_prio, .take_left = 2, .l2r = true, .max_rch = 1 } );
-
-    ++curr_prio;
-    register_letter_operator( new OperatorData{ .str = "and", .name = "operator and", .priority = curr_prio, .take_left = 2, .l2r = true, .max_rch = 1 } );
-    register_letter_operator( new OperatorData{ .str = "or" , .name = "operator or" , .priority = curr_prio, .take_left = 2, .l2r = true, .max_rch = 1 } );
 }
 
 void OperatorTrie::register_letter_operator( OperatorData *operator_data ) {

@@ -11,11 +11,12 @@ BEG_TL_NAMESPACE
 */
 class TlToken {
 public:
-    enum class      Type            { Root, Variable, String, ParenthesisCall, BracketCall, BraceCall };
+    enum class      Type            { ParenthesisCall, BracketCall, BraceCall, Variable, String };
     struct          SrcRef          { AstWriterStr url; PI beg, end; };
    
     void            repl_in_graph_by( TlToken *token );
     void            add_child       ( TlToken *child );
+    Str             condensed       () const;
     void            display         ( Displayer &ds ) const;
     
     PoolVec<SrcRef> src_refs;    

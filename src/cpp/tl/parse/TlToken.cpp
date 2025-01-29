@@ -1,3 +1,4 @@
+#include "../support/ASSERT.h"
 #include "TlToken.h"
 
 BEG_TL_NAMESPACE
@@ -36,28 +37,38 @@ void TlToken::add_child( TlToken *child ) {
     last_child = child;
 }
 
-void TlToken::display( Displayer &ds ) const {
-    Str repr;
+Str TlToken::condensed() const {
+    auto disp_call = [&]( const Str &opening, const Str &closing ) {
+        // Str res = ASSERTED( first_child )->condensed();
+        Str res = opening;
+        for( TlToken *child = first_child; child; child = child->next ) {
+            res += ( child == first_child ? "" : "," );
+            res += child->condensed();
+        }
+        return res + closing;
+    };
+
+    auto escaped_string = [&]( const Str &content ) {
+        Str res;
+        for( char c : content ) {
+            if ( c == '\n' ) { res += "\\n"; continue; }
+            if ( c == '\t' ) { res += "\\t"; continue; }
+            res += c;
+        }
+        return res;
+    };
+
     switch ( type ) {
-        case Type::Root: repr = "root"; break;
-        case Type::Variable: repr = "var"; break;
-        case Type::String: repr = "str"; break;
-        case Type::ParenthesisCall: repr = "call"; break;
-        case Type::BraceCall: repr = "call_brace"; break;
-        case Type::BracketCall: repr = "call_bracket"; break;
+        case Type::ParenthesisCall: return disp_call( "(", ")" );
+        case Type::BracketCall: return disp_call( "[", "]" );
+        case Type::BraceCall: return disp_call( "{", "}" );
+        case Type::Variable: return content;
+        case Type::String: return "\"" + escaped_string( content ) + "\"";
     }
+}
 
-    if ( content.size() )
-        repr += "{" + Str( content ) + "}";
-
-    if ( first_child ) {
-        ds.set_next_head( repr );
-        ds.start_array();
-        for( TlToken *child = first_child; child; child = child->next )
-            ds << *child;
-        ds.end_array();
-    } else
-        ds << repr;
+void TlToken::display( Displayer &ds ) const {
+    ds << condensed();
 }
 
 
