@@ -15,8 +15,9 @@ struct TlParserStackItem {
     bool     on_a_new_line;
     int      newline_size;
 
-    int      max_nb_children;
-    int      prio;
+    int      max_nb_children = 0;
+    int      min_nb_children = 0;
+    int      prio            = 0;
 };
 
 END_TL_NAMESPACE

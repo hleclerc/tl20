@@ -10,7 +10,7 @@ TEST_CASE( "Parser", "" ) {
     AstWriter aw;
 
     TlParser tp;
-    tp.parse( "exp a, b", 0, aw.str( "file" ) );
+    tp.parse( "exp a + b", 0, aw.str( "file" ) );
     P( tp );
 
     tp.dump( aw );

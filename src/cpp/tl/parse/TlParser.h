@@ -25,7 +25,7 @@ public:
     void            dump                   ( AstWriter &writer );
                 
 private: 
-    struct          PushTokenInfo          { int max_nb_children = std::numeric_limits<int>::max(); int right_prio = 0; };
+    struct          AppendingInfo          { int max_nb_children = std::numeric_limits<int>::max(); int right_prio = 0, left_prio = 0, take_left = 0; };
     using           StackItem              = TlParserStackItem;
     using           SrcRef                 = TlToken::SrcRef;
  
@@ -41,11 +41,11 @@ private:
     void            _on_space              ();
     void            _on_comma              ();
  
-    void            _update_stack_after_nl ();
+    void            _update_stack_after_nl (); ///< update stack position after a new line
+    void            _pop_stack_item        ();
     TlToken*        _new_token             ( TlToken::Type type, StrView content = {} );
-    void            _take_left             ( TlToken *tok, int left_prio, const PushTokenInfo &pti );
-    void            _append                ( TlToken *tok, const PushTokenInfo &pti );
-    void            _error                 ( Str msg );
+    void            _append                ( TlToken *tok, const AppendingInfo &pti );
+    void            _error                 ( Str msg, Vec<TlToken *> tok = {} );
     void            _parse                 ( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url );
     void            _init                  ();
        

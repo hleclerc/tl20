@@ -184,7 +184,19 @@ void TlParser::_on_closing_paren( char c ) {
 }
 
 void TlParser::_on_semicolon() {
+    // gp up
+    while ( token_stack.back().closing_char == 0 && token_stack.back().on_a_new_line == false )
+        _pop_stack_item();
 
+    // newline => go to parent
+    if ( token_stack.back().closing_char == 0 )
+        _pop_stack_item();
+
+    //
+    just_seen_a_semicolon = true;
+    just_seen_a_new_line = false;
+    just_seen_a_space = false;
+    just_seen_a_comma = false;
 }
 
 void TlParser::_on_comma() {
@@ -195,16 +207,18 @@ void TlParser::_on_comma() {
     if ( just_seen_a_comma )
         return _error( "a comma just after another comma does not have a defined behavior." );
 
-    // gp up
-    if ( token_stack.back().on_a_new_line || token_stack.back().closing_char ) {
-        _error( "impossible to go higher" );
-        return;
-    }
-    token_stack.pop_back();
+    // things like `(,`
+    if ( token_stack.back().closing_char )
+        return _error( "impossible to go higher" );
 
-    // ... to something that accepts children
-    while ( token_stack.back().max_nb_children == 0 )
-        token_stack.pop_back();
+    // gp up
+    _pop_stack_item();
+
+    //
+    just_seen_a_semicolon = false;
+    just_seen_a_new_line = false;
+    just_seen_a_space = false;
+    just_seen_a_comma = true;
 }
 
 void TlParser::_update_stack_after_nl() {
@@ -230,38 +244,14 @@ TlToken *TlParser::_new_token( TlToken::Type type, StrView content ) {
     return token;
 }
 
-void TlParser::_append( TlToken *token, const PushTokenInfo &pti ) {
-    // update the stack
-    if ( just_seen_a_new_line )
-        _update_stack_after_nl();
+void TlParser::_pop_stack_item() {
+    if ( token_stack.size() == 1 )
+        return _error( "parse stack is exhausted" );
 
-    // make a call token if last stack item does not take children
-    StackItem &last_stack_item = token_stack.back();
-    if ( last_stack_item.max_nb_children == 0 ) {
-        TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
-        last_stack_item.token->repl_in_graph_by( tok_call );
-        tok_call->add_child( last_stack_item.token );
-        last_stack_item.token = tok_call;
-    }
+    if ( token_stack.back().min_nb_children )
+        return _error( "token was expecting a child", { token_stack.back().token } );
 
-    //
-    token_stack.back().token->add_child( token );
-
-    //
-    token_stack << StackItem{
-        .token = token,
-        .closing_char = 0,
-        .on_a_new_line = just_seen_a_new_line,
-        .newline_size = int( prev_line_beg.size() ),
-        .max_nb_children = pti.max_nb_children,
-        .prio = pti.right_prio
-    };
-
-    //
-    just_seen_a_semicolon = false;
-    just_seen_a_new_line = false;
-    just_seen_a_comma = false;
-    just_seen_a_space = false;
+    token_stack.pop_back();
 }
 
 void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
@@ -299,7 +289,7 @@ void TlParser::dump( AstWriter &writer ) {
     _init();
 }
 
-void TlParser::_error( Str msg ) {
+void TlParser::_error( Str msg, Vec<TlToken *> tok ) {
     ERROR( msg );
 }
 
@@ -322,11 +312,6 @@ void TlParser::_on_variable() {
     _append( tok, { .max_nb_children = 0 } );
 }
 
-void TlParser::_take_left( TlToken *tok, int left_prio, const PushTokenInfo &pti ) {
-    //P( content );
-    TODO;
-}
-
 void TlParser::_on_operator() {
     StrView str = curr_tok_content;
     while ( OperatorTrie::OperatorData *od = operator_trie->symbol_op( str ) ) {
@@ -334,10 +319,12 @@ void TlParser::_on_operator() {
         TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
         tok_call->add_child( tok_func );
 
-        if ( od->take_left )
-            _take_left( tok_call, od->priority - od->l2r, { .max_nb_children = od->max_rch, .right_prio = od->priority } );
-        else 
-            _append( tok_call, { .max_nb_children = od->max_rch, .right_prio = od->priority } );
+        _append( tok_call, {
+            .max_nb_children = od->max_rch,
+            .right_prio = od->priority,
+            .left_prio = od->priority - od->l2r,
+            .take_left = od->take_left
+        } );
 
         curr_tok_src_refs.back().beg += od->str.size();
         str.remove_prefix( od->str.size() );
@@ -359,6 +346,62 @@ void TlParser::_on_number() {
 
 void TlParser::_on_space() {
     just_seen_a_space = true;
+}
+
+
+void TlParser::_append( TlToken *token, const AppendingInfo &pti ) {
+    // update the stack
+    if ( just_seen_a_new_line )
+        _update_stack_after_nl();
+
+    // get the correct back item (according to pti.left_prio)
+    // while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > pti.left_prio )
+    //     _pop_stack_item();
+
+    //
+    if ( pti.take_left ) {
+        StackItem &last_stack_item = token_stack.back();
+        last_stack_item.token->repl_in_graph_by( token );
+        token->add_child( last_stack_item.token );
+        last_stack_item.token = token;
+
+        last_stack_item.max_nb_children = pti.max_nb_children;
+        last_stack_item.newline_size = int( prev_line_beg.size() );
+        last_stack_item.on_a_new_line = just_seen_a_new_line;
+        last_stack_item.closing_char = 0;
+        last_stack_item.prio = pti.right_prio;
+        return;
+    }
+
+    // make a call token if last stack item does not take children
+    StackItem &last_stack_item = token_stack.back();
+    if ( last_stack_item.max_nb_children == 0 ) {
+        TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
+        last_stack_item.token->repl_in_graph_by( tok_call );
+        tok_call->add_child( last_stack_item.token );
+        last_stack_item.token = tok_call;
+
+        last_stack_item.max_nb_children = std::numeric_limits<int>::max();
+    }
+
+    //
+    token_stack.back().token->add_child( token );
+
+    //
+    token_stack << StackItem{
+        .token = token,
+        .closing_char = 0,
+        .on_a_new_line = just_seen_a_new_line,
+        .newline_size = int( prev_line_beg.size() ),
+        .max_nb_children = pti.max_nb_children,
+        .prio = pti.right_prio
+    };
+
+    //
+    just_seen_a_semicolon = false;
+    just_seen_a_new_line = false;
+    just_seen_a_comma = false;
+    just_seen_a_space = false;
 }
 
 END_TL_NAMESPACE
