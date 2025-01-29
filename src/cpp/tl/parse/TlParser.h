@@ -27,8 +27,8 @@ public:
     void             display                    ( Displayer &ds ) const;
                      
 private:      
-    struct           AppendingInfo              { int max_nb_children = std::numeric_limits<int>::max(); int right_prio = 100; };
-    struct           TakingInfo                 { int max_nb_children = std::numeric_limits<int>::max(); int right_prio = 100, left_prio = 100; };
+    struct           AppendingInfo              { int min_nb_children, max_nb_children; int right_prio = 100; };
+    struct           TakingInfo                 { int min_nb_children, max_nb_children; int right_prio = 100, left_prio = 100; };
     using            StackItem                  = TlParserStackItem;
     using            SrcRef                     = TlToken::SrcRef;
       

@@ -53,4 +53,9 @@ TEST_CASE( "Parser", "" ) {
 
     // .
     test( "a.b c" , { .exp = "((operator .,a,b),c)" } );
+
+    test( "( a )" , { .exp = "(operator (),a)" } );
+    test( "( a, b )" , { .exp = "(operator (),a,b)" } );
+    test( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
+    test( "( a + )" , { .exp = "(operator (),(operator +,a))" } );
 }

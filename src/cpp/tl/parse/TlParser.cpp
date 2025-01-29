@@ -203,6 +203,7 @@ void TlParser::_on_opening_paren( TlToken::Type call_type, const char *func_name
         TlToken *token_func = _new_token( TlToken::Type::ParenthesisCall );
         bool took = _take_token( token_func, {
             .max_nb_children = std::numeric_limits<int>::max(),
+            .min_nb_children = 0,
             .right_prio = operator_trie->prio_call,
             .left_prio = operator_trie->prio_call
         } );
@@ -210,9 +211,10 @@ void TlParser::_on_opening_paren( TlToken::Type call_type, const char *func_name
     } else { // `some_code ( a, b ), c` -> `( a, b )` and `c` will be the children of `some_code`
         TlToken *token_name = _new_token( TlToken::Type::Variable, func_name );
         TlToken *token_func = _new_token( TlToken::Type::ParenthesisCall );
-        token_func->add_child( token_func );
+        token_func->add_child( token_name );
         _append_token( token_func, {
             .max_nb_children = std::numeric_limits<int>::max(),
+            .min_nb_children = 0,
             .right_prio = operator_trie->prio_call,
         } );
     }
@@ -302,8 +304,20 @@ void TlParser::_pop_stack_item() {
     if ( token_stack.size() == 1 )
         return _error( "parse stack is exhausted" );
 
-    if ( token_stack.back().min_nb_children )
-        return _error( "token was expecting a child", { token_stack.back().token } );
+    StackItem &si = token_stack.back();
+    if ( si.min_nb_children > 0 ) {
+        if ( si.min_nb_children == si.max_nb_children ) {
+            if ( si.min_nb_children == 1 )
+                _error( va_string( "token was expecting an additional child." ), { token_stack.back().token } );
+            else
+                _error( va_string( "token was expecting $0 additional children.", si.min_nb_children ), { token_stack.back().token } );
+        } else {
+            if ( si.min_nb_children == 1 )
+                _error( va_string( "token was expecting at least one additional child." ), { token_stack.back().token } );
+            else
+                _error( va_string( "token was expecting at least $0 additional children.", si.min_nb_children ), { token_stack.back().token } );
+        }
+    }
 
     token_stack.pop_back();
 }
@@ -342,7 +356,7 @@ void TlParser::dump( AstWriter &writer ) {
 }
 
 void TlParser::_error( Str msg, Vec<TlToken *> tok ) {
-    ERROR( msg );
+    PE( msg );
 }
 
 void TlParser::_on_new_line() {
@@ -376,6 +390,7 @@ void TlParser::_on_operator() {
         if ( od->take_left ) {
             // try to take a token
             bool took = _take_token( tok_call, {
+                .min_nb_children = od->min_rch,
                 .max_nb_children = od->max_rch,
                 .right_prio = od->priority,
                 .left_prio = od->priority - od->l2r,
@@ -389,6 +404,7 @@ void TlParser::_on_operator() {
         }
 
         _append_token( tok_call, {
+            .min_nb_children = od->min_rch,
             .max_nb_children = od->max_rch,
             .right_prio = od->priority,
         } );
@@ -434,7 +450,7 @@ void TlParser::_on_space() {
 
 bool TlParser::_take_token( TlToken *token, const TakingInfo &ti ) {
     // find the first item that can be taken (according to ti.left_prio)
-    while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > ti.left_prio )
+    while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > ti.left_prio && token_stack[ token_stack.size() - 2 ].closing_char == 0 )
         _pop_stack_item();
     StackItem &si = token_stack.back();
 
@@ -444,6 +460,7 @@ bool TlParser::_take_token( TlToken *token, const TakingInfo &ti ) {
     si.token = token;
 
     // update stack item
+    si.min_nb_children = ti.min_nb_children;
     si.max_nb_children = ti.max_nb_children;
     si.closing_char = 0;
     si.prio = ti.right_prio;
@@ -463,6 +480,7 @@ void TlParser::_append_token( TlToken *token, const AppendingInfo &pti ) {
         TlToken *token_call = _new_token( TlToken::Type::ParenthesisCall );
         bool took = _take_token( token_call, {
             .max_nb_children = std::numeric_limits<int>::max(),
+            .min_nb_children = 0,
             .right_prio = operator_trie->prio_call,
             .left_prio = operator_trie->prio_call,
         } );
@@ -472,6 +490,8 @@ void TlParser::_append_token( TlToken *token, const AppendingInfo &pti ) {
 
     //
     token_stack.back().token->add_child( token );
+    --token_stack.back().min_nb_children;
+    --token_stack.back().max_nb_children;
 
     //
     token_stack << StackItem{
@@ -479,6 +499,7 @@ void TlParser::_append_token( TlToken *token, const AppendingInfo &pti ) {
         .closing_char = 0,
         .on_a_new_line = pending_new_line,
         .newline_size = int( prev_line_beg.size() ),
+        .min_nb_children = pti.min_nb_children,
         .max_nb_children = pti.max_nb_children,
         .prio = pti.right_prio
     };
