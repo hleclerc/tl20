@@ -10,13 +10,15 @@ BEG_TL_NAMESPACE
 */
 class OperatorTrie {
 public:
-    struct        OperatorData            { void display( Displayer &ds ) const; Str str, name; int priority; bool l2r = true; int max_rch = 1; };
+    struct        OperatorData            { void display( Displayer &ds ) const; Str str, name; int priority, take_left = 0; bool l2r = true; int max_rch = 1; };
     using         LetterMap               = std::map<Str,OperatorData *>;
     struct        CharMap                 { ~CharMap(); CharMap *prev, *next[ 256 ]; OperatorData *operator_data; };
             
     /**/          OperatorTrie            ();
     /**/         ~OperatorTrie            ();
        
+    static auto   default_tl_operator_trie() -> OperatorTrie *;
+
     OperatorData* symbol_op               ( StrView str ); ///< may take only a subpart of str (cone have to check operator_data->str.size())
     OperatorData* letter_op               ( StrView str ); ///< 
   

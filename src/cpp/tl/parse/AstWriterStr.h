@@ -7,6 +7,7 @@ BEG_TL_NAMESPACE
 class AstWriter;
 
 /** 
+    Reference to a string to be written by an AstWriter
 */
 class AstWriterStr {
 public:
