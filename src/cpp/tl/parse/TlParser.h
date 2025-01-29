@@ -23,6 +23,7 @@ public:
     void             parse                      ( StrView content, PI src_off, AstWriterStr src_url );
     void             dump                       ( AstWriter &writer );
     
+    Str              condensed                  () const;
     void             display                    ( Displayer &ds ) const;
                      
 private:      

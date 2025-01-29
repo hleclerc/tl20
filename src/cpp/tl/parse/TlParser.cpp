@@ -1,8 +1,11 @@
 #include "../support/string/va_string.h"
+#include "../support/ASSERT.h"
 #include "../support/ERROR.h"
+#include "../support/P.h"
 
 #include "tl/parse/OperatorTrie_Tl.h"
 #include "tl/parse/TlToken.h"
+#include <limits>
 
 #include "TlParser.h"
 
@@ -36,11 +39,15 @@ TlParser::TlParser() : local_operator_trie( false ) {
     _init();
 }
 
-void TlParser::display( Displayer &ds ) const {
+Str TlParser::condensed() const {
     Str res;
     for( TlToken *beg = token_stack.front().token->first_child, *child = beg; child; child = child->next )
         res += ( child == beg ? "" : "," ) + child->condensed();
-    ds << res;
+    return res;
+}
+
+void TlParser::display( Displayer &ds ) const {
+    ds << condensed();
 }
 
 void TlParser::_init() {
@@ -194,24 +201,43 @@ void TlParser::_parse( int c, const char *nxt, const char *beg, const char *end,
 void TlParser::_on_opening_paren( TlToken::Type call_type, const char *func_name, char expected_closing ) {
     if ( prev_token_is_touching ) { // `some_code( a, b )` -> `a` and `b` will be the children of `some_code`
         TlToken *token_func = _new_token( TlToken::Type::ParenthesisCall );
-        _take_token( token_func, { .left_prio = operator_trie->prio_call } );
-        token_stack.back().closing_char = expected_closing;
+        bool took = _take_token( token_func, {
+            .max_nb_children = std::numeric_limits<int>::max(),
+            .right_prio = operator_trie->prio_call,
+            .left_prio = operator_trie->prio_call
+        } );
+        ASSERT( took );
     } else { // `some_code ( a, b ), c` -> `( a, b )` and `c` will be the children of `some_code`
         TlToken *token_name = _new_token( TlToken::Type::Variable, func_name );
         TlToken *token_func = _new_token( TlToken::Type::ParenthesisCall );
         token_func->add_child( token_func );
-        _append_token( token_func, {} );
+        _append_token( token_func, {
+            .max_nb_children = std::numeric_limits<int>::max(),
+            .right_prio = operator_trie->prio_call,
+        } );
     }
 
-    prev_token_is_touching = false;
+    token_stack.back().closing_char = expected_closing;
+
+    prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
 }
 
 void TlParser::_on_closing_paren( char c ) {
-    TODO;
+    while ( token_stack.back().closing_char == 0 )
+        _pop_stack_item();
 
-    prev_token_is_touching = false;
+    if ( token_stack.back().closing_char != c )
+        return _error( va_string( "'$0' has no correspondance", c ) );
+
+    // 
+    StackItem &si = token_stack.back();
+    si.max_nb_children = 0;
+    si.closing_char = 0;
+
+    //
+    prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
 }
@@ -258,7 +284,7 @@ void TlParser::_update_stack_after_newline() {
 
 void TlParser::_update_stack_after_comma() {
     const StackItem &si = token_stack.back();
-    if ( si.closing_char == 0 && si.on_a_new_line == false )
+    if ( si.closing_char == 0 )
         _pop_stack_item();
 }
     
@@ -340,7 +366,7 @@ void TlParser::_on_variable() {
     TlToken *tok = _new_token( TlToken::Type::Variable, curr_tok_content );
     _append_token( tok, { .max_nb_children = 0 } );
 
-    prev_token_is_touching = false;
+    prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
 }
@@ -376,7 +402,7 @@ void TlParser::_on_operator() {
 
         use_operator( od, tok_call );
 
-        prev_token_is_touching = false;
+        prev_token_is_touching = true;
         pending_new_line = false;
         pending_comma = false;
 
@@ -397,7 +423,7 @@ void TlParser::_on_number() {
     // seen as a variable
     _append_token( tok_call, { .max_nb_children = 0 } );
 
-    prev_token_is_touching = false;
+    prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
 }

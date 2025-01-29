@@ -42,6 +42,8 @@ Str TlToken::condensed() const {
         // Str res = ASSERTED( first_child )->condensed();
         Str res = opening;
         for( TlToken *child = first_child; child; child = child->next ) {
+            ASSERT( child != this ); // test self ref
+                
             res += ( child == first_child ? "" : "," );
             res += child->condensed();
         }
