@@ -36,29 +36,21 @@ TEST_CASE( "Parser", "" ) {
     // basic operator precedance
     test( "a + b * c", { .exp = "(operator +,a,(operator *,b,c))" } );
     test( "a * b + c", { .exp = "(operator +,(operator *,a,b),c)" } );
+    test( "a + b c", { .exp = "(operator +,a,(b,c))" } );
 
     // new lines
-    test( "a\n"
-          "  b\n"
-        , { .exp = "(a,b)" } );
+    test( "a\n" "  b\n" , { .exp = "(a,b)" } );
+    test( "a\n" "  b\n" "  c\n" , { .exp = "(a,b,c)" } );
+    test( "a\n" "  b,\n" "  c\n" , { .exp = "(a,b,c)" } );
+    test( "a\n" "  b, c\n" "  d, e\n" , { .exp = "(a,b,c,d,e)" } );
+    test( "a\n" "  b, c\n" "  d e, f\n" , { .exp = "(a,b,c,(d,e,f))" } );
 
-    test( "a\n"
-          "  b\n"
-          "  c\n"
-        , { .exp = "(a,b,c)" } );
+    // ;
+    test( "a\n" "  b; c\n" , { .exp = "(a,b,c)" } );
+    test( "a\n" "  b c; d\n" , { .exp = "(a,(b,c),d)" } );
+    test( "a( b c; d )" , { .exp = "(a,(b,c),d)" } );
+    test( "a( b c, d )" , { .exp = "(a,(b,c,d))" } );
 
-    test( "a\n"
-          "  b,\n"
-          "  c\n"
-        , { .exp = "(a,b,c)" } );
-
-    test( "a\n"
-          "  b, c\n"
-          "  d, e\n"
-        , { .exp = "(a,b,c,d,e)" } );
-
-    test( "a\n"
-          "  b, c\n"
-          "  d e, f\n"
-        , { .exp = "(a,b,c,(d,e,f))" } );
+    // .
+    test( "a.b c" , { .exp = "((operator .,a,b),c)" } );
 }

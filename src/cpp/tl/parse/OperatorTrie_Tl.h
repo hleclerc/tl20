@@ -15,11 +15,16 @@ public:
 
     void          init_default_operators  ();
 
+    int           prio_assign;
+    int           prio_lambda;
+    int           prio_argval;
+    int           prio_argpar;
+    int           prio_and;
     int           prio_add;
     int           prio_mul;
-    int           prio_and;
-
+    int           prio_pow;
     int           prio_call;
+    int           prio_dot;
 };
 
 END_TL_NAMESPACE
