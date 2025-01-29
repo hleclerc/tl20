@@ -1,5 +1,7 @@
 #include "../common_types.h"
 
+BEG_TL_NAMESPACE
+
 /**
 */
 template<class T>
@@ -15,3 +17,5 @@ public:
     T*       _data;
     PI       _size;
 };
+
+END_TL_NAMESPACE

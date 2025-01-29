@@ -220,31 +220,32 @@ void TlParser::_update_stack_after_nl() {
     }
 }
 
-void TlParser::_add_child_to( TlToken *parent, TlToken *child ) {
-    if ( parent->first_child )
-        parent->last_child->next = child;
-    else
-        parent->first_child = child;
-    child->prev = parent->last_child;
-    parent->last_child = child;
-    child->parent = parent;
+TlToken *TlParser::_new_token( TlToken::Type type, StrView content ) {
+    TlToken *token = pool.create<TlToken>();
+
+    token->src_refs = { pool, curr_tok_src_refs };
+    token->content = { pool, content };
+    token->type = type;
+
+    return token;
 }
 
-void TlParser::_push_token( TlToken::Type type, StrView content, int right_prio ) {
-    // ASSERT( curr_tok_src_url == src_url ); // for now tokens must be in the same src
-
+void TlParser::_append( TlToken *token, const PushTokenInfo &pti ) {
     // update the stack
     if ( just_seen_a_new_line )
         _update_stack_after_nl();
 
-    //
-    TlToken *token = pool.create<TlToken>();
-    token->src_refs = { pool, curr_tok_src_refs };
-    token->content = content;
-    token->type = type;
+    // make a call token if last stack item does not take children
+    StackItem &last_stack_item = token_stack.back();
+    if ( last_stack_item.max_nb_children == 0 ) {
+        TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
+        last_stack_item.token->repl_in_graph_by( tok_call );
+        tok_call->add_child( last_stack_item.token );
+        last_stack_item.token = tok_call;
+    }
 
     //
-    _add_child_to( token_stack.back().token, token );
+    token_stack.back().token->add_child( token );
 
     //
     token_stack << StackItem{
@@ -252,8 +253,8 @@ void TlParser::_push_token( TlToken::Type type, StrView content, int right_prio 
         .closing_char = 0,
         .on_a_new_line = just_seen_a_new_line,
         .newline_size = int( prev_line_beg.size() ),
-        .max_nb_children = std::numeric_limits<int>::max(),
-        .prio = right_prio
+        .max_nb_children = pti.max_nb_children,
+        .prio = pti.right_prio
     };
 
     //
@@ -317,21 +318,26 @@ void TlParser::_on_new_line() {
 }
 
 void TlParser::_on_variable() {
-    _push_token( TlToken::Type::Variable, curr_tok_content, 0 );
+    TlToken *tok = _new_token( TlToken::Type::Variable, curr_tok_content );
+    _append( tok, { .max_nb_children = 0 } );
 }
 
-void TlParser::_take_left( TlToken::Type type, StrView content, int right_prio, int left_prio ) {
-    P( content );
+void TlParser::_take_left( TlToken *tok, int left_prio, const PushTokenInfo &pti ) {
+    //P( content );
     TODO;
 }
 
 void TlParser::_on_operator() {
     StrView str = curr_tok_content;
     while ( OperatorTrie::OperatorData *od = operator_trie->symbol_op( str ) ) {
+        TlToken *tok_func = _new_token( TlToken::Type::Variable, od->name );
+        TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
+        tok_call->add_child( tok_func );
+
         if ( od->take_left )
-            _take_left( TlToken::Type::Variable, od->name, od->priority, od->priority - od->l2r );
+            _take_left( tok_call, od->priority - od->l2r, { .max_nb_children = od->max_rch, .right_prio = od->priority } );
         else 
-            _push_token( TlToken::Type::Variable, od->name, od->priority );
+            _append( tok_call, { .max_nb_children = od->max_rch, .right_prio = od->priority } );
 
         curr_tok_src_refs.back().beg += od->str.size();
         str.remove_prefix( od->str.size() );
@@ -342,7 +348,13 @@ void TlParser::_on_operator() {
 }
 
 void TlParser::_on_number() {
-    _push_token( TlToken::Type::Number, curr_tok_content, 0 );
+    // CALL( number, "..." )
+    TlToken *tok_func = _new_token( TlToken::Type::Variable, "number" );
+    TlToken *tok_call = _new_token( TlToken::Type::ParenthesisCall );
+    tok_call->add_child( tok_func );
+
+    // seen as a variable
+    _append( tok_call, { .max_nb_children = 0 } );
 }
 
 void TlParser::_on_space() {

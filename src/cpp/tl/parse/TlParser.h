@@ -5,7 +5,7 @@
 #include "TlParserStackItem.h"
 #include "OperatorTrie.h"
 #include "AstWriter.h"
-#include "tl/parse/TlToken.h"
+#include <limits>
 
 BEG_TL_NAMESPACE
 
@@ -25,6 +25,7 @@ public:
     void            dump                   ( AstWriter &writer );
                 
 private: 
+    struct          PushTokenInfo          { int max_nb_children = std::numeric_limits<int>::max(); int right_prio = 0; };
     using           StackItem              = TlParserStackItem;
     using           SrcRef                 = TlToken::SrcRef;
  
@@ -41,9 +42,9 @@ private:
     void            _on_comma              ();
  
     void            _update_stack_after_nl ();
-    void            _add_child_to          ( TlToken *parent, TlToken *child );
-    void            _push_token            ( TlToken::Type type, StrView content, int right_prio );
-    void            _take_left             ( TlToken::Type type, StrView content, int right_prio, int left_prio );
+    TlToken*        _new_token             ( TlToken::Type type, StrView content = {} );
+    void            _take_left             ( TlToken *tok, int left_prio, const PushTokenInfo &pti );
+    void            _append                ( TlToken *tok, const PushTokenInfo &pti );
     void            _error                 ( Str msg );
     void            _parse                 ( int c, const char *nxt, const char *beg, const char *end, AstWriterStr src_url );
     void            _init                  ();
