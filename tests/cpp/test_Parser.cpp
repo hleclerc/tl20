@@ -1,21 +1,43 @@
-#include "tl/parse/AstWriterStr.h"
+#include <tl/support/containers/Opt.h>
+#include <tl/support/log/TestingLog.h>
+#include <tl/parse/AstWriterStr.h>
 #include <tl/parse/TlParser.h>
 #include "catch_main.h"
 
 struct TestResult {
-    Str exp;
+    Opt<Vec<Str>> err_msgs;
+    Opt<Vec<PI>> err_pos;
+    Opt<Str> exp;
 };
 
 void test( Str code, TestResult tr ) {
     Str file = "command_line";
 
+    TestingLog log;
     AstWriter aw;
-    TlParser tp;
+    TlParser tp( log );
     tp.parse( code, 0, aw.str( "file" ) );
 
     bool made_a_test = false;
-    if ( tr.exp.size() ) {
-        CHECK( tp.condensed() == tr.exp );
+    if ( tr.err_msgs ) {
+        CHECK( log.messages.size() == tr.err_msgs->size() );
+        for( PI i = 0; i < log.messages.size(); ++i )
+            CHECK( log.messages[ i ].msg == tr.err_msgs->operator[]( i ) );
+        made_a_test = true;
+    }
+
+    if ( tr.err_pos ) {
+        CHECK( log.messages.size() == tr.err_pos->size() );
+        for( PI i = 0; i < log.messages.size(); ++i )
+            CHECK( log.messages[ i ].pr.offsets[ 0 ] == tr.err_pos->operator[]( i ) );
+        made_a_test = true;
+    }
+
+    if ( ! made_a_test )
+        CHECK( log.messages.empty() );
+
+    if ( tr.exp ) {
+        CHECK( tp.condensed() == *tr.exp );
         made_a_test = true;
     }
 
@@ -54,8 +76,9 @@ TEST_CASE( "Parser", "" ) {
     // .
     test( "a.b c" , { .exp = "((operator .,a,b),c)" } );
 
+    // (), [], {}
     test( "( a )" , { .exp = "(operator (),a)" } );
     test( "( a, b )" , { .exp = "(operator (),a,b)" } );
     test( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
-    test( "( a + )" , { .exp = "(operator (),(operator +,a))" } );
+    test( "( a + )" , { .exp = "(operator (),(operator +,a))", .err_msgs = Vec<Str>{ "token was expecting an additional child." } } );
 }

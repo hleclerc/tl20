@@ -2,10 +2,10 @@
 
 #include "../support/memory/BumpPointerPool.h"
 #include "../support/containers/Vec.h"
+#include "../support/log/Log.h"
 #include "TlParserStackItem.h"
 #include "OperatorTrie_Tl.h"
 #include "AstWriter.h"
-#include <limits>
 
 BEG_TL_NAMESPACE
 
@@ -18,7 +18,7 @@ BEG_TL_NAMESPACE
 */
 class TlParser {
 public:
-    /**/             TlParser                   ();
+    /**/             TlParser                   ( Log &log );
       
     void             parse                      ( StrView content, PI src_off, AstWriterStr src_url );
     void             dump                       ( AstWriter &writer );
@@ -68,6 +68,7 @@ private:
     void*            restart_jump;              ///< where to go at the beginning of `parse`
     Vec<StackItem>   token_stack;               ///<
     BumpPointerPool  pool;                      ///<
+    Log&             log;                       ///<
 };
 
 END_TL_NAMESPACE

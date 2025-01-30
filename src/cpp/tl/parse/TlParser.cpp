@@ -35,7 +35,7 @@ inline bool is_cnt_for_number( int c, int prev_char_value ) {
     return alphan( c );
 }
 
-TlParser::TlParser() : local_operator_trie( false ) {
+TlParser::TlParser( Log &log ) : local_operator_trie( false ), log( log ) {
     _init();
 }
 
@@ -356,7 +356,7 @@ void TlParser::dump( AstWriter &writer ) {
 }
 
 void TlParser::_error( Str msg, Vec<TlToken *> tok ) {
-    PE( msg );
+    log.msg( msg, {}, Log::Type::ERROR );
 }
 
 void TlParser::_on_new_line() {
