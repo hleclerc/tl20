@@ -6,6 +6,7 @@
 #include "AstWriterStr.h"
 
 BEG_TL_NAMESPACE
+class TlTokenScope;
 
 /** 
 */
@@ -28,6 +29,9 @@ public:
     TlToken*        parent          = nullptr;
     TlToken*        prev            = nullptr;
     TlToken*        next            = nullptr;
+
+    PI              scope_size_decl = 0; ///< scope size during declaration
+    TlTokenScope*   scope           = nullptr;
 };
 
 END_TL_NAMESPACE

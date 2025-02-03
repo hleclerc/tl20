@@ -1,13 +1,14 @@
 #include "../support/string/va_string.h"
 #include "../support/ASSERT.h"
-#include "../support/ERROR.h"
 #include "../support/P.h"
 
-#include "tl/parse/OperatorTrie_Tl.h"
-#include "tl/parse/TlToken.h"
+#include "TlPreAstFromToken.h"
+#include "OperatorTrie_Tl.h"
+#include "TlParser.h"
+#include "TlToken.h"
+
 #include <limits>
 
-#include "TlParser.h"
 
 BEG_TL_NAMESPACE
 
@@ -36,6 +37,21 @@ inline bool is_cnt_for_number( int c, int prev_char_value ) {
 }
 
 TlParser::TlParser( Log &log ) : local_operator_trie( false ), log( log ) {
+    _init();
+}
+
+void TlParser::dump( AstWriter &writer ) {
+    // end of text
+    _parse( eof, nullptr, nullptr, nullptr, {} );
+
+    //
+    TlPreAstFromToken aft( log, pool ); 
+    for( TlToken *child = token_stack.front().token->first_child; child; child = child->next )
+        aft.push( child );
+
+    P( aft );
+
+    // clear
     _init();
 }
 
@@ -322,7 +338,7 @@ void TlParser::_pop_stack_item() {
     token_stack.pop_back();
 }
 
-void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
+void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url, bool write_eof ) {
     // create the root token if not already done
     if ( token_stack.empty() ) {
         curr_tok_src_refs = { SrcRef{ src_url, src_off, src_off } };
@@ -347,12 +363,8 @@ void TlParser::parse( StrView content, PI src_off, AstWriterStr src_url ) {
     const char *cur = content.begin();
     const char *end = content.end();
     _parse( *cur, cur + 1, cur - src_off, end, src_url );
-    _parse( eof, end, end - src_off, end, src_url );
-}
-
-void TlParser::dump( AstWriter &writer ) {
-    _parse( eof, nullptr, nullptr, nullptr, {} );
-    _init();
+    if ( write_eof )
+        _parse( eof, end, end - src_off, end, src_url );
 }
 
 void TlParser::_error( Str msg, Vec<TlToken *> tok ) {

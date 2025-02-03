@@ -20,7 +20,7 @@ class TlParser {
 public:
     /**/             TlParser                   ( Log &log );
       
-    void             parse                      ( StrView content, PI src_off, AstWriterStr src_url );
+    void             parse                      ( StrView content, PI src_off, AstWriterStr src_url, bool write_eof = true );
     void             dump                       ( AstWriter &writer );
     
     Str              condensed                  () const;

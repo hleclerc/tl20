@@ -10,7 +10,7 @@ struct TestResult {
     Opt<Str> exp;
 };
 
-void test( Str code, TestResult tr ) {
+void test_tok( Str code, TestResult tr ) {
     Str file = "command_line";
 
     TestingLog log;
@@ -45,40 +45,54 @@ void test( Str code, TestResult tr ) {
         P( tp.condensed() );
 }
 
-TEST_CASE( "Parser", "" ) {
+void test_pre( Str code ) {
+    Str file = "command_line";
+
+    TestingLog log;
+    AstWriter aw;
+    TlParser tp( log );
+    tp.parse( code, 0, aw.str( "file" ) );
+    tp.dump( aw );
+}
+
+TEST_CASE( "Parser src to tok", "" ) {
     // auto call
-    test( "a b, c", { .exp = "(a,b,c)" } );
-    test( "a b c", { .exp = "(a,(b,c))" } );
+    test_tok( "a b, c", { .exp = "(a,b,c)" } );
+    test_tok( "a b c", { .exp = "(a,(b,c))" } );
 
     // () call
-    test( "a( b, c )", { .exp = "(a,b,c)" } );
-    test( "a( b, c ) d", { .exp = "((a,b,c),d)" } );
-    test( "a( b, c ) + d", { .exp = "(operator +,(a,b,c),d)" } );
+    test_tok( "a( b, c )", { .exp = "(a,b,c)" } );
+    test_tok( "a( b, c ) d", { .exp = "((a,b,c),d)" } );
+    test_tok( "a( b, c ) + d", { .exp = "(operator +,(a,b,c),d)" } );
 
     // basic operator precedance
-    test( "a + b * c", { .exp = "(operator +,a,(operator *,b,c))" } );
-    test( "a * b + c", { .exp = "(operator +,(operator *,a,b),c)" } );
-    test( "a + b c", { .exp = "(operator +,a,(b,c))" } );
+    test_tok( "a + b * c", { .exp = "(operator +,a,(operator *,b,c))" } );
+    test_tok( "a * b + c", { .exp = "(operator +,(operator *,a,b),c)" } );
+    test_tok( "a + b c", { .exp = "(operator +,a,(b,c))" } );
 
     // new lines
-    test( "a\n" "  b\n" , { .exp = "(a,b)" } );
-    test( "a\n" "  b\n" "  c\n" , { .exp = "(a,b,c)" } );
-    test( "a\n" "  b,\n" "  c\n" , { .exp = "(a,b,c)" } );
-    test( "a\n" "  b, c\n" "  d, e\n" , { .exp = "(a,b,c,d,e)" } );
-    test( "a\n" "  b, c\n" "  d e, f\n" , { .exp = "(a,b,c,(d,e,f))" } );
+    test_tok( "a\n" "  b\n" , { .exp = "(a,b)" } );
+    test_tok( "a\n" "  b\n" "  c\n" , { .exp = "(a,b,c)" } );
+    test_tok( "a\n" "  b,\n" "  c\n" , { .exp = "(a,b,c)" } );
+    test_tok( "a\n" "  b, c\n" "  d, e\n" , { .exp = "(a,b,c,d,e)" } );
+    test_tok( "a\n" "  b, c\n" "  d e, f\n" , { .exp = "(a,b,c,(d,e,f))" } );
 
     // ;
-    test( "a\n" "  b; c\n" , { .exp = "(a,b,c)" } );
-    test( "a\n" "  b c; d\n" , { .exp = "(a,(b,c),d)" } );
-    test( "a( b c; d )" , { .exp = "(a,(b,c),d)" } );
-    test( "a( b c, d )" , { .exp = "(a,(b,c,d))" } );
+    test_tok( "a\n" "  b; c\n" , { .exp = "(a,b,c)" } );
+    test_tok( "a\n" "  b c; d\n" , { .exp = "(a,(b,c),d)" } );
+    test_tok( "a( b c; d )" , { .exp = "(a,(b,c),d)" } );
+    test_tok( "a( b c, d )" , { .exp = "(a,(b,c,d))" } );
 
     // .
-    test( "a.b c" , { .exp = "((operator .,a,b),c)" } );
+    test_tok( "a.b c" , { .exp = "((operator .,a,b),c)" } );
 
     // (), [], {}
-    test( "( a )" , { .exp = "(operator (),a)" } );
-    test( "( a, b )" , { .exp = "(operator (),a,b)" } );
-    test( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
-    test( "( a + )" , { .exp = "(operator (),(operator +,a))", .err_msgs = Vec<Str>{ "token was expecting an additional child." } } );
+    test_tok( "( a )" , { .exp = "(operator (),a)" } );
+    test_tok( "( a, b )" , { .exp = "(operator (),a,b)" } );
+    test_tok( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
+    test_tok( "( a + )" , { .exp = "(operator (),(operator +,a))", .err_msgs = Vec<Str>{ "token was expecting an additional child." } } );
+}
+
+TEST_CASE( "Parser src to ap", "" ) {
+    test_pre( "a" );
 }
