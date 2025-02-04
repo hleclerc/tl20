@@ -1,7 +1,8 @@
+#include "PreAst/Node_VarDeclAndBlock.h"
 #include "PreAst/Node_Variable.h"
 #include "PreAst/Node_String.h"
 #include "PreAst/Node_Call.h"
-#include "PreAst/FuncInfo.h"
+#include "PreAst/FuncType.h"
 
 #include "TlPreAstFromToken.h"
 #include "TlToken.h"
@@ -12,10 +13,7 @@ BEG_TL_NAMESPACE
 using namespace PreAst;
 
 TlPreAstFromToken::TlPreAstFromToken( Log &log, BumpPointerPool &pool ) : pool( pool ), log( log ) {
-    func_info = base_func_info();
-
-    module = pool.create<Module>( nullptr );
-    module->scope.func_info = base_func_info();
+    module.block.scope.func_map = base_func_map();
 }
 
 void TlPreAstFromToken::display( Displayer &ds ) const {
@@ -27,21 +25,21 @@ void TlPreAstFromToken::write( AstWriter &aw ) const {
 }
 
 void TlPreAstFromToken::push( TlToken *token ) {
-    module->nodes << make_node( &module->scope, token );
+    module.block.nodes << make_node( &module.block.scope, token );
 }
 
-Node *TlPreAstFromToken::make_variable( PreAst::Scope *scope, TlToken *token ) {
+Node *TlPreAstFromToken::make_node_variable( PreAst::Scope *scope, TlToken *token ) {
     Node_Variable *res = pool.create<Node_Variable>( token, scope, token->content );
     variables << res;
     return res;
 }
 
-Node *TlPreAstFromToken::make_string( PreAst::Scope *scope, TlToken *token ) {
+Node *TlPreAstFromToken::make_node_string( PreAst::Scope *scope, TlToken *token ) {
     Node_String *res = pool.create<Node_String>( token, token->content );
     return res;
 }
 
-Node *TlPreAstFromToken::make_call( PreAst::Scope *scope, TlToken *token ) {
+Node *TlPreAstFromToken::make_node_call( PreAst::Scope *scope, TlToken *token ) {
     // result object
     Node_Call *call = pool.create<Node_Call>( token, scope );
 
@@ -52,17 +50,41 @@ Node *TlPreAstFromToken::make_call( PreAst::Scope *scope, TlToken *token ) {
     // special args ?
     TlToken *arg = func->next;
     if ( auto *v = dynamic_cast<Node_Variable *>( call->func ) ) {
-        auto iter = func_info->arg_types.find( v->name );
-        if ( iter != func_info->arg_types.end() ) {
-            for( FuncInfo::Behavior at : iter->second ) {
-                switch ( at ) {
-                    case FuncInfo::ArgType::ImmediateBlock: TODO;
-                    case FuncInfo::ArgType::DelayedBlock: TODO;
-                    case FuncInfo::ArgType::VarDecl: TODO;
-                    case FuncInfo::ArgType::ArgDecl: TODO;
-                    case FuncInfo::ArgType::InDecl: TODO;
-                    case FuncInfo::ArgType::Value: TODO;
+        auto iter = call->scope.func_map->find( v->name );
+        if ( iter != call->scope.func_map->end() ) {
+            switch ( iter->second ) {
+                case FuncType::ImmediateBlock: {
+                    TODO;
                 }
+                
+                case FuncType::Assignation: {
+                    Node_VarDeclAndBlock *n = pool.create<Node_VarDeclAndBlock>( arg );
+                    n->var_decl = make_var_decl( &call->scope, arg, false );
+                    n->block = make_block( &n->var_decl->scope, arg->next );
+                    call->args << Arg{ arg, {}, n };
+                    return call;
+                }
+                
+                case FuncType::Lambda: {
+                    TODO;
+                }
+
+                case FuncType::Class: {
+                    TODO;
+                }
+
+                case FuncType::Test: {
+                    TODO;
+                }
+
+                case FuncType::Def: {
+                    TODO;
+                }
+
+                case FuncType::For: {
+                    TODO;
+                }
+
             }
 
             // if ( iter->second.delayed_scope )
@@ -83,7 +105,7 @@ Node *TlPreAstFromToken::make_call( PreAst::Scope *scope, TlToken *token ) {
 Node *TlPreAstFromToken::make_node( PreAst::Scope *scope, TlToken *token ) {
     switch ( token->type ) {
         case TlToken::Type::ParenthesisCall:
-            return make_call( scope, token );
+            return make_node_call( scope, token );
         case TlToken::Type::BracketCall:
             P( token );
             TODO;
@@ -91,9 +113,9 @@ Node *TlPreAstFromToken::make_node( PreAst::Scope *scope, TlToken *token ) {
             P( token );
             TODO;
         case TlToken::Type::Variable:
-            return make_variable( scope, token );
+            return make_node_variable( scope, token );
         case TlToken::Type::String:
-            return make_string( scope, token );
+            return make_node_string( scope, token );
     }
     return nullptr;
 }
@@ -112,6 +134,31 @@ Arg TlPreAstFromToken::make_arg( PreAst::Scope *scope, TlToken *token ) {
 
     // unnamed arg
     res.node = make_node( scope, token );
+    return res;
+
+}
+
+VarDecl *TlPreAstFromToken::make_var_decl( PreAst::Scope *scope, TlToken *token, bool func_by_default ) {
+    VarDecl *res = pool.create<VarDecl>( scope );
+    res->is_a_func = func_by_default;
+    res->token = token;
+
+    TlToken *var = token;
+    if ( var->type == TlToken::Type::Variable ) {
+        res->pos_in_parent_scope = scope->variable_names.push_back_ind( var->content );
+    } else {
+        TODO;
+    }
+
+    return res;
+}
+
+Block *TlPreAstFromToken::make_block( PreAst::Scope *scope, TlToken *token ) {
+    Block *res = pool.create<Block>( scope );
+
+    for( ; token; token = token->next )
+        res->nodes << make_node( &res->scope, token );
+
     return res;
 
 }

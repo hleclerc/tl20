@@ -7,14 +7,11 @@ BEG_TL_NAMESPACE
 namespace PreAst {
 
 /** 
-    node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Block : public Node {
+class Block {
 public:
-    /**/          Block    ( TlToken *token, Scope *parent_scope = nullptr, Scope::Type scope_type = Scope::Type::Immediate );
-
-    virtual void  display  ( Displayer &ds ) const;
-    virtual void  write    ( AstWriter &aw ) const;
+    void          display( Displayer &ds ) const;
+    void          write  ( AstWriter &aw ) const;
 
     Scope         scope;
     Vec<Node *>   nodes;

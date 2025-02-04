@@ -5,7 +5,7 @@ BEG_TL_NAMESPACE
 namespace PreAst {
 
 Node_Variable::Node_Variable( TlToken *token, Scope *scope, const Str &name ) : Node( token ), scope( scope ), name( name ) {
-    nb_variables_in_scope = scope->variables.size();
+    nb_variables_in_scope_during_construction = scope->variable_names.size();
 }
 
 void Node_Variable::display( Displayer &ds ) const {

@@ -6,16 +6,14 @@ BEG_TL_NAMESPACE
 namespace PreAst {
 
 /** 
-    node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Module : public Block {
+class Module {
 public:
-    /**/            Module   ( TlToken *token );
-
     virtual void    display  ( Displayer &ds ) const;
     virtual void    write    ( AstWriter &aw ) const;
 
     Vec<Str>        global_variables;
+    Block           block;
 };
 
 } // namespace PreAst

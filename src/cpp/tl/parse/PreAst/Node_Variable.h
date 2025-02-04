@@ -16,9 +16,9 @@ public:
     virtual void    display      ( Displayer &ds ) const;
     virtual void    write        ( AstWriter &aw ) const;
 
-    PI              nb_variables_in_scope; ///< when variable is used
+    PI              nb_variables_in_scope_during_construction; ///< 
     Scope*          scope;       ///<
-    Str             name;        ///< 
+    Str             name;        ///<
 };
 
 } // namespace PreAst

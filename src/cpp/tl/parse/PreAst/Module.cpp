@@ -3,11 +3,8 @@
 BEG_TL_NAMESPACE
 namespace PreAst {
 
-Module::Module( TlToken *token ) : Block( token, nullptr, Scope::Type::Immediate ) {
-}
-
 void Module::display( Displayer &ds ) const {
-    DS_OBJECT( Module, global_variables, scope, nodes );
+    DS_OBJECT( Module, global_variables, block );
 }
 
 void Module::write( AstWriter &aw ) const {

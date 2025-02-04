@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Variable.h"
-#include "FuncInfo.h"
+#include "../../support/containers/Vec.h"
+#include "../../support/Displayer.h"
+#include "FuncType.h"
 
 BEG_TL_NAMESPACE
 namespace PreAst {
@@ -11,15 +12,17 @@ namespace PreAst {
 */
 class Scope {
 public:
+    using               FuncMap     = std::map<Str,FuncType>;
     enum class          Type        { Immediate, Delayed, Class };
 
-    /**/                Scope       ( Scope *parent, Type type = Type::Immediate );
+    /**/                Scope       ( Scope *parent = nullptr, Type type = Type::Immediate );
     void                display     ( Displayer &ds ) const;
     // virtual void     write       ( AstWriter &aw ) const;
     
-    PI                  nb_variables_in_parents;
-    FuncInfo*           func_info;
-    Vec<Variable>       variables;
+    PI                  nb_variables_in_parents_during_creation;
+    Vec<Str>            variable_names; ///< name of created variables
+    Vec<PI>             references;     ///< variable coming from the parent scope
+    FuncMap*            func_map;
     Scope*              parent;
     Type                type;
 };
