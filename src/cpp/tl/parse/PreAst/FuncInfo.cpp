@@ -8,6 +8,8 @@ FuncInfo::FuncInfo() {
     arg_types[ "class"       ] = { ArgType::VarDecl, ArgType::DelayedBlock };
     arg_types[ "def"         ] = { ArgType::VarDecl, ArgType::DelayedBlock };
 
+    arg_types[ "operator :=" ] = { ArgType::VarDecl, ArgType:: };
+
     arg_types[ "info"        ] = { ArgType::ImmediateBlock };
     arg_types[ "and"         ] = { ArgType::ImmediateBlock };
     arg_types[ "or"          ] = { ArgType::ImmediateBlock };

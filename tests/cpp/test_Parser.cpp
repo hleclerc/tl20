@@ -94,5 +94,5 @@ TEST_CASE( "Parser src to tok", "" ) {
 }
 
 TEST_CASE( "Parser src to ap", "" ) {
-    test_pre( "a" );
+    test_pre( "a := b" );
 }
