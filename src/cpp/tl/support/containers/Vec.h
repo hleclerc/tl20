@@ -158,7 +158,7 @@ public:
     bool                empty                 () const { return size_ == 0; }
     PI                  size                  ( PI d ) const { return size(); }
     PI                  size                  () const;
-    
+
     Item*               push_back_unique      ( auto &&value );
     PI                  push_back_ind         ( auto&&...args ); ///< push_back with Item( FORWARD( args )... ) and return index of the new item
     Item*               push_back_br          ( auto&&...args ); ///< push_back with Item{ FORWARD( args )... }

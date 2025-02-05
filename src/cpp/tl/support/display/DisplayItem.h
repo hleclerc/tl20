@@ -13,11 +13,13 @@ public:
     virtual      ~DisplayItem       ();
 
     bool          is_the_first_child() const;
+    virtual bool  has_default_value () const = 0;
     bool          is_the_root_item  () const;
     virtual void  write_content_to  ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const = 0;
     virtual int   max_tensor_order  () const;
     void          for_each_child    ( const std::function<void( DisplayItem *child )> &f ) const;
     bool          has_children      () const;
+
     void          write_to          ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const;
     void          append            ( DisplayItem *res );
 

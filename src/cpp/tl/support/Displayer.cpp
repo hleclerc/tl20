@@ -64,6 +64,12 @@ void Displayer::append_array( const std::function<void()> &cb ) {
     end_array();
 }
 
+Str Displayer::as_Str( const DisplayParameters &dp ) const {
+    Str out;
+    write_to( out, dp );
+    return out;
+}
+
 void Displayer::write_to( Str &out, const DisplayParameters &prf ) const {
     DisplayContext ctx;
     last_container->write_to( out, ctx, prf );

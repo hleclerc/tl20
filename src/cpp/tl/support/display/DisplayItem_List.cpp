@@ -1,8 +1,13 @@
 #include "DisplayItem_List.h"
-#include <utility>
-// #include "../TODO.h"
 
 BEG_TL_NAMESPACE
+
+bool DisplayItem_List::has_default_value() const {
+    for( DisplayItem *item = last_child; item; item = item->prev_sibling )
+        if ( ! item->has_default_value() )
+            return false;
+    return true;
+}
 
 void DisplayItem_List::write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
     //
@@ -31,13 +36,16 @@ void DisplayItem_List::write_content_to( Str &out, DisplayContext &ctx, const Di
         ctx.incr();
 
     // children
+    PI old_out_size = out.size();
     for_each_child( [&]( DisplayItem *child ) {
         if ( use_new_lines ) {
             if ( may_need_a_space )
                 ctx.write_beg_line( out );
         } else {
-            if ( ! child->is_the_first_child() )
+            if ( old_out_size != out.size() ) {
                 out += ',';
+                old_out_size = out.size();
+            }
 
             if ( prf.add_spaces_for_reading && may_need_a_space )
                 out += ' ';

@@ -6,8 +6,13 @@ DisplayItem::~DisplayItem() {
 }
 
 void DisplayItem::write_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const {
-    if ( name.size() )
-        out += name + ": ";
+    if ( name.size() ) {
+        if ( prf.skip_if_default_value && has_default_value() )
+            return;
+        out += name + ":";
+        if ( prf.add_spaces_for_reading )
+            out += " ";
+    }
     write_content_to( out, ctx, prf );
 }
 

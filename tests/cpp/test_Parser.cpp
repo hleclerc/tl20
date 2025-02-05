@@ -1,8 +1,13 @@
 #include <tl/support/containers/Opt.h>
 #include <tl/support/log/TestingLog.h>
-#include <tl/parse/AstWriterStr.h>
-#include <tl/parse/TlParser.h>
+#include <tl/parse/Ast/Writer.h>
+#include <tl/parse/TokFromSrc.h>
+#include <tl/parse/PstFromTok.h>
 #include "catch_main.h"
+
+using namespace Ast;
+//using namespace Pst;
+using namespace Tok;
 
 struct TestResult {
     Opt<Vec<Str>> err_msgs;
@@ -13,10 +18,10 @@ struct TestResult {
 void test_tok( Str code, TestResult tr ) {
     Str file = "command_line";
 
+    Writer aw;
     TestingLog log;
-    AstWriter aw;
-    TlParser tp( log );
-    tp.parse( code, 0, aw.str( "file" ) );
+    TokFromSrc tp( log );
+    tp.parse( code, 0, aw.string( "file" ) );
 
     bool made_a_test = false;
     if ( tr.err_msgs ) {
@@ -45,14 +50,20 @@ void test_tok( Str code, TestResult tr ) {
         P( tp.condensed() );
 }
 
-void test_pre( Str code ) {
+void test_pst( Str code ) {
     Str file = "command_line";
 
+    Writer aw;
     TestingLog log;
-    AstWriter aw;
-    TlParser tp( log );
-    tp.parse( code, 0, aw.str( "file" ) );
-    tp.dump( aw );
+    TokFromSrc ts( log );
+    ts.parse( code, 0, aw.string( "file" ) );
+
+    PstFromTok pt( log );
+    pt.parse( ts.root() );
+
+    Displayer ds;
+    pt.root()->display( ds );
+    P( ds.as_Str( DisplayParameters::compact() ) );
 }
 
 TEST_CASE( "Parser src to tok", "" ) {
@@ -94,5 +105,5 @@ TEST_CASE( "Parser src to tok", "" ) {
 }
 
 TEST_CASE( "Parser src to ap", "" ) {
-    test_pre( "a := b" );
+    test_pst( "a := b" );
 }

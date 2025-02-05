@@ -31,6 +31,7 @@ public:
     void            set_next_type   ( StrView type ); ///< set the type of the next item to be appended
     T_T Displayer&  operator<<      ( const T &value ) { display( *this, value ); return *this; }
     void            write_to        ( Str &out, const DisplayParameters &dp ) const;
+    Str             as_Str          ( const DisplayParameters &dp ) const;
     void            show            ( const DisplayParameters &dp = {} ) const;
 
     // helpers

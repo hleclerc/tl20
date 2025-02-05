@@ -9,7 +9,8 @@ BEG_TL_NAMESPACE
 */
 class DisplayItem_Number : public DisplayItem {
 public:
-    virtual void write_content_to( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const override;
+    virtual bool has_default_value() const override { return numerator.empty(); }
+    virtual void write_content_to ( Str &out, DisplayContext &ctx, const DisplayParameters &prf ) const override;
 
     Str          denominator;
     Str          base_shift;
