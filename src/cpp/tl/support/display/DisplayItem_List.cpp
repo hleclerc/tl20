@@ -38,6 +38,9 @@ void DisplayItem_List::write_content_to( Str &out, DisplayContext &ctx, const Di
     // children
     PI old_out_size = out.size();
     for_each_child( [&]( DisplayItem *child ) {
+        if ( prf.skip_if_default_value && child->has_default_value() )
+            return;
+        
         if ( use_new_lines ) {
             if ( may_need_a_space )
                 ctx.write_beg_line( out );

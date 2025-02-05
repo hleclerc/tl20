@@ -1,7 +1,6 @@
 #include "../support/string/va_string.h"
 #include "../support/ASSERT.h"
 #include "Tok/char_types.h"
-#include "tl/parse/Ast/WriterString.h"
 #include "TokFromSrc.h"
 #include <limits>
 
@@ -45,7 +44,7 @@ void TokFromSrc::_init() {
     pool.clear();
 }
 
-void TokFromSrc::_parse( int c, const char *nxt, const char *beg, const char *end, Ast::WriterString src_url ) {
+void TokFromSrc::_parse( int c, const char *nxt, const char *beg, const char *end, Ast::StringRef src_url ) {
     // restart (i.e. jump to the right place)
     if ( ! restart_jump )
         restart_jump = &&cnt_new_line;
@@ -294,7 +293,7 @@ void TokFromSrc::_pop_stack_item() {
     token_stack.pop_back();
 }
 
-void TokFromSrc::parse( StrView content, PI src_off, Ast::WriterString src_url, bool write_eof ) {
+void TokFromSrc::parse( StrView content, PI src_off, Ast::StringRef src_url, bool write_eof ) {
     // create the root token if not already done
     if ( token_stack.empty() ) {
         curr_tok_src_refs = { SrcRef{ src_url, src_off, src_off } };

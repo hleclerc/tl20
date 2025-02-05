@@ -4,7 +4,7 @@
 #include "../support/containers/Vec.h"
 #include "../support/log/Log.h"
 
-#include "tl/parse/Ast/WriterString.h"
+#include "tl/parse/Ast/StringRef.h"
 #include "Tok/OperatorTrie.h"
 #include "Tok/StackItem.h"
 
@@ -21,7 +21,7 @@ class TokFromSrc {
 public:
     /**/               TokFromSrc                 ( Log &log );
         
-    void               parse                      ( StrView content, PI src_off, Ast::WriterString src_url, bool write_eof = true );
+    void               parse                      ( StrView content, PI src_off, Ast::StringRef src_url, bool write_eof = true );
     Tok::Node*         root                       (); ///< (operator module, ...)
       
     Str                condensed                  () const; ///< condensed human readable representation (for debug purpose). Removes `operator module` as first child
@@ -52,7 +52,7 @@ private:
     bool               _take_node                 ( Tok::Node *token, const TakingInfo &ti );
     Tok::Node*         _new_node                  ( Tok::Node::Type type, StrView content = {} );
     void               _error                     ( Str msg, Vec<Tok::Node *> tok = {} );
-    void               _parse                     ( int c, const char *nxt, const char *beg, const char *end, Ast::WriterString src_url );
+    void               _parse                     ( int c, const char *nxt, const char *beg, const char *end, Ast::StringRef src_url );
     void               _init                      ();
     
     bool               local_operator_trie;       ///<

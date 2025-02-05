@@ -1,8 +1,8 @@
 #include <tl/support/containers/Opt.h>
 #include <tl/support/log/TestingLog.h>
-#include <tl/parse/Ast/Writer.h>
 #include <tl/parse/TokFromSrc.h>
 #include <tl/parse/PstFromTok.h>
+#include <tl/parse/AstFromPst.h>
 #include "catch_main.h"
 
 using namespace Ast;
@@ -17,11 +17,11 @@ struct TestResult {
 
 void test_tok( Str code, TestResult tr ) {
     Str file = "command_line";
-
-    Writer aw;
+    StringStore sst;
     TestingLog log;
+
     TokFromSrc tp( log );
-    tp.parse( code, 0, aw.string( "file" ) );
+    tp.parse( code, 0, sst.string( "file" ) );
 
     bool made_a_test = false;
     if ( tr.err_msgs ) {
@@ -52,14 +52,19 @@ void test_tok( Str code, TestResult tr ) {
 
 void test_pst( Str code ) {
     Str file = "command_line";
-
-    Writer aw;
+    StringStore sst;
     TestingLog log;
+
     TokFromSrc ts( log );
-    ts.parse( code, 0, aw.string( "file" ) );
+    ts.parse( code, 0, sst.string( "file" ) );
 
     PstFromTok pt( log );
     pt.parse( ts.root() );
+
+    AstFromPst ap( log );
+    ap.parse( pt.root() );
+
+    P( pt.crepr() );
 
     Displayer ds;
     pt.root()->display( ds );

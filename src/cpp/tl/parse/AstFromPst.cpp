@@ -4,7 +4,7 @@
 #include "Pst/Node_Call.h"
 #include "Pst/FuncType.h"
 
-#include "TlPreAstFromToken.h"
+#include "AstFromPst.h"
 #include "Tok::Node.h"
 
 #include "../support/P.h"
@@ -12,34 +12,34 @@
 BEG_TL_NAMESPACE
 using namespace Pst;
 
-TlPreAstFromToken::TlPreAstFromToken( Log &log, BumpPointerPool &pool ) : pool( pool ), log( log ) {
+AstFromPst::AstFromPst( Log &log, BumpPointerPool &pool ) : pool( pool ), log( log ) {
     module.block.scope.func_map = base_func_map();
 }
 
-void TlPreAstFromToken::display( Displayer &ds ) const {
+void AstFromPst::display( Displayer &ds ) const {
     ds << module;
 }
 
-void TlPreAstFromToken::write( Ast::Writer &aw ) const {
+void AstFromPst::write( Ast::Writer &aw ) const {
 
 }
 
-void TlPreAstFromToken::push( Tok::Node *token ) {
+void AstFromPst::push( Tok::Node *token ) {
     module.block.nodes << make_node( &module.block.scope, token );
 }
 
-Node *TlPreAstFromToken::make_node_variable( Pst::Scope *scope, Tok::Node *token ) {
+Node *AstFromPst::make_node_variable( Pst::Scope *scope, Tok::Node *token ) {
     Node_Variable *res = pool.create<Node_Variable>( token, scope, token->content );
     variable_refs << res;
     return res;
 }
 
-Node *TlPreAstFromToken::make_node_string( Pst::Scope *scope, Tok::Node *token ) {
+Node *AstFromPst::make_node_string( Pst::Scope *scope, Tok::Node *token ) {
     Node_String *res = pool.create<Node_String>( token, token->content );
     return res;
 }
 
-Node *TlPreAstFromToken::make_node_call( Pst::Scope *scope, Tok::Node *token ) {
+Node *AstFromPst::make_node_call( Pst::Scope *scope, Tok::Node *token ) {
     // result object
     Node_Call *call = pool.create<Node_Call>( token, scope );
 
@@ -102,7 +102,7 @@ Node *TlPreAstFromToken::make_node_call( Pst::Scope *scope, Tok::Node *token ) {
 
 }
 
-Node *TlPreAstFromToken::make_node( Pst::Scope *scope, Tok::Node *token ) {
+Node *AstFromPst::make_node( Pst::Scope *scope, Tok::Node *token ) {
     switch ( token->type ) {
         case Tok::Node::Type::ParenthesisCall:
             return make_node_call( scope, token );
@@ -120,7 +120,7 @@ Node *TlPreAstFromToken::make_node( Pst::Scope *scope, Tok::Node *token ) {
     return nullptr;
 }
 
-Arg TlPreAstFromToken::make_arg( Pst::Scope *scope, Tok::Node *token ) {
+Arg AstFromPst::make_arg( Pst::Scope *scope, Tok::Node *token ) {
     Arg res( token );
 
     // named arg ?
@@ -138,7 +138,7 @@ Arg TlPreAstFromToken::make_arg( Pst::Scope *scope, Tok::Node *token ) {
 
 }
 
-VarDecl *TlPreAstFromToken::make_var_decl( Pst::Scope *scope, Tok::Node *token, bool func_by_default ) {
+VarDecl *AstFromPst::make_var_decl( Pst::Scope *scope, Tok::Node *token, bool func_by_default ) {
     VarDecl *res = pool.create<VarDecl>( scope );
     res->is_a_func = func_by_default;
     res->token = token;
@@ -153,7 +153,7 @@ VarDecl *TlPreAstFromToken::make_var_decl( Pst::Scope *scope, Tok::Node *token, 
     return res;
 }
 
-Block *TlPreAstFromToken::make_block( Pst::Scope *scope, Tok::Node *token ) {
+Block *AstFromPst::make_block( Pst::Scope *scope, Tok::Node *token ) {
     Block *res = pool.create<Block>( scope );
 
     for( ; token; token = token->next )

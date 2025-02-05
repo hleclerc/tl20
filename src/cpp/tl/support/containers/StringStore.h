@@ -3,19 +3,6 @@
 #include "../common_types.h"
 
 BEG_TL_NAMESPACE
-class StringStore;
-
-/**
- */
-class RefInStringStore {
-public:
-    bool         operator==( const RefInStringStore &that ) const;
-    operator     StrView   () const;
-
-    StringStore* string_store;
-    PI           off;
-    PI           len;
-};
 
 /**
  */

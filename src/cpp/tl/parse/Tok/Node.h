@@ -3,7 +3,7 @@
 #include "../../support/memory/PoolVec.h"
 #include "../../support/memory/PoolStr.h"
 #include "../../support/Displayer.h"
-#include "../Ast/WriterString.h"
+#include "../Ast/StringRef.h"
 
 BEG_TL_NAMESPACE
 namespace Tok {
@@ -13,7 +13,7 @@ namespace Tok {
 class Node {
 public:
     enum class      Type            { ParenthesisCall, BracketCall, BraceCall, Variable, String };
-    struct          SrcRef          { Ast::WriterString url; PI beg, end; };
+    struct          SrcRef          { Ast::StringRef url; PI beg, end; };
    
     void            repl_in_graph_by( Node *token );
     void            add_child       ( Node *child );
