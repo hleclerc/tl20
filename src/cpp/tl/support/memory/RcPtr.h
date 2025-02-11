@@ -9,6 +9,8 @@ BEG_TL_NAMESPACE
  */
 template<class T>
 struct RcPtr {
+    static auto New          ( auto&&...ctor_args ) { return RcPtr<T>( new T( FORWARD( ctor_args )... ) ); }
+
     T_U         RcPtr        ( const RcPtr<U> &obj );
     /**/        RcPtr        ( const RcPtr &obj );
     T_U         RcPtr        ( RcPtr<U> &&obj );
@@ -23,7 +25,7 @@ struct RcPtr {
     T*          operator->   () const;
     T&          operator*    () const;
     T*          get          () const;
- 
+
     //void      display      ( Displayer &sr ) const { sr.append_pointer( , , const std::function<void ()> &cb)dd_ptr( data ); }
     explicit    operator bool() const;
  
@@ -48,6 +50,10 @@ struct RcPtr {
     void        dec_ref      ();
   
     T*          data;        ///<
+};
+
+struct WithRefCount {
+    PI ref_count = 0;
 };
 
 T_T Str pointer_repr( const RcPtr<T> &ptr ) { return pointer_repr( ptr.data ); }
