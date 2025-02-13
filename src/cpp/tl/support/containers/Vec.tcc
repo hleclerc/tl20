@@ -471,13 +471,16 @@ DTP SI UTP::index_first_checking( auto &&func ) const {
     return -1;
 }
 
+DTP void UTP::remove_unordered( PI i ) {
+    if ( -- size_ != i )
+        data_[ i ] = std::move( data_[ size_ ] );
+    data_[ size_ ].~Item();
+}
+
 DTP void UTP::remove_first_unordered( const auto &value ) {
     for( PI i = 0; i < size(); ++i ) {
         if ( data_[ i ] == value ) {
-            if ( --size_ != i ) {
-                data_[ i ] = std::move( data_[ size_ ] );
-                data_[ size_ ].~Item();
-            }
+            remove_unordered( i );
             return;
         }
     }

@@ -177,6 +177,7 @@ public:
     void                aligned_resize        ( PI size, auto alig, auto&&...ctor_args );
  
     void                remove_first_unordered( const auto &value );
+    void                remove_unordered      ( PI index );
     void                reserve               ( PI capa );
     void                resize                ( PI size, auto&&...ctor_args );
     void                fill                  ( auto&&...ctor_args ); ///<
