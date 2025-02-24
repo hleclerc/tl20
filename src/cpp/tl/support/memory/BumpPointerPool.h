@@ -47,4 +47,4 @@ private:
 
 END_TL_NAMESPACE
 
-#include "BumpPointerPool.tcc" // IWYU pragma: export
+#include "BumpPointerPool.cxx" // IWYU pragma: export

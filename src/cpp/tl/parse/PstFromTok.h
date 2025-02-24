@@ -15,7 +15,7 @@
 BEG_TL_NAMESPACE
 
 /** 
-    node of a "pre ast" graph, used to make a final Ast for tokens
+    node of a "pre ast" graph, used to make a final Ast with full information on catched variables
 */
 class PstFromTok {
 public:

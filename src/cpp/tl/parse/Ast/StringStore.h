@@ -1,6 +1,6 @@
 #pragma once
 
-#include "StringRef.h"
+#include "StrRef.h"
 
 BEG_TL_NAMESPACE
 namespace Ast {
@@ -11,11 +11,11 @@ namespace Ast {
 */
 class StringStore {
 public:
-    using     StrMap     = StringRef::Map;
+    using     StrMap     = StrRef::Map;
 
     /**/      StringStore();
 
-    StringRef string     ( const Str &val );
+    StrRef string     ( const Str &val );
 
 private:
     StrMap    str_map;

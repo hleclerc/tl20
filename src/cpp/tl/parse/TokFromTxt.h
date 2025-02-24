@@ -1,31 +1,26 @@
 #pragma once
 
 #include "../support/memory/BumpPointerPool.h"
+#include "../support/string/StrRef.h"
 #include "../support/containers/Vec.h"
 #include "../support/log/Log.h"
 
-#include "tl/parse/Ast/StringRef.h"
 #include "Tok/OperatorTrie.h"
 #include "Tok/StackItem.h"
 
 BEG_TL_NAMESPACE
 
 /** 
-    Make Ast content from some text
-
-    f a + b
-
-
+    Transform a text to a token tree.
 */
-class TokFromSrc {
+class TokFromTxt {
 public:
-    /**/               TokFromSrc                 ( Log &log );
-        
-    void               parse                      ( StrView content, PI src_off, Ast::StringRef src_url, bool write_eof = true );
-    Tok::Node*         root                       (); ///< (operator module, ...)
-      
-    Str                condensed                  () const; ///< condensed human readable representation (for debug purpose). Removes `operator module` as first child
-    void               display                    ( Displayer &ds ) const;
+    /**/               TokFromTxt                 ( Log &log );
+
+    void               parse_txt                  ( StrView content, StrRef src_url, PI src_off = 0 ); ///< `src_off` = offset in content of `src_url`
+    void               parse_eof                  ();
+    
+    Tok::Node*         root                       (); ///<
                      
 private:      
     struct             AppendingInfo              { int min_nb_children, max_nb_children; int right_prio = 100; };
@@ -52,10 +47,9 @@ private:
     bool               _take_node                 ( Tok::Node *token, const TakingInfo &ti );
     Tok::Node*         _new_node                  ( Tok::Node::Type type, StrView content = {} );
     void               _error                     ( Str msg, Vec<Tok::Node *> tok = {} );
-    void               _parse                     ( int c, const char *nxt, const char *beg, const char *end, Ast::StringRef src_url );
+    void               _parse                     ( const char *cur, const char *beg, const char *end );
     void               _init                      ();
     
-    bool               local_operator_trie;       ///<
     Tok::OperatorTrie* operator_trie;             ///<
     
     bool               prev_token_is_touching;    ///<
@@ -64,7 +58,8 @@ private:
       
     Vec<SrcRef>        curr_tok_src_refs;         ///<
     Str                curr_tok_content;          ///<
-    int                prev_char_value;           ///< used notably for cnt_number where '+' or '-' can be continuing chars if preceded by 'e' or 'E'
+    PI32               curr_codepoint;            ///< used for multi byte utf8
+
     Str                prev_line_beg;             ///<
     void*              restart_jump;              ///< where to go at the beginning of `parse`
     Vec<StackItem>     token_stack;               ///<

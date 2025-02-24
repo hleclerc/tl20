@@ -1,5 +1,6 @@
 -Iext/catch2/include
 -Isrc/cpp/
+-DSTRING_REF_BASE(A,B)=
 -march=native
 -std=c++20
 -xc++

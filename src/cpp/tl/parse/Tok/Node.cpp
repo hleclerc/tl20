@@ -39,16 +39,15 @@ void Node::add_child( Node *child ) {
 }
 
 Str Node::condensed() const {
-    auto disp_call = [&]( const Str &opening, const Str &closing ) {
-        // Str res = ASSERTED( first_child )->condensed();
-        Str res = opening;
+    auto disp_children = [&]() {
+        Str res;
         for( Node *child = first_child; child; child = child->next ) {
             ASSERT( child != this ); // test self ref
-                
+                            
             res += ( child == first_child ? "" : "," );
             res += child->condensed();
         }
-        return res + closing;
+        return res;
     };
 
     auto escaped_string = [&]( const Str &content ) {
@@ -62,11 +61,12 @@ Str Node::condensed() const {
     };
 
     switch ( type ) {
-        case Type::ParenthesisCall: return disp_call( "(", ")" );
-        case Type::BracketCall: return disp_call( "[", "]" );
-        case Type::BraceCall: return disp_call( "{", "}" );
+        case Type::ParenthesisCall: return "(" + disp_children() + ")";
+        case Type::BracketCall: return "[" + disp_children() + "]";
+        case Type::BraceCall: return "{" + disp_children() + "}";
         case Type::Variable: return content;
         case Type::String: return "\"" + escaped_string( content ) + "\"";
+        case Type::Root: return disp_children();
     }
 }
 

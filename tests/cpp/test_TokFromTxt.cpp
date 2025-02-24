@@ -1,12 +1,8 @@
 #include <tl/support/containers/Opt.h>
 #include <tl/support/log/TestingLog.h>
-#include <tl/parse/TokFromSrc.h>
-#include <tl/parse/PstFromTok.h>
-#include <tl/parse/AstFromPst.h>
+#include <tl/parse/TokFromTxt.h>
 #include "catch_main.h"
 
-using namespace Ast;
-//using namespace Pst;
 using namespace Tok;
 
 struct TestResult {
@@ -17,11 +13,11 @@ struct TestResult {
 
 void test_tok( Str code, TestResult tr ) {
     Str file = "command_line";
-    StringStore sst;
     TestingLog log;
 
-    TokFromSrc tp( log );
-    tp.parse( code, 0, sst.string( "file" ) );
+    TokFromTxt tp( log );
+    tp.parse_txt( code, "file" );
+    tp.parse_eof();
 
     bool made_a_test = false;
     if ( tr.err_msgs ) {
@@ -42,33 +38,12 @@ void test_tok( Str code, TestResult tr ) {
         CHECK( log.messages.empty() );
 
     if ( tr.exp ) {
-        CHECK( tp.condensed() == *tr.exp );
+        CHECK( tp.root()->condensed() == *tr.exp );
         made_a_test = true;
     }
 
     if ( ! made_a_test )
-        P( tp.condensed() );
-}
-
-void test_pst( Str code ) {
-    Str file = "command_line";
-    StringStore sst;
-    TestingLog log;
-
-    TokFromSrc ts( log );
-    ts.parse( code, 0, sst.string( "file" ) );
-
-    PstFromTok pt( log );
-    pt.parse( ts.root() );
-
-    AstFromPst ap( log );
-    ap.parse( pt.root() );
-
-    P( pt.crepr() );
-
-    Displayer ds;
-    pt.root()->display( ds );
-    P( ds.as_Str( DisplayParameters::compact() ) );
+        P( tp.root()->condensed() );
 }
 
 TEST_CASE( "Parser src to tok", "" ) {
@@ -107,8 +82,4 @@ TEST_CASE( "Parser src to tok", "" ) {
     test_tok( "( a, b )" , { .exp = "(operator (),a,b)" } );
     test_tok( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
     test_tok( "( a + )" , { .exp = "(operator (),(operator +,a))", .err_msgs = Vec<Str>{ "token was expecting an additional child." } } );
-}
-
-TEST_CASE( "Parser src to ap", "" ) {
-    test_pst( "a := b" );
 }
