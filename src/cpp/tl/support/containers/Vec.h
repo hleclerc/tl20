@@ -181,9 +181,9 @@ public:
  
     void                remove_first_unordered( const auto &value );
     void                remove_unordered      ( PI index );
+    void                fill_with             ( auto&&...ctor_args ); ///<
     void                reserve               ( PI capa );
     void                resize                ( PI size, auto&&...ctor_args );
-    void                fill                  ( auto&&...ctor_args ); ///<
     
     void                copy_data_to          ( void *data ) const;
     
