@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../common_types.h"
+#include "../Displayer.h"
 
 BEG_TL_NAMESPACE
 
@@ -15,6 +15,7 @@ public:
     /**/     StrRef( const Str &str );
     /**/     StrRef() : id( 0 ) {}
 
+    void     display  ( Displayer &ds ) const;
     operator StrView  () const;
 
     PI32     id;

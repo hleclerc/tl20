@@ -1,3 +1,7 @@
+import os
+
+nr_nodes = []
+
 class IntervalSet:
     def __init__( self, beg = 2**31, end = 2**31 ):
         if beg < end:
@@ -62,12 +66,15 @@ class IntervalSet:
         return self
 
 class Node:
-    def __init__( self, name, has_next = True ):
-        self.call_func = False
+    def __init__( self, name, has_next = True, enter_code = "", exit_code = "" ):
+        self.enter_code = enter_code
+        self.exit_code = exit_code
         self.has_next = has_next
         self.name = name
 
         self.next = [] # list of Next
+
+        nr_nodes.append( self )
 
     def add_next( self, node, first, last = None ):
         if last is None:
@@ -195,29 +202,49 @@ def insert( filename, txt_to_insert, beg_txt = "// beg generated code", end_txt 
         fout.write( txt_to_insert )
         fout.write( txt[ end : ] )
 
+# 
+
 # main node entries =========================================
-variable = Node( "variable" )
-operator = Node( "operator" )
-comment  = Node( "comment" )
-number   = Node( "number" )
-string   = Node( "string" )
+unauthch = Node( "unauthch", has_next = False )
 root     = Node( "root" )
 
-unauthch = Node( "unauthch" )
-unauthch.has_next = False
+# variable ======================================================
+variable = Node( "variable", enter_code = "curr_tok_content = c; curr_tok_src_refs = { SrcRef{ src_url, PI( cur - beg - 1 ) } };" )
 
-nr_nodes = [
-    variable,
-    operator,
-    comment,
-    number,
-    string,
-]
+variable.add_next( variable, 'a', 'z' )
+variable.add_next( variable, 'A', 'Z' )
+variable.add_next( variable, '_' )
+
+# number ======================================================
+number   = Node( "number" )
+
+number.add_next( number, '0', '9' )
+number.add_next( number, '.' )
+number.call_func = True
+
+# new_line ======================================================
+new_line = Node( "new_line" )
+
+new_line.add_next( new_line, '\r' )
+new_line.add_next( new_line, '\t' )
+new_line.add_next( new_line, ' ' )
+new_line.call_func = True
+
+# operator ======================================================
+operator = Node( "operator" )
+
+# string ======================================================
+string   = Node( "string" )
+
+# comment ======================================================
+comment  = Node( "comment" )
 
 # root ======================================================
 root.add_next( variable, 'a', 'z' )
 root.add_next( variable, 'A', 'Z' )
 root.add_next( variable, '_' )
+
+root.add_next( new_line, '\n' )
 
 root.add_next( comment, '#' )
 
@@ -227,19 +254,10 @@ root.add_next( string, '"' )
 
 root.fill_remaining( unauthch )
 
-# variable ======================================================
-variable.add_next( variable, 'a', 'z' )
-variable.add_next( variable, 'A', 'Z' )
-variable.add_next( variable, '_' )
-variable.call_func = True
-
-# number ======================================================
-number.add_next( number, '0', '9' )
-number.add_next( number, '.' )
-number.call_func = True
-
 # ================================================================
 for node in nr_nodes:
+    if node == root:
+        continue
     for next in root.next:
         node.add_next( next.node, next.beg, next.end - 1 )
 
@@ -247,4 +265,6 @@ for node in nr_nodes:
 wr = Writer()
 wr.write_for_single_bytes( root )
 wr.write_continuations()
-print( wr.txt )
+
+with open( os.path.join( os.path.dirname( __file__ ), "TokFromTxt.gen" ), "w" ) as fout:
+    fout.write( wr.txt )

@@ -39,5 +39,9 @@ StrRef::operator StrView() const {
     return str_vec[ id ];
 }
 
+void StrRef::display( Displayer &ds ) const {
+    ds << operator StrView();
+}
+
 
 END_TL_NAMESPACE

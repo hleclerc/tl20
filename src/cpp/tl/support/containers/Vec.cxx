@@ -471,6 +471,30 @@ DTP SI UTP::index_first_checking( auto &&func ) const {
     return -1;
 }
 
+DTP UTP UTP::cellspace( Item beg, Item end, PI size, Item pos_in_cell ) {
+    Vec res{ FromReservationSize(), size, size };
+    for( PI i = 0; i < size; ++i ) {
+        Item a = beg + ( end - beg ) * ( i + 0 ) / size;
+        Item b = beg + ( end - beg ) * ( i + 1 ) / size;
+        new ( res.data_ + i ) Item( a + ( b - a ) * pos_in_cell );
+    }
+    return res;
+}
+
+DTP UTP UTP::linspace( Item beg, Item end, PI size, bool with_end ) {
+    Vec res{ FromReservationSize(), size, size };
+    for( PI i = 0; i < size; ++i )
+        new ( res.data_ + i  ) Item( beg + ( end - beg ) * i / ( size - with_end ) );
+    return res;
+}
+
+DTP UTP UTP::fill( PI size, auto &&...ctor_args ) {
+    Vec res{ FromReservationSize(), size, size };
+    for( PI i = 0; i < size; ++i )
+        new ( res.data_ + i ) Item( FORWARD( ctor_args )... );
+    return res;
+}
+
 DTP void UTP::remove_unordered( PI i ) {
     if ( -- size_ != i )
         data_[ i ] = std::move( data_[ size_ ] );

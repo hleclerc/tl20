@@ -52,151 +52,153 @@ void TokFromTxt::_parse( const char *cur, const char *beg, const char *end ) {
 
     // jump to the right place
     if ( ! restart_jump )
-        restart_jump = &&cnt_new_line;
+        restart_jump = &&beg_new_line;
     goto *restart_jump;
 
     // after an eof =======================================================================================================
-    continuation_error: restart_jump = &&beg_eof; return _error( "a continuation byte was not expected here" );
-    after_eof: restart_jump = &&beg_eof; return;
+    after_eof: restart_jump = &&after_eof; return;
 
-    // beg generated code
-    // end generated code
+    // errors =============================================================================================================
+    continuation_error: restart_jump = &&after_eof; return _error( "a continuation byte was not expected here" );
 
-    // when nothing has started (not in a variable, number, ...)
-    char_switch:
-        if ( letter( c ) ) { curr_tok_content = c; goto beg_variable; }
-        if ( number( c ) ) { curr_tok_content = c; goto beg_number; }
-        if ( space ( c ) ) { goto beg_space; }
-        if ( oper  ( c ) ) { curr_tok_content = c; goto beg_operator; }
-        if ( c == '\n'   ) { goto beg_new_line; }
-        if ( c == '#'    ) { goto beg_comment; }
-        if ( c == '('    ) { _on_opening_paren( Node::Type::ParenthesisCall, "operator ()", ')' ); goto inc_switch; }
-        if ( c == '['    ) { _on_opening_paren( Node::Type::BracketCall    , "operator []", ']' ); goto inc_switch; }
-        if ( c == '{'    ) { _on_opening_paren( Node::Type::BraceCall      , "operator {}", '}' ); goto inc_switch; }
-        if ( c == ')'    ) { _on_closing_paren( ')' ); goto inc_switch; }
-        if ( c == ']'    ) { _on_closing_paren( ']' ); goto inc_switch; }
-        if ( c == '}'    ) { _on_closing_paren( '}' ); goto inc_switch; }
-        if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
-        if ( c == ','    ) { _on_comma(); goto inc_switch; }
+    // 
+    #include "TokFromTxt.gen"
 
-        if ( c == 0xFF   ) { restart_jump = &&restart_loop; return; }
+    // // when nothing has started (not in a variable, number, ...)
+    // char_switch:
+    //     if ( letter( c ) ) { curr_tok_content = c; goto beg_variable; }
+    //     if ( number( c ) ) { curr_tok_content = c; goto beg_number; }
+    //     if ( space ( c ) ) { goto beg_space; }
+    //     if ( oper  ( c ) ) { curr_tok_content = c; goto beg_operator; }
+    //     if ( c == '\n'   ) { goto beg_new_line; }
+    //     if ( c == '#'    ) { goto beg_comment; }
+    //     if ( c == '('    ) { _on_opening_paren( Node::Type::ParenthesisCall, "operator ()", ')' ); goto inc_switch; }
+    //     if ( c == '['    ) { _on_opening_paren( Node::Type::BracketCall    , "operator []", ']' ); goto inc_switch; }
+    //     if ( c == '{'    ) { _on_opening_paren( Node::Type::BraceCall      , "operator {}", '}' ); goto inc_switch; }
+    //     if ( c == ')'    ) { _on_closing_paren( ')' ); goto inc_switch; }
+    //     if ( c == ']'    ) { _on_closing_paren( ']' ); goto inc_switch; }
+    //     if ( c == '}'    ) { _on_closing_paren( '}' ); goto inc_switch; }
+    //     if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
+    //     if ( c == ','    ) { _on_comma(); goto inc_switch; }
 
-        if ( c >= 0x80 ) {
-            if ( c <= 0xBF )   // Continuation bytes			10xxxxxx	0x80 - 0xBF
-                return _error( "invalid utf8 encoding (continuation byte at the wrong place)" );
-            if ( c <= 0xDF ) { // 2 byte sequence introducer	110xxxxx	0xC0 - 0xDF
-                curr_codepoint = c & ( 0xFF >> 3 );
-                goto inc_switch_codepoint_1;
-            }
-            if ( c <= 0xEF ) { // 3 byte sequence introducer	1110xxxx	0xE0 - 0xEF
+    //     if ( c == 0xFF   ) { restart_jump = &&restart_loop; return; }
 
-            }
-            if ( c <= 0xF7 ) { // 4 byte sequence introducer	11110xxx	0xF0 - 0xF7
-            }
-            if ( c <= 0xFB ) { // 5 byte sequence introducer	111110xx	0xF8 - 0xFB
-            }
-            if ( c <= 0xFD ) { // 6 byte sequence introducer	1111110x	0xFC - 0xFD
-            }
+    //     if ( c >= 0x80 ) {
+    //         if ( c <= 0xBF )   // Continuation bytes			10xxxxxx	0x80 - 0xBF
+    //             return _error( "invalid utf8 encoding (continuation byte at the wrong place)" );
+    //         if ( c <= 0xDF ) { // 2 byte sequence introducer	110xxxxx	0xC0 - 0xDF
+    //             curr_codepoint = c & ( 0xFF >> 3 );
+    //             goto inc_switch_codepoint_1;
+    //         }
+    //         if ( c <= 0xEF ) { // 3 byte sequence introducer	1110xxxx	0xE0 - 0xEF
 
-            _error( "invalid utf8 encoding (Unassigned 11111110 byte)" );
-            goto inc_switch;
-        }
+    //         }
+    //         if ( c <= 0xF7 ) { // 4 byte sequence introducer	11110xxx	0xF0 - 0xF7
+    //         }
+    //         if ( c <= 0xFB ) { // 5 byte sequence introducer	111110xx	0xF8 - 0xFB
+    //         }
+    //         if ( c <= 0xFD ) { // 6 byte sequence introducer	1111110x	0xFC - 0xFD
+    //         }
 
-        return _error( va_string( "Unknown char type '{0}'", char( c ) ) );
+    //         _error( "invalid utf8 encoding (Unassigned 11111110 byte)" );
+    //         goto inc_switch;
+    //     }
 
-    inc_switch:
-        if ( cur == end ) {
-            restart_jump = &&char_switch;
-            return;
-        }
-        c = *( cur++ );
-        goto char_switch;
+    //     return _error( va_string( "Unknown char type '{0}'", char( c ) ) );
 
-    // ==================================================================================================================
-    inc_switch_codepoint__:
-        #define INC_SWITCH_CODEPOINT( N ) \
-            inc_switch_codepoint_##N: \
-                if ( cur == end ) { \
-                    restart_jump = &&cnt_switch_codepoint_##N; \
-                    return; \
-                } \
-                c = *( cur++ ); \
-            cnt_switch_codepoint_##N: \
-                if ( ( c & 0b11000000 ) != 0b10000000 ) \
-                    return _error( "Expecting an utf8 continuation at this place" ); \
-                curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        INC_SWITCH_CODEPOINT( 6 )
-        INC_SWITCH_CODEPOINT( 5 )
-        INC_SWITCH_CODEPOINT( 4 )
-        INC_SWITCH_CODEPOINT( 3 )
-        INC_SWITCH_CODEPOINT( 2 )
-        #undef INC_SWITCH_CODEPOINT
+    // inc_switch:
+    //     if ( cur == end ) {
+    //         restart_jump = &&char_switch;
+    //         return;
+    //     }
+    //     c = *( cur++ );
+    //     goto char_switch;
 
-        goto codepoint_switch;
+    // // ==================================================================================================================
+    // inc_switch_codepoint__:
+    //     #define INC_SWITCH_CODEPOINT( N ) \
+    //         inc_switch_codepoint_##N: \
+    //             if ( cur == end ) { \
+    //                 restart_jump = &&cnt_switch_codepoint_##N; \
+    //                 return; \
+    //             } \
+    //             c = *( cur++ ); \
+    //         cnt_switch_codepoint_##N: \
+    //             if ( ( c & 0b11000000 ) != 0b10000000 ) \
+    //                 return _error( "Expecting an utf8 continuation at this place" ); \
+    //             curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    //     INC_SWITCH_CODEPOINT( 6 )
+    //     INC_SWITCH_CODEPOINT( 5 )
+    //     INC_SWITCH_CODEPOINT( 4 )
+    //     INC_SWITCH_CODEPOINT( 3 )
+    //     INC_SWITCH_CODEPOINT( 2 )
+    //     #undef INC_SWITCH_CODEPOINT
 
-    // ==================================================================================================================
-    codepoint_switch:
-        TODO;
+    //     goto codepoint_switch;
+
+    // // ==================================================================================================================
+    // codepoint_switch:
+    //     TODO;
 
 
-    // comment ============================================================================================================
-    beg_comment:
-    cnt_comment:
-        if ( cur == end )
-            goto int_comment;
-        c = *( cur++ );
-        if ( c == '\n' )
-            goto beg_new_line;
-        goto cnt_comment;
-    int_comment:
-        restart_jump = &&cnt_comment;
-        return;
+    // // comment ============================================================================================================
+    // beg_comment:
+    // cnt_comment:
+    //     if ( cur == end )
+    //         goto int_comment;
+    //     c = *( cur++ );
+    //     if ( c == '\n' )
+    //         goto beg_new_line;
+    //     goto cnt_comment;
+    // int_comment:
+    //     restart_jump = &&cnt_comment;
+    //     return;
 
-    // spacing ============================================================================================================
-    beg_space:
-    cnt_space:
-        if ( cur == end )
-            goto int_space;
-        c = *( cur++ );
-        if ( space( c ) )
-            goto cnt_space;
-        _on_space();
-        goto char_switch;
-    int_space:
-        restart_jump = &&cnt_space;
-        return;
+    // // spacing ============================================================================================================
+    // beg_space:
+    // cnt_space:
+    //     if ( cur == end )
+    //         goto int_space;
+    //     c = *( cur++ );
+    //     if ( space( c ) )
+    //         goto cnt_space;
+    //     _on_space();
+    //     goto char_switch;
+    // int_space:
+    //     restart_jump = &&cnt_space;
+    //     return;
 
-    // ====================================================================================================================
-    #define PARSE_TYPE( TYPE ) \
-        beg_##TYPE: \
-            curr_tok_src_refs = { SrcRef{ src_url, PI( nxt - beg - 1 ) } }; \
-            curr_tok_content.clear(); \
-        psh_##TYPE: \
-            curr_tok_content += c; \
-            if ( nxt == end ) \
-                goto int_##TYPE; \
-            c = *( nxt++ ); \
-        cnt_##TYPE: \
-            if ( is_cnt_for_##TYPE( c ) ) \
-                goto psh_##TYPE; \
-            curr_tok_src_refs.back().end = nxt - beg - 1; \
-            _on_##TYPE(); \
-            goto char_switch; \
-        int_##TYPE: \
-            curr_tok_src_refs.back().end = nxt - beg - 1; \
-            restart_jump = &&res_##TYPE; \
-            return; \
-        res_##TYPE: \
-            if ( curr_tok_src_refs.back().url != src_url || curr_tok_src_refs.back().end != beg - nxt - 1 ) \
-                curr_tok_src_refs.push_back_br( src_url, PI( nxt - beg - 1 ) ); \
-            goto cnt_##TYPE;
+    // // ====================================================================================================================
+    // #define PARSE_TYPE( TYPE ) \
+    //     beg_##TYPE: \
+    //         curr_tok_src_refs = { SrcRef{ src_url, PI( nxt - beg - 1 ) } }; \
+    //         curr_tok_content.clear(); \
+    //     psh_##TYPE: \
+    //         curr_tok_content += c; \
+    //         if ( nxt == end ) \
+    //             goto int_##TYPE; \
+    //         c = *( nxt++ ); \
+    //     cnt_##TYPE: \
+    //         if ( is_cnt_for_##TYPE( c ) ) \
+    //             goto psh_##TYPE; \
+    //         curr_tok_src_refs.back().end = nxt - beg - 1; \
+    //         _on_##TYPE(); \
+    //         goto char_switch; \
+    //     int_##TYPE: \
+    //         curr_tok_src_refs.back().end = nxt - beg - 1; \
+    //         restart_jump = &&res_##TYPE; \
+    //         return; \
+    //     res_##TYPE: \
+    //         if ( curr_tok_src_refs.back().url != src_url || curr_tok_src_refs.back().end != beg - nxt - 1 ) \
+    //             curr_tok_src_refs.push_back_br( src_url, PI( nxt - beg - 1 ) ); \
+    //         goto cnt_##TYPE;
 
-    PARSE_TYPE( new_line );
-    PARSE_TYPE( variable );
-    PARSE_TYPE( operator );
-    PARSE_TYPE( number   );
+    // PARSE_TYPE( new_line );
+    // PARSE_TYPE( variable );
+    // PARSE_TYPE( operator );
+    // PARSE_TYPE( number   );
 
-    #undef PARSE_TYPE
+    // #undef PARSE_TYPE
 }
 
 void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name, char expected_closing ) {

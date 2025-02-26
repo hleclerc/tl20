@@ -1,4 +1,5 @@
 #include "../../support/ASSERT.h"
+#include "tl/support/common_types.h"
 #include "Node.h"
 
 BEG_TL_NAMESPACE
@@ -64,8 +65,8 @@ Str Node::condensed() const {
         case Type::ParenthesisCall: return "(" + disp_children() + ")";
         case Type::BracketCall: return "[" + disp_children() + "]";
         case Type::BraceCall: return "{" + disp_children() + "}";
-        case Type::Variable: return content;
-        case Type::String: return "\"" + escaped_string( content ) + "\"";
+        case Type::Variable: return Str( variable_ref );
+        case Type::String: return "\"" + escaped_string( string_content ) + "\"";
         case Type::Root: return disp_children();
     }
 }

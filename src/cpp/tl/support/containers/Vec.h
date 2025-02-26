@@ -125,7 +125,10 @@ public:
     operator            CstSpan<Item>         () const { return { data(), size() }; }
     operator            Span<Item>            () { return { data(), size() }; }
     
+    static Vec          cellspace             ( Item beg, Item end, PI size, Item pos_in_cell = Item( 1 ) / 2 );
+    static Vec          linspace              ( Item beg, Item end, PI size, bool with_end = true );
     static Vec          range                 ( Item end );
+    static Vec          fill                  ( PI size, auto &&...ctor_args );
     
     Vec&                operator=             ( const Vec &that );
     Vec&                operator=             ( Vec &&that );
@@ -266,4 +269,4 @@ auto map_vec( auto &&input, auto &&func ) {
 
 END_TL_NAMESPACE
 
-#include "Vec.tcc" // IWYU pragma: export
+#include "Vec.cxx" // IWYU pragma: export
