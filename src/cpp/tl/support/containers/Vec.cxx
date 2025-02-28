@@ -510,6 +510,14 @@ DTP void UTP::remove_first_unordered( const auto &value ) {
     }
 }
 
+DTP UTP UTP::filtered( auto &&func ) const {
+    Vec res;
+    for( PI i = 0; i < size(); ++i )
+        if ( func( data_[ i ] ) )
+            res.push_back( data_[ i ] );
+    return res;
+}
+
 DTP void UTP::reserve( PI tgt_capa ) {
     aligned_reserve( tgt_capa, CtInt<1>() );
 }

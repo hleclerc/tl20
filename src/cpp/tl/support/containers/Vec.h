@@ -129,6 +129,8 @@ public:
     static Vec          linspace              ( Item beg, Item end, PI size, bool with_end = true );
     static Vec          range                 ( Item end );
     static Vec          fill                  ( PI size, auto &&...ctor_args );
+
+    Vec                 filtered              ( auto &&func ) const;
     
     Vec&                operator=             ( const Vec &that );
     Vec&                operator=             ( Vec &&that );
