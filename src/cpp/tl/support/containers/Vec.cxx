@@ -488,6 +488,13 @@ DTP UTP UTP::linspace( Item beg, Item end, PI size, bool with_end ) {
     return res;
 }
 
+DTP UTP UTP::random( Item beg, Item end, PI size ) {
+    Vec res{ FromReservationSize(), size, size };
+    for( PI i = 0; i < size; ++i )
+        new ( res.data_ + i  ) Item( beg + ( end - beg ) * rand() / RAND_MAX );
+    return res;
+}
+
 DTP UTP UTP::fill( PI size, auto &&...ctor_args ) {
     Vec res{ FromReservationSize(), size, size };
     for( PI i = 0; i < size; ++i )

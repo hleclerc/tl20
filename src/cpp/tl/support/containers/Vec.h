@@ -127,6 +127,7 @@ public:
     
     static Vec          cellspace             ( Item beg, Item end, PI size, Item pos_in_cell = Item( 1 ) / 2 );
     static Vec          linspace              ( Item beg, Item end, PI size, bool with_end = true );
+    static Vec          random                ( Item beg, Item end, PI size );
     static Vec          range                 ( Item end );
     static Vec          fill                  ( PI size, auto &&...ctor_args );
 
