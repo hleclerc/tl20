@@ -6,7 +6,7 @@ BEG_TL_NAMESPACE
 
 // // args for ctor selection
 // #define DECL_VOID_STRUCT_TTT( NAME, ... ) template<class T> struct NAME { static auto base_type_name() { return #NAME; } static void for_each_template_arg( auto &&f ) { f( S<T>() ); } }
-#define DECL_VOID_STRUCT_STD( NAME ) struct NAME { static auto type_name() { return #NAME; } }
+#define DECL_VOID_STRUCT_STD( NAME ) struct NAME { static const char *type_name() { return #NAME; } }
 
 // DECL_VOID_STRUCT_STD( FromSizeAndUninitializedItemValues ); ///<
 // DECL_VOID_STRUCT_STD( FromSizeAndExternalItemValues  ); ///< will make a ref
