@@ -4,6 +4,7 @@
 #include <string_view>
 #include <cstdint>
 #include <string>
+// #include <type_traits>
 
 BEG_TL_NAMESPACE
 
@@ -21,7 +22,11 @@ using SI8     = std::int8_t;
 
 using Bool    = bool;
 
+#if __cplusplus >= 202002L
 using Byte    = std::byte;
+#else
+enum class byte : unsigned char {};
+#endif
 
 using PI      = std::conditional< sizeof( void * ) == 8, PI64, PI32 >::type;
 using SI      = std::conditional< sizeof( void * ) == 8, SI64, SI32 >::type;
