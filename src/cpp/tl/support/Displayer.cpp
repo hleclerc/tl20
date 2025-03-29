@@ -156,9 +156,9 @@ void display( Displayer &ds, SI8         val ) { ds.append_number( { .numerator 
 
 void display( Displayer &ds, bool        val ) { ds.append_number( { .numerator = std::to_string( val ), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
-void display( Displayer &ds, FP80        val ) { std::ostringstream os; os << std::scientific << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, FP64        val ) { std::ostringstream os; os << std::scientific << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
-void display( Displayer &ds, FP32        val ) { std::ostringstream os; os << std::scientific << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP80        val ) { std::ostringstream os; os << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP64        val ) { std::ostringstream os; os << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
+void display( Displayer &ds, FP32        val ) { std::ostringstream os; os << std::setw(11) << std::setprecision( 6 ) << val; ds.append_number( { .numerator = os.str(), .denominator = "1", .shift = "0", .base_shift = "2" } ); }
 
 void display( Displayer &ds, const void* val ) { ds << std::to_string( PI( val ) ); }
 void display( Displayer &ds, void*       val ) { ds << std::to_string( PI( val ) ); }

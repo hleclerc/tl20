@@ -122,6 +122,7 @@ public:
     /**/                Vec                   ();
     /**/               ~Vec                   ();
     
+    operator            std::vector<Item>     () const { return { begin(), end() }; }
     operator            CstSpan<Item>         () const { return { data(), size() }; }
     operator            Span<Item>            () { return { data(), size() }; }
     
