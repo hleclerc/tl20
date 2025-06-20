@@ -19,17 +19,13 @@ void test_tok( Str code, TestResult tr ) {
     tp.parse_txt( code, file );
     tp.parse_eof();
 
+    bool made_a_test = false;
     if ( tr.err_msgs ) {
         CHECK( log.messages.size() == tr.err_msgs->size() );
         for( PI i = 0; i < log.messages.size(); ++i )
             CHECK( log.messages[ i ].msg == tr.err_msgs->operator[]( i ) );
-    } else {
-        if ( log.messages.size() )
-            P( log.messages );
-        CHECK( log.messages.size() == 0 );
     }
     
-    bool made_a_test = false;
     if ( tr.err_pos ) {
         CHECK( log.messages.size() == tr.err_pos->size() );
         for( PI i = 0; i < log.messages.size(); ++i )
@@ -37,8 +33,11 @@ void test_tok( Str code, TestResult tr ) {
         made_a_test = true;
     }
 
-    if ( ! made_a_test )
+    if ( ! made_a_test ) {
+        if ( ! log.messages.empty() )
+            PE( log.messages[ 0 ].msg );
         CHECK( log.messages.empty() );
+    }
 
     if ( tr.exp ) {
         CHECK( tp.root()->condensed() == *tr.exp );
@@ -50,8 +49,21 @@ void test_tok( Str code, TestResult tr ) {
 }
 
 TEST_CASE( "Parser src to tok", "" ) {
-    // simple tokens
+    // variables
     test_tok( "a", { .exp = "a" } );
+    test_tok( "yaourt", { .exp = "yaourt" } );
+    test_tok( "ya ou, rt", { .exp = "(ya,ou,rt)" } );
+    test_tok( "a120_2", { .exp = "a120_2" } );
+
+    // variables
+    test_tok( "102.4"    , { .exp = "(number,\"102.4\")" } );
+    test_tok( "102.4+a"  , { .exp = "(operator +,(number,\"102.4\"),a)" } );
+    test_tok( "102.4a"   , { .exp = "(number,\"102.4a\")" } );
+    test_tok( "102.4e+10", { .exp = "(number,\"102.4e+10\")" } );
+    test_tok( "102.4e-10", { .exp = "(number,\"102.4e-10\")" } );
+    test_tok( "102.4+10" , { .exp = "(operator +,(number,\"102.4\"),(number,\"10\"))" } );
+    test_tok( "102e+10+1", { .exp = "(operator +,(number,\"102e+10\"),(number,\"1\"))" } );
+    test_tok( "102.4.5"  , { .exp = "(operator .,(number,\"102.4\"),(number,\"5\"))" } );
 
     // // auto call
     // test_tok( "a b, c", { .exp = "(a,b,c)" } );

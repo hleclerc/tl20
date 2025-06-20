@@ -147,6 +147,9 @@ def insert( filename, txt_to_insert, beg_txt = "// beg generated code", end_txt 
         fout.write( txt_to_insert )
         fout.write( txt[ end : ] )
 
+# helpers
+letters = [ ( 'a', 'z' ), ( 'A', 'Z' ), ( '_', '_' ) ]
+
 # main node entries =========================================
 unauthorized_char = Node( "unauthorized_char", defined_in_cpp = True ) # not authorized character
 eof = Node( "eof", defined_in_cpp = True ) # end of file
@@ -154,17 +157,43 @@ eof = Node( "eof", defined_in_cpp = True ) # end of file
 # variable ======================================================
 variable = Node( "variable", exit_code = "_on_variable( cur - 1 );" )
 
-variable.add_next( variable, 'a', 'z' )
-variable.add_next( variable, 'A', 'Z' )
+for b, e in letters:
+    variable.add_next( variable, b, e )
 variable.add_next( variable, '0', '9' )
-variable.add_next( variable, '_' )
 
 # number ======================================================
-number   = Node( "number", exit_code = "_on_number( cur - 1 );" )
+number = Node( "number", exit_code = "_on_number( cur - 1 );" )
+numbec = Node( "numbec", exit_code = "_on_number( cur - 1 );" )
+numbee = Node( "numbee", exit_code = "_on_number( cur - 1 );" ) 
+numbep = Node( "numbep", exit_code = "_on_number( cur - 1 );" )
 
 number.add_next( number, '0', '9' )
-number.add_next( number, '.' )
-number.call_func = True
+number.add_next( numbec, '.' )
+number.add_next( numbee, 'e' )
+number.add_next( numbee, 'E' )
+for b, e in letters:
+    number.add_next( numbep, b, e )
+
+# after a first .
+numbec.add_next( numbec, '0', '9' )
+numbec.add_next( numbee, 'e' )
+numbec.add_next( numbee, 'E' )
+for b, e in letters:
+    numbec.add_next( numbep, b, e )
+
+# first char after an 'e' or a 'E'
+for s in '+-':
+    numbee.add_next( numbep, s, s )
+numbee.add_next( numbep, '0', '9' )
+for b, e in letters:
+    numbee.add_next( numbep, b, e )
+
+ # 2nd or more char after 'e' or a 'E'
+numbep.add_next( numbep, '0', '9' )
+for b, e in letters:
+    numbep.add_next( numbep, b, e )
+
+
 
 # new_line ======================================================
 new_line = Node( "new_line", exit_code = "_on_new_line( cur - 1 );" )
@@ -172,10 +201,13 @@ new_line = Node( "new_line", exit_code = "_on_new_line( cur - 1 );" )
 new_line.add_next( new_line, '\r' )
 new_line.add_next( new_line, '\t' )
 new_line.add_next( new_line, ' ' )
-new_line.call_func = True
 
 # operator ======================================================
 operator = Node( "operator", exit_code = "_on_operator( cur - 1 );" )
+
+# punctuation ===================================================
+semicolon = Node( "semicolon", exit_code = "_on_semicolon();" )
+comma = Node( "comma", exit_code = "_on_comma();" )
 
 # string ======================================================
 string   = Node( "string", exit_code = "_on_string( cur - 1 );" )
@@ -195,6 +227,12 @@ for node in all_the_nodes:
     node.add_exit( variable, 'a', 'z' )
     node.add_exit( variable, 'A', 'Z' )
     node.add_exit( variable, '_' )
+
+    for o in "?.:/=+%*^-!(){}[]&@":
+        node.add_exit( operator, o )
+
+    node.add_exit( semicolon, ';' )
+    node.add_exit( comma, ',' )
 
     node.add_exit( new_line, '\n' )
 

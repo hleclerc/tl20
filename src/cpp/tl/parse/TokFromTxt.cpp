@@ -319,8 +319,10 @@ void TokFromTxt::_on_operator( const char *end ) {
 void TokFromTxt::_on_number( const char *end ) {
     // CALL( number, "..." )
     Node *tok_call = _new_node( Node::Type::ParenthesisCall );
+    Node *tok_sval = _new_string( _full_tok_content( end ) );
     Node *tok_func = _new_variable( "number" );
     tok_call->add_child( tok_func );
+    tok_call->add_child( tok_sval );
 
     // seen as a variable
     _append_token( tok_call, { .max_nb_children = 0 } );

@@ -3,75 +3,190 @@
         if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_variable; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 48 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         }
                     } else {
                         if ( c >= 96 ) {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 97 ) {
+                                goto on_variable;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            goto on_variable;
+                            if ( c >= 95 ) {
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
+                    if ( c >= 63 ) {
                         if ( c >= 91 ) {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 92 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            goto on_variable;
+                            if ( c >= 65 ) {
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            goto on_variable;
+                            if ( c >= 60 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 33 ) {
-                    if ( c >= 35 ) {
-                        if ( c >= 36 ) {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                goto on_variable;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_variable( cur - 1 );
-                            goto on_comment;
+                            if ( c >= 46 ) {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 34 ) {
-                            _on_variable( cur - 1 );
-                            goto on_string;
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 41 ) {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 32 ) {
-                            _on_variable( cur - 1 );
-                            goto on_space;
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 36 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_variable( cur - 1 );
-                            goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_variable( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_variable( cur - 1 );
+                                goto on_space;
+                            }
                         } else {
-                            _on_variable( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 11 ) {
+                                _on_variable( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_variable( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_variable( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 }
@@ -207,86 +322,204 @@
         if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_number; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 47 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 60 ) {
+                if ( c >= 94 ) {
+                    if ( c >= 102 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_number( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 123 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    goto on_numbep;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 96 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 97 ) {
+                            if ( c >= 101 ) {
+                                goto on_numbee;
+                            } else {
+                                goto on_numbep;
+                            }
                         } else {
-                            _on_number( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 96 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 95 ) {
+                                    goto on_numbep;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
-                        if ( c >= 91 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            _on_number( cur - 1 );
-                            goto on_variable;
-                        }
-                    } else {
-                        if ( c >= 58 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            if ( c >= 48 ) {
-                                goto on_number;
+                    if ( c >= 69 ) {
+                        if ( c >= 92 ) {
+                            if ( c >= 93 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
                             } else {
                                 _on_number( cur - 1 );
                                 goto on_unauthorized_char;
+                            }
+                        } else {
+                            if ( c >= 91 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 70 ) {
+                                    goto on_numbep;
+                                } else {
+                                    goto on_numbee;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 63 ) {
+                            if ( c >= 65 ) {
+                                goto on_numbep;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        } else {
+                            if ( c >= 62 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 61 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
                             }
                         }
                     }
                 }
             } else {
-                if ( c >= 34 ) {
-                    if ( c >= 36 ) {
-                        if ( c >= 46 ) {
-                            goto on_number;
+                if ( c >= 40 ) {
+                    if ( c >= 46 ) {
+                        if ( c >= 58 ) {
+                            if ( c >= 59 ) {
+                                _on_number( cur - 1 );
+                                goto on_semicolon;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 48 ) {
+                                goto on_number;
+                            } else {
+                                if ( c >= 47 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    goto on_numbec;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 35 ) {
-                            _on_number( cur - 1 );
-                            goto on_comment;
+                        if ( c >= 43 ) {
+                            if ( c >= 45 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 44 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_comma;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         } else {
-                            _on_number( cur - 1 );
-                            goto on_string;
+                            if ( c >= 42 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 41 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 32 ) {
-                        if ( c >= 33 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            _on_number( cur - 1 );
-                            goto on_space;
-                        }
-                    } else {
-                        if ( c >= 11 ) {
-                            _on_number( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            if ( c >= 10 ) {
-                                _on_number( cur - 1 );
-                                goto on_new_line;
-                            } else {
+                    if ( c >= 35 ) {
+                        if ( c >= 38 ) {
+                            if ( c >= 39 ) {
                                 _on_number( cur - 1 );
                                 goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 37 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 36 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_comment;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 32 ) {
+                            if ( c >= 34 ) {
+                                _on_number( cur - 1 );
+                                goto on_string;
+                            } else {
+                                if ( c >= 33 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_space;
+                                }
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
                             }
                         }
                     }
@@ -419,94 +652,1180 @@
     }
     TODO;
 
-    on_new_line: {
-        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_new_line; return; }
+    on_numbec: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_numbec; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 36 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 60 ) {
+                if ( c >= 94 ) {
+                    if ( c >= 102 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_new_line( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 123 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    goto on_numbep;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 96 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 97 ) {
+                            if ( c >= 101 ) {
+                                goto on_numbee;
+                            } else {
+                                goto on_numbep;
+                            }
                         } else {
-                            _on_new_line( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 96 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 95 ) {
+                                    goto on_numbep;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
-                        if ( c >= 91 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
+                    if ( c >= 69 ) {
+                        if ( c >= 92 ) {
+                            if ( c >= 93 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            _on_new_line( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 91 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 70 ) {
+                                    goto on_numbep;
+                                } else {
+                                    goto on_numbee;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            if ( c >= 48 ) {
-                                _on_new_line( cur - 1 );
-                                goto on_number;
+                        if ( c >= 63 ) {
+                            if ( c >= 65 ) {
+                                goto on_numbep;
                             } else {
-                                _on_new_line( cur - 1 );
+                                if ( c >= 64 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        } else {
+                            if ( c >= 62 ) {
+                                _on_number( cur - 1 );
                                 goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 61 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
                             }
                         }
                     }
                 }
             } else {
-                if ( c >= 14 ) {
-                    if ( c >= 34 ) {
-                        if ( c >= 35 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_comment;
+                if ( c >= 40 ) {
+                    if ( c >= 46 ) {
+                        if ( c >= 58 ) {
+                            if ( c >= 59 ) {
+                                _on_number( cur - 1 );
+                                goto on_semicolon;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_new_line( cur - 1 );
-                            goto on_string;
+                            if ( c >= 48 ) {
+                                goto on_numbec;
+                            } else {
+                                if ( c >= 47 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 33 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
-                        } else {
-                            if ( c >= 32 ) {
-                                goto on_new_line;
+                        if ( c >= 43 ) {
+                            if ( c >= 45 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
                             } else {
-                                _on_new_line( cur - 1 );
-                                goto on_unauthorized_char;
+                                if ( c >= 44 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_comma;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        } else {
+                            if ( c >= 42 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 41 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
                             }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 13 ) {
-                            goto on_new_line;
+                    if ( c >= 35 ) {
+                        if ( c >= 38 ) {
+                            if ( c >= 39 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_new_line( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 37 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 36 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_comment;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_new_line( cur - 1 );
-                            goto on_new_line;
-                        } else {
-                            if ( c >= 9 ) {
-                                goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 34 ) {
+                                _on_number( cur - 1 );
+                                goto on_string;
                             } else {
+                                if ( c >= 33 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_space;
+                                }
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_numbec; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_numbec; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_numbec; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_numbec; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_numbec; }// 6 chars
+        _on_number( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_numbec: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_numbec: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_numbec: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_numbec: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_numbec: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_numbec: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_numbec: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_numbec: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_numbec: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_numbec: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_numbec: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_numbec: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_numbec: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_numbec: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_numbec: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_numbec; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_numbee: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 124 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            if ( c >= 97 ) {
+                                goto on_numbep;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        } else {
+                            if ( c >= 95 ) {
+                                goto on_numbep;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 63 ) {
+                        if ( c >= 91 ) {
+                            if ( c >= 92 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 65 ) {
+                                goto on_numbep;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 60 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                goto on_numbep;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 46 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    goto on_numbep;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                goto on_numbep;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 41 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 36 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_space;
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_numbee; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_numbee; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_numbee; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_numbee; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_numbee; }// 6 chars
+        _on_number( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_numbee: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_numbee: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_numbee: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_numbee: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_numbee: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_numbee: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_numbee: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_numbee: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_numbee: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_numbee: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_numbee: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_numbee: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_numbee: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_numbee: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_numbee: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_numbee; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_numbep: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 124 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            if ( c >= 97 ) {
+                                goto on_numbep;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        } else {
+                            if ( c >= 95 ) {
+                                goto on_numbep;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 63 ) {
+                        if ( c >= 91 ) {
+                            if ( c >= 92 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 65 ) {
+                                goto on_numbep;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 60 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                goto on_numbep;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 46 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 41 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 36 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_number( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_space;
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_number( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_number( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_numbep; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_numbep; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_numbep; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_numbep; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_numbep; }// 6 chars
+        _on_number( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_numbep: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_numbep: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_numbep: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_numbep: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_numbep: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_numbep: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_numbep: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_numbep: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_numbep: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_numbep: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_numbep: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_numbep: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_numbep: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_numbep: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_numbep: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_numbep; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_new_line: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 47 ) {
+                if ( c >= 92 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
                                 _on_new_line( cur - 1 );
                                 goto on_unauthorized_char;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 124 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 123 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_variable;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 95 ) {
+                            if ( c >= 96 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_variable;
+                            }
+                        } else {
+                            if ( c >= 94 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 93 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 62 ) {
+                        if ( c >= 65 ) {
+                            if ( c >= 91 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_variable;
+                            }
+                        } else {
+                            if ( c >= 64 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 63 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 59 ) {
+                            if ( c >= 61 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 60 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_unauthorized_char;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_semicolon;
+                                }
+                            }
+                        } else {
+                            if ( c >= 58 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 48 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_number;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 37 ) {
+                    if ( c >= 42 ) {
+                        if ( c >= 45 ) {
+                            if ( c >= 46 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 44 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_comma;
+                            } else {
+                                if ( c >= 43 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 40 ) {
+                            if ( c >= 41 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 39 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 38 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 32 ) {
+                        if ( c >= 35 ) {
+                            if ( c >= 36 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_comment;
+                            }
+                        } else {
+                            if ( c >= 34 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_string;
+                            } else {
+                                if ( c >= 33 ) {
+                                    _on_new_line( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    goto on_new_line;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 11 ) {
+                            if ( c >= 14 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 13 ) {
+                                    goto on_new_line;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        } else {
+                            if ( c >= 10 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_new_line;
+                            } else {
+                                if ( c >= 9 ) {
+                                    goto on_new_line;
+                                } else {
+                                    _on_new_line( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
                             }
                         }
                     }
@@ -643,79 +1962,194 @@
         if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_operator; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 48 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         }
                     } else {
                         if ( c >= 96 ) {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 97 ) {
+                                _on_operator( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 95 ) {
+                                _on_operator( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
+                    if ( c >= 63 ) {
                         if ( c >= 91 ) {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 92 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 65 ) {
+                                _on_operator( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_number;
+                            if ( c >= 60 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 33 ) {
-                    if ( c >= 35 ) {
-                        if ( c >= 36 ) {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_operator( cur - 1 );
+                                goto on_number;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_comment;
+                            if ( c >= 46 ) {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 34 ) {
-                            _on_operator( cur - 1 );
-                            goto on_string;
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 41 ) {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 32 ) {
-                            _on_operator( cur - 1 );
-                            goto on_space;
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 36 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_operator( cur - 1 );
-                            goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_operator( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_operator( cur - 1 );
+                                goto on_space;
+                            }
                         } else {
-                            _on_operator( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 11 ) {
+                                _on_operator( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_operator( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_operator( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 }
@@ -847,83 +2281,844 @@
     }
     TODO;
 
-    on_string: {
-        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_string; return; }
+    on_semicolon: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_semicolon; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 48 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         }
                     } else {
                         if ( c >= 96 ) {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 97 ) {
+                                _on_semicolon();
+                                goto on_variable;
+                            } else {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 95 ) {
+                                _on_semicolon();
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
+                    if ( c >= 63 ) {
                         if ( c >= 91 ) {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 92 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 65 ) {
+                                _on_semicolon();
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_number;
+                            if ( c >= 60 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_semicolon();
+                                    goto on_semicolon;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 33 ) {
-                    if ( c >= 35 ) {
-                        if ( c >= 36 ) {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_semicolon();
+                                goto on_number;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_comment;
+                            if ( c >= 46 ) {
+                                _on_semicolon();
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_comma;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 34 ) {
-                            _on_string( cur - 1 );
-                            goto on_string;
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_semicolon();
+                                goto on_operator;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 41 ) {
+                                _on_semicolon();
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_semicolon();
+                                    goto on_operator;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 32 ) {
-                            _on_string( cur - 1 );
-                            goto on_space;
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_semicolon();
+                                goto on_operator;
+                            } else {
+                                _on_semicolon();
+                                goto on_operator;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 36 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_semicolon();
+                                    goto on_comment;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_string;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_string( cur - 1 );
-                            goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_semicolon();
+                                goto on_operator;
+                            } else {
+                                _on_semicolon();
+                                goto on_space;
+                            }
                         } else {
-                            _on_string( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 11 ) {
+                                _on_semicolon();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_semicolon();
+                                    goto on_new_line;
+                                } else {
+                                    _on_semicolon();
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_semicolon; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_semicolon; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_semicolon; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_semicolon; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_semicolon; }// 6 chars
+        _on_semicolon();
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_semicolon: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_semicolon: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_semicolon: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_semicolon: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_semicolon: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_semicolon: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_semicolon: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_semicolon: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_semicolon: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_semicolon: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_semicolon: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_semicolon: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_semicolon: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_semicolon: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_semicolon: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_semicolon; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_comma: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 124 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            if ( c >= 97 ) {
+                                _on_comma();
+                                goto on_variable;
+                            } else {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            }
+                        } else {
+                            if ( c >= 95 ) {
+                                _on_comma();
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_comma();
+                                    goto on_operator;
+                                } else {
+                                    _on_comma();
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 63 ) {
+                        if ( c >= 91 ) {
+                            if ( c >= 92 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 65 ) {
+                                _on_comma();
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_comma();
+                                    goto on_operator;
+                                } else {
+                                    _on_comma();
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 60 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_comma();
+                                    goto on_semicolon;
+                                } else {
+                                    _on_comma();
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_comma();
+                                goto on_number;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 46 ) {
+                                _on_comma();
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_comma();
+                                    goto on_operator;
+                                } else {
+                                    _on_comma();
+                                    goto on_comma;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_comma();
+                                goto on_operator;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 41 ) {
+                                _on_comma();
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_comma();
+                                    goto on_operator;
+                                } else {
+                                    _on_comma();
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_comma();
+                                goto on_operator;
+                            } else {
+                                _on_comma();
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 36 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_comma();
+                                    goto on_comment;
+                                } else {
+                                    _on_comma();
+                                    goto on_string;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_comma();
+                                goto on_operator;
+                            } else {
+                                _on_comma();
+                                goto on_space;
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_comma();
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_comma();
+                                    goto on_new_line;
+                                } else {
+                                    _on_comma();
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_comma; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_comma; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_comma; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_comma; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_comma; }// 6 chars
+        _on_comma();
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_comma: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_comma: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_comma: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_comma: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_comma: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_comma: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_comma: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_comma: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_comma: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_comma: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_comma: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_comma: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_comma: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_comma: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_comma: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_comma; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_string: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_string; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 124 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            if ( c >= 97 ) {
+                                _on_string( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        } else {
+                            if ( c >= 95 ) {
+                                _on_string( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 63 ) {
+                        if ( c >= 91 ) {
+                            if ( c >= 92 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 65 ) {
+                                _on_string( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 60 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_string( cur - 1 );
+                                goto on_number;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 46 ) {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 41 ) {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            }
+                        } else {
+                            if ( c >= 36 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
+                        }
+                    } else {
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_string( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_string( cur - 1 );
+                                goto on_space;
+                            }
+                        } else {
+                            if ( c >= 11 ) {
+                                _on_string( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_string( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_string( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 }
@@ -1059,79 +3254,194 @@
         if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_comment; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 48 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         }
                     } else {
                         if ( c >= 96 ) {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 97 ) {
+                                _on_comment( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 95 ) {
+                                _on_comment( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
+                    if ( c >= 63 ) {
                         if ( c >= 91 ) {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 92 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 65 ) {
+                                _on_comment( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_number;
+                            if ( c >= 60 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 33 ) {
-                    if ( c >= 35 ) {
-                        if ( c >= 36 ) {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_comment( cur - 1 );
+                                goto on_number;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_comment;
+                            if ( c >= 46 ) {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 34 ) {
-                            _on_comment( cur - 1 );
-                            goto on_string;
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 41 ) {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 32 ) {
-                            _on_comment( cur - 1 );
-                            goto on_space;
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 36 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_comment( cur - 1 );
-                            goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_comment( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_comment( cur - 1 );
+                                goto on_space;
+                            }
                         } else {
-                            _on_comment( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 11 ) {
+                                _on_comment( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_comment( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_comment( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 }
@@ -1267,79 +3577,194 @@
         if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_space; return; }
         const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 48 ) {
-                if ( c >= 95 ) {
-                    if ( c >= 97 ) {
-                        if ( c >= 123 ) {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+            if ( c >= 58 ) {
+                if ( c >= 93 ) {
+                    if ( c >= 123 ) {
+                        if ( c >= 125 ) {
+                            if ( c >= 126 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 124 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         }
                     } else {
                         if ( c >= 96 ) {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 97 ) {
+                                _on_space( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 95 ) {
+                                _on_space( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 94 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 65 ) {
+                    if ( c >= 63 ) {
                         if ( c >= 91 ) {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 92 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_variable;
+                            if ( c >= 65 ) {
+                                _on_space( cur - 1 );
+                                goto on_variable;
+                            } else {
+                                if ( c >= 64 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 58 ) {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                        if ( c >= 61 ) {
+                            if ( c >= 62 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_number;
+                            if ( c >= 60 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 59 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_semicolon;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                }
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 33 ) {
-                    if ( c >= 35 ) {
-                        if ( c >= 36 ) {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                if ( c >= 39 ) {
+                    if ( c >= 44 ) {
+                        if ( c >= 47 ) {
+                            if ( c >= 48 ) {
+                                _on_space( cur - 1 );
+                                goto on_number;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_comment;
+                            if ( c >= 46 ) {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 45 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_comma;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 34 ) {
-                            _on_space( cur - 1 );
-                            goto on_string;
+                        if ( c >= 42 ) {
+                            if ( c >= 43 ) {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 41 ) {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                if ( c >= 40 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_operator;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 } else {
-                    if ( c >= 11 ) {
-                        if ( c >= 32 ) {
-                            _on_space( cur - 1 );
-                            goto on_space;
+                    if ( c >= 34 ) {
+                        if ( c >= 37 ) {
+                            if ( c >= 38 ) {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 36 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 35 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_comment;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_string;
+                                }
+                            }
                         }
                     } else {
-                        if ( c >= 10 ) {
-                            _on_space( cur - 1 );
-                            goto on_new_line;
+                        if ( c >= 32 ) {
+                            if ( c >= 33 ) {
+                                _on_space( cur - 1 );
+                                goto on_operator;
+                            } else {
+                                _on_space( cur - 1 );
+                                goto on_space;
+                            }
                         } else {
-                            _on_space( cur - 1 );
-                            goto on_unauthorized_char;
+                            if ( c >= 11 ) {
+                                _on_space( cur - 1 );
+                                goto on_unauthorized_char;
+                            } else {
+                                if ( c >= 10 ) {
+                                    _on_space( cur - 1 );
+                                    goto on_new_line;
+                                } else {
+                                    _on_space( cur - 1 );
+                                    goto on_unauthorized_char;
+                                }
+                            }
                         }
                     }
                 }
