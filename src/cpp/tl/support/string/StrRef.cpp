@@ -22,6 +22,9 @@ static std::mutex string_ref_mutex;
 StrRef::StrRef( const char *str ) : StrRef( Str( str ) ) {
 }
 
+StrRef::StrRef( StrView str ) : StrRef( Str( str ) ) {
+}
+
 StrRef::StrRef( const Str &str ) {
     std::lock_guard<std::mutex> _( string_ref_mutex );
 

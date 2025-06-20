@@ -1,82 +1,23 @@
+from IntervalSet import IntervalSet
 import os
 
-nr_nodes = []
-
-class IntervalSet:
-    def __init__( self, beg = 2**31, end = 2**31 ):
-        if beg < end:
-            self.intervals = [ ( beg, end ) ]
-        else:
-            self.intervals = []
-        
-    def __repr__( self ):
-        return '[' + ','.join( str( i ) for i in self.intervals ) + ']'
-
-    def __invert__( self ):
-        res = IntervalSet()
-        prev = 0
-        for beg, end in self.intervals:
-            if prev < beg:
-                res.intervals.append( ( prev, beg ) )
-            prev = end
-        if prev < 2**31:
-            res.intervals.append( ( prev, 2**31 ) )
-        return res
-
-    def __isub__( self, that ):
-        self &= ~that
-        return self
-
-    def __iand__( self, that ):
-        events = []
-        for beg, end in self.intervals:
-            events.append( [ beg, +1 ] )
-            events.append( [ end, -1 ] )
-        for beg, end in that.intervals:
-            events.append( [ beg, +1 ] )
-            events.append( [ end, -1 ] )
-
-        events.sort()
-
-        # agglomerate
-        for n in range( len( events ) ):
-            for m in range( n + 1, len( events ) ):
-                if events[ n ] == events[ m ]:
-                    events[ n ][ 1 ] += events[ m ][ 1 ]
-                    events[ m ][ 1 ] = 0
-
-        # filter
-        events = filter( lambda x: x[ 1 ], events )
-
-        # new intervals
-        new_intervals = []
-        beg = None
-        n = 0
-        for event in events:
-            if n == 2 and event[ 1 ] < 0:
-                new_intervals.append( ( beg, event[ 0 ] ) )
-
-            n += event[ 1 ]
-
-            if n == 2:
-                beg = event[ 0 ]
-
-        self.intervals = new_intervals
-
-        return self
+# all the nodes
+all_the_nodes = []
 
 class Node:
-    def __init__( self, name, has_next = True, enter_code = "", exit_code = "" ):
-        self.enter_code = enter_code
+    """
+        `exit_code` -> code to be executed when it "escapes"
+    """
+    def __init__( self, name, defined_in_cpp = False, exit_code = "" ):
+        self.defined_in_cpp = defined_in_cpp
         self.exit_code = exit_code
-        self.has_next = has_next
         self.name = name
 
         self.next = [] # list of Next
 
-        nr_nodes.append( self )
+        all_the_nodes.append( self )
 
-    def add_next( self, node, first, last = None ):
+    def add_next( self, node, first, last = None, code = "", exit = False ):
         if last is None:
             last = first
 
@@ -90,15 +31,18 @@ class Node:
             rem -= IntervalSet( next.beg, next.end )
 
         for beg, end in rem.intervals:
-            self.next.append( Next( beg, end, node ) )
+            self.next.append( Next( beg, end, node, code, exit ) )
+    
+    def add_exit( self, node, first, last = None, code = "" ):
+        self.add_next( node, first, last, code, True )
 
-    def fill_remaining( self, node ):
+    def fill_rem( self, node ):
         rem = IntervalSet( 0, 2**31 )
         for next in self.next:
             rem -= IntervalSet( next.beg, next.end )
 
         for beg, end in rem.intervals:
-            self.next.append( Next( beg, end, node, 0 ) )
+            self.next.append( Next( beg, end, node, 0, exit = True ) )
 
     def next_code( self, beg_code, end_code, prefix ):
         next_list = []
@@ -110,7 +54,14 @@ class Node:
     def _next_code( self, next_list, prefix ):
         assert len( next_list )
         if len( next_list ) == 1:
-            return prefix + f'goto beg_{ next_list[ 0 ].node.name };\n'
+            next = next_list[ 0 ]
+            res = ""
+            if next.code:
+                res += prefix + next.code + "\n"
+            if next.exit and self.exit_code:
+                res += prefix + self.exit_code + "\n"
+            res += prefix + f'goto on_{ next.node.name };\n'
+            return res
 
         begs = []
         for next in next_list:
@@ -130,65 +81,59 @@ class Node:
         return txt
 
 class Next:
-    def __init__( self, beg, end, node, freq = 1 ):
+    def __init__( self, beg, end, node, code = "", exit = False, freq = 1 ):
         self.beg = beg 
         self.end = end 
         self.node = node 
+        self.code = code 
+        self.exit = exit 
         self.freq = freq
 
 
 class Writer:
     def __init__( self ):
-        self.visited = []
         self.txt = ""
 
-    def write_for_single_bytes( self, node ):
-        self.visited.append( node )
-
+    def write( self, node ):
         self.txt += f'\n'
-        self.txt += f"    beg_{ node.name }:\n"
-        self.txt += f"        if ( cur == end ) {{ restart_jump = &&beg_{ node.name }; return; }}\n"
-        self.txt += f"        c = *( cur++ );\n"
-
-        # 
-        if len( node.next ) == 0:
-            self.txt += f'        goto beg_root;\n'
-            return
+        self.txt += f"    on_{ node.name }: {{\n"
+        self.txt += f"        if ( cur == end ) {{ curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_{ node.name }; return; }}\n"
+        self.txt += f"        const unsigned char c = *( cur++ );\n"
 
         # 1 char or goto
         self.txt += f'        if ( c < 0x80 ) {{\n'
         self.txt += node.next_code( 0x00, 0x80, '            ' )
         self.txt += f'        }}\n'
         self.txt += f'        if ( c < 0xC0 ) goto err_unexpected_continuation;\n'
-        self.txt += f'        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_{ node.name }; // 2 chars\n'
-        self.txt += f'        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_{ node.name }; // 3 chars\n'
-        self.txt += f'        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_{ node.name }; // 4 chars\n'
-        self.txt += f'        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_{ node.name }; // 5 chars\n'
-        self.txt += f'        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_{ node.name }; // 6 chars\n'
+        self.txt += f'        if ( c < 0xE0 ) {{ curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_{ node.name }; }}// 2 chars\n'
+        self.txt += f'        if ( c < 0xF0 ) {{ curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_{ node.name }; }}// 3 chars\n'
+        self.txt += f'        if ( c < 0xF8 ) {{ curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_{ node.name }; }}// 4 chars\n'
+        self.txt += f'        if ( c < 0xFC ) {{ curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_{ node.name }; }}// 5 chars\n'
+        self.txt += f'        if ( c < 0xFE ) {{ curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_{ node.name }; }}// 6 chars\n'
+        if node.exit_code:
+            self.txt += '        ' + node.exit_code + '\n'
         self.txt += f'        if ( c < 0xFF ) goto err_unassigned_char;\n'
-        self.txt += f'        goto after_eof\n'
+        self.txt += f'        goto after_eof;\n'
+        self.txt += f"    }}\n"
 
-        # recursive write
-        for next in node.next:
-            if next.node.has_next and next.node not in self.visited:
-                self.write_for_single_bytes( next.node )
+        # continuation bytes for utf8
+        nb_bits = [ 7 ] + [ 7 - n + 6 * ( n - 1 ) for n in range( 2, 7 ) ]
+        for n in range( 2, 7 ):
+            self.txt += f'\n'
+            for i in range( 1, n ):
+                self.txt += f'    cn{ n }{ i }_{ node.name }: {{ // { n } chars\n'
+                self.txt += f'        if ( cur == end ) {{ restart_jump = &&cn{ n }{ i }_{ node.name }; return; }}\n'
+                self.txt += f'        const unsigned char c = *( cur++ );\n'
+                self.txt += f'        if ( ( c & 0b11000000 ) != 0b10000000 )\n'
+                self.txt += f'            goto err_expecting_continuation;\n'
+                self.txt += f'        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );\n'
+                self.txt += f'    }}\n'
+       
+            self.txt += f'    TODO;\n'
 
-    def write_continuations( self ):
-        for node in self.visited:
-            nb_bits = [ 7 ] + [ 7 - n + 6 * ( n - 1 ) for n in range( 2, 7 ) ]
-            for n in range( 2, 7 ):
-                self.txt += f'\n'
-                for i in range( 1, n ):
-                    self.txt += f'    cn{ n }{ i }_{ node.name }: // { n } chars\n'
-                    self.txt += f'        if ( cur == end ) {{ restart_jump = &&cn{ n }{ i }_{ node.name }; return; }}\n'
-                    self.txt += f'        c = *( cur++ );\n'
-                    self.txt += f'        if ( ( c & 0b11000000 ) != 0b10000000 )\n'
-                    self.txt += f'            goto _err_expecting_continuation;\n'
-                    self.txt += f'        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );\n'
-
-                beg_code = 2 ** nb_bits[ n - 2 ]
-                end_code = 2 ** nb_bits[ n - 1 ]
-                self.txt += node.next_code( beg_code, end_code, '        ' )
+            # beg_code = 2 ** nb_bits[ n - 2 ]
+            # end_code = 2 ** nb_bits[ n - 1 ]
+            # self.txt += node.next_code( beg_code, end_code, '        ' )
 
 
 def insert( filename, txt_to_insert, beg_txt = "// beg generated code", end_txt = "// end generated code" ):
@@ -202,28 +147,27 @@ def insert( filename, txt_to_insert, beg_txt = "// beg generated code", end_txt 
         fout.write( txt_to_insert )
         fout.write( txt[ end : ] )
 
-# 
-
 # main node entries =========================================
-unauthch = Node( "unauthch", has_next = False )
-root     = Node( "root" )
+unauthorized_char = Node( "unauthorized_char", defined_in_cpp = True ) # not authorized character
+eof = Node( "eof", defined_in_cpp = True ) # end of file
 
 # variable ======================================================
-variable = Node( "variable", enter_code = "curr_tok_content = c; curr_tok_src_refs = { SrcRef{ src_url, PI( cur - beg - 1 ) } };" )
+variable = Node( "variable", exit_code = "_on_variable( cur - 1 );" )
 
 variable.add_next( variable, 'a', 'z' )
 variable.add_next( variable, 'A', 'Z' )
+variable.add_next( variable, '0', '9' )
 variable.add_next( variable, '_' )
 
 # number ======================================================
-number   = Node( "number" )
+number   = Node( "number", exit_code = "_on_number( cur - 1 );" )
 
 number.add_next( number, '0', '9' )
 number.add_next( number, '.' )
 number.call_func = True
 
 # new_line ======================================================
-new_line = Node( "new_line" )
+new_line = Node( "new_line", exit_code = "_on_new_line( cur - 1 );" )
 
 new_line.add_next( new_line, '\r' )
 new_line.add_next( new_line, '\t' )
@@ -231,40 +175,47 @@ new_line.add_next( new_line, ' ' )
 new_line.call_func = True
 
 # operator ======================================================
-operator = Node( "operator" )
+operator = Node( "operator", exit_code = "_on_operator( cur - 1 );" )
 
 # string ======================================================
-string   = Node( "string" )
+string   = Node( "string", exit_code = "_on_string( cur - 1 );" )
 
 # comment ======================================================
-comment  = Node( "comment" )
+comment  = Node( "comment", exit_code = "_on_comment( cur - 1 );" )
 
-# root ======================================================
-root.add_next( variable, 'a', 'z' )
-root.add_next( variable, 'A', 'Z' )
-root.add_next( variable, '_' )
-
-root.add_next( new_line, '\n' )
-
-root.add_next( comment, '#' )
-
-root.add_next( number, '0', '9' )
-
-root.add_next( string, '"' )
-
-root.fill_remaining( unauthch )
+# comment ======================================================
+space  = Node( "space", exit_code = "_on_space( cur - 1 );" )
 
 # ================================================================
-for node in nr_nodes:
-    if node == root:
+# start machines
+for node in all_the_nodes:
+    if node.defined_in_cpp:
         continue
-    for next in root.next:
-        node.add_next( next.node, next.beg, next.end - 1 )
+
+    node.add_exit( variable, 'a', 'z' )
+    node.add_exit( variable, 'A', 'Z' )
+    node.add_exit( variable, '_' )
+
+    node.add_exit( new_line, '\n' )
+
+    node.add_exit( comment, '#' )
+
+    node.add_exit( number, '0', '9' )
+
+    node.add_exit( string, '"' )
+    
+    node.add_exit( space, ' ' )
+
+    node.add_exit( eof, 255 )
+
+    node.fill_rem( unauthorized_char )
 
 # ================================================================
 wr = Writer()
-wr.write_for_single_bytes( root )
-wr.write_continuations()
+for node in all_the_nodes:
+    if node.defined_in_cpp:
+        continue
+    wr.write( node )
 
 with open( os.path.join( os.path.dirname( __file__ ), "TokFromTxt.gen" ), "w" ) as fout:
     fout.write( wr.txt )

@@ -4,11 +4,26 @@
 #include "TokFromTxt.h"
 #include <limits>
 
+#include "../support/P.h"
+#include "tl/support/common_types.h"
+
 BEG_TL_NAMESPACE
 using namespace Tok;
 
 TokFromTxt::TokFromTxt( Log &log ) : log( log ) {
     _init();
+}
+
+void TokFromTxt::parse_txt( StrView content, StrRef src_url, PI src_off ) {
+    curr_src_content = content.begin() - src_off;
+    curr_src_url = src_url;
+    
+    _parse( content.begin(), content.end() );
+}
+
+void TokFromTxt::parse_eof() {
+    const char eof = 0xFF;
+    _parse( &eof, &eof + 1 );
 }
 
 Tok::Node *TokFromTxt::root() {
@@ -24,11 +39,9 @@ void TokFromTxt::_init() {
     pending_comma = false;
 
     // other attributes
-    curr_tok_src_refs.clear();
-    curr_tok_content.clear();
-    prev_char_value = -1;
-    prev_line_beg.clear();
+    // prev_char_value = -1;
     restart_jump = nullptr;
+    prev_line_beg.clear();
     pool.clear();
 
     // token_stack
@@ -42,163 +55,27 @@ void TokFromTxt::_init() {
     } };
 }
 
-void TokFromTxt::_parse( const char *cur, const char *beg, const char *end ) {
-    // if no char -> nothing to do
-    if ( cur == end )
-        return;
-
-    // else, read the char
-    char c = *( cur++ );
-
+void TokFromTxt::_parse( const char *cur, const char *end ) {
     // jump to the right place
-    if ( ! restart_jump )
-        restart_jump = &&beg_new_line;
+    if ( ! restart_jump ) {
+        restart_jump = &&on_new_line;
+        _start_new_token( cur );
+    } else
+        curr_tok_ptr_content = cur;
+
     goto *restart_jump;
 
-    // after an eof =======================================================================================================
-    after_eof: restart_jump = &&after_eof; return;
+    // specific labels =============================================================================================================
+    err_unexpected_continuation: _error( "a continuation byte was not expected here (invalid utf8)" ); goto after_eof;
+    err_expecting_continuation : _error( "a continuation byte was expected here (invalid utf8)" ); goto after_eof;
+    err_unassigned_char        : _error( "unassigned char (invalid utf8)" ); goto after_eof;
+    
+    on_unauthorized_char       : _error( "unauthorized char" ); goto after_eof;
+    after_eof                  : restart_jump = &&after_eof; return;
 
-    // errors =============================================================================================================
-    continuation_error: restart_jump = &&after_eof; return _error( "a continuation byte was not expected here" );
-
-    // 
+    // generated code ==============================================================================================================
+    // (we use generated code to be able to handle correctly utf8 chars)
     #include "TokFromTxt.gen"
-
-    // // when nothing has started (not in a variable, number, ...)
-    // char_switch:
-    //     if ( letter( c ) ) { curr_tok_content = c; goto beg_variable; }
-    //     if ( number( c ) ) { curr_tok_content = c; goto beg_number; }
-    //     if ( space ( c ) ) { goto beg_space; }
-    //     if ( oper  ( c ) ) { curr_tok_content = c; goto beg_operator; }
-    //     if ( c == '\n'   ) { goto beg_new_line; }
-    //     if ( c == '#'    ) { goto beg_comment; }
-    //     if ( c == '('    ) { _on_opening_paren( Node::Type::ParenthesisCall, "operator ()", ')' ); goto inc_switch; }
-    //     if ( c == '['    ) { _on_opening_paren( Node::Type::BracketCall    , "operator []", ']' ); goto inc_switch; }
-    //     if ( c == '{'    ) { _on_opening_paren( Node::Type::BraceCall      , "operator {}", '}' ); goto inc_switch; }
-    //     if ( c == ')'    ) { _on_closing_paren( ')' ); goto inc_switch; }
-    //     if ( c == ']'    ) { _on_closing_paren( ']' ); goto inc_switch; }
-    //     if ( c == '}'    ) { _on_closing_paren( '}' ); goto inc_switch; }
-    //     if ( c == ';'    ) { _on_semicolon(); goto inc_switch; }
-    //     if ( c == ','    ) { _on_comma(); goto inc_switch; }
-
-    //     if ( c == 0xFF   ) { restart_jump = &&restart_loop; return; }
-
-    //     if ( c >= 0x80 ) {
-    //         if ( c <= 0xBF )   // Continuation bytes			10xxxxxx	0x80 - 0xBF
-    //             return _error( "invalid utf8 encoding (continuation byte at the wrong place)" );
-    //         if ( c <= 0xDF ) { // 2 byte sequence introducer	110xxxxx	0xC0 - 0xDF
-    //             curr_codepoint = c & ( 0xFF >> 3 );
-    //             goto inc_switch_codepoint_1;
-    //         }
-    //         if ( c <= 0xEF ) { // 3 byte sequence introducer	1110xxxx	0xE0 - 0xEF
-
-    //         }
-    //         if ( c <= 0xF7 ) { // 4 byte sequence introducer	11110xxx	0xF0 - 0xF7
-    //         }
-    //         if ( c <= 0xFB ) { // 5 byte sequence introducer	111110xx	0xF8 - 0xFB
-    //         }
-    //         if ( c <= 0xFD ) { // 6 byte sequence introducer	1111110x	0xFC - 0xFD
-    //         }
-
-    //         _error( "invalid utf8 encoding (Unassigned 11111110 byte)" );
-    //         goto inc_switch;
-    //     }
-
-    //     return _error( va_string( "Unknown char type '{0}'", char( c ) ) );
-
-    // inc_switch:
-    //     if ( cur == end ) {
-    //         restart_jump = &&char_switch;
-    //         return;
-    //     }
-    //     c = *( cur++ );
-    //     goto char_switch;
-
-    // // ==================================================================================================================
-    // inc_switch_codepoint__:
-    //     #define INC_SWITCH_CODEPOINT( N ) \
-    //         inc_switch_codepoint_##N: \
-    //             if ( cur == end ) { \
-    //                 restart_jump = &&cnt_switch_codepoint_##N; \
-    //                 return; \
-    //             } \
-    //             c = *( cur++ ); \
-    //         cnt_switch_codepoint_##N: \
-    //             if ( ( c & 0b11000000 ) != 0b10000000 ) \
-    //                 return _error( "Expecting an utf8 continuation at this place" ); \
-    //             curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    //     INC_SWITCH_CODEPOINT( 6 )
-    //     INC_SWITCH_CODEPOINT( 5 )
-    //     INC_SWITCH_CODEPOINT( 4 )
-    //     INC_SWITCH_CODEPOINT( 3 )
-    //     INC_SWITCH_CODEPOINT( 2 )
-    //     #undef INC_SWITCH_CODEPOINT
-
-    //     goto codepoint_switch;
-
-    // // ==================================================================================================================
-    // codepoint_switch:
-    //     TODO;
-
-
-    // // comment ============================================================================================================
-    // beg_comment:
-    // cnt_comment:
-    //     if ( cur == end )
-    //         goto int_comment;
-    //     c = *( cur++ );
-    //     if ( c == '\n' )
-    //         goto beg_new_line;
-    //     goto cnt_comment;
-    // int_comment:
-    //     restart_jump = &&cnt_comment;
-    //     return;
-
-    // // spacing ============================================================================================================
-    // beg_space:
-    // cnt_space:
-    //     if ( cur == end )
-    //         goto int_space;
-    //     c = *( cur++ );
-    //     if ( space( c ) )
-    //         goto cnt_space;
-    //     _on_space();
-    //     goto char_switch;
-    // int_space:
-    //     restart_jump = &&cnt_space;
-    //     return;
-
-    // // ====================================================================================================================
-    // #define PARSE_TYPE( TYPE ) \
-    //     beg_##TYPE: \
-    //         curr_tok_src_refs = { SrcRef{ src_url, PI( nxt - beg - 1 ) } }; \
-    //         curr_tok_content.clear(); \
-    //     psh_##TYPE: \
-    //         curr_tok_content += c; \
-    //         if ( nxt == end ) \
-    //             goto int_##TYPE; \
-    //         c = *( nxt++ ); \
-    //     cnt_##TYPE: \
-    //         if ( is_cnt_for_##TYPE( c ) ) \
-    //             goto psh_##TYPE; \
-    //         curr_tok_src_refs.back().end = nxt - beg - 1; \
-    //         _on_##TYPE(); \
-    //         goto char_switch; \
-    //     int_##TYPE: \
-    //         curr_tok_src_refs.back().end = nxt - beg - 1; \
-    //         restart_jump = &&res_##TYPE; \
-    //         return; \
-    //     res_##TYPE: \
-    //         if ( curr_tok_src_refs.back().url != src_url || curr_tok_src_refs.back().end != beg - nxt - 1 ) \
-    //             curr_tok_src_refs.push_back_br( src_url, PI( nxt - beg - 1 ) ); \
-    //         goto cnt_##TYPE;
-
-    // PARSE_TYPE( new_line );
-    // PARSE_TYPE( variable );
-    // PARSE_TYPE( operator );
-    // PARSE_TYPE( number   );
-
-    // #undef PARSE_TYPE
 }
 
 void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name, char expected_closing ) {
@@ -212,8 +89,8 @@ void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name,
         } );
         ASSERT( took );
     } else { // `some_code ( a, b ), c` -> `( a, b )` and `c` will be the children of `some_code`
-        Node *token_name = _new_node( Node::Type::Variable, func_name );
         Node *token_func = _new_node( Node::Type::ParenthesisCall );
+        Node *token_name = _new_variable( func_name );
         token_func->add_child( token_name );
         _append_token( token_func, {
             .max_nb_children = std::numeric_limits<int>::max(),
@@ -293,12 +170,25 @@ void TokFromTxt::_update_stack_after_comma() {
         _pop_stack_item();
 }
     
-Node *TokFromTxt::_new_node( Node::Type type, StrView content ) {
+Node *TokFromTxt::_new_node( Node::Type type ) {
     // create the new token
     Node *token = pool.create<Node>();
-    token->src_refs = { pool, curr_tok_src_refs };
-    token->content = { pool, content };
+    // token->string_content = { pool, content };
+    token->beg_src_url = curr_tok_src_url;
+    token->beg_src_off = curr_tok_src_off;
     token->type = type;
+    return token;
+}
+
+Node *TokFromTxt::_new_variable( StrRef variable_name ) {
+    Node *token = _new_node( Node::Type::Variable );
+    token->variable_ref = variable_name;
+    return token;
+}
+
+Node *TokFromTxt::_new_string( StrView content ) {
+    Node *token = _new_node( Node::Type::String );
+    token->string_content = { pool, content };
     return token;
 }
 
@@ -324,53 +214,62 @@ void TokFromTxt::_pop_stack_item() {
     token_stack.pop_back();
 }
 
-void TokFromTxt::parse_txt( StrView content, StrRef src_url, PI src_off ) {
-    // empty string -> nothing to do
-    if ( content.empty() )
-        return;
-
-    //
-    curr_tok_src_refs << SrcRef{ .url = src_url, .beg = src_off, .end = -1 };
-    _parse( content.begin(), content.begin() - src_off, content.end() );
-    curr_tok_src_refs.back().end = src_off + content.size();
-}
-
-void TokFromTxt::parse_eof() {
-    const char eof = 0xFF;
-    _parse( &eof, &eof, &eof + 1 );
-}
-
 void TokFromTxt::_error( Str msg, Vec<Node *> tok ) {
     log.msg( msg, {}, Log::Type::ERROR );
 }
 
-void TokFromTxt::_on_new_line() {
-    PI oc = curr_tok_content.starts_with( '\n' );
+void TokFromTxt::_start_new_token( const char *cur ) {
+    curr_tok_stored_content.clear();
+    curr_tok_ptr_content = cur;
+
+    curr_tok_src_off = cur - curr_src_content;
+    curr_tok_src_url = curr_src_url;
+}
+
+StrView TokFromTxt::_full_tok_content( const char *end ) {
+    StrView last_part( curr_tok_ptr_content, end );
+    if ( curr_tok_stored_content.empty() )
+        return last_part;
+    curr_tok_stored_content.append( last_part );
+    return curr_tok_stored_content;
+}
+
+void TokFromTxt::_on_new_line( const char *end ) {
+    StrView tc = _full_tok_content( end );
+    PI oc = tc.starts_with( '\n' );
     PI op = prev_line_beg.starts_with( '\n' );
-    for( PI i = 0; i < std::min( curr_tok_content.size() - oc, prev_line_beg.size() - op ); ++i ) {
-        if ( curr_tok_content[ i + oc ] != prev_line_beg[ i + op ] ) {
+    for( PI i = 0; i < std::min( tc.size() - oc, prev_line_beg.size() - op ); ++i ) {
+        if ( tc[ i + oc ] != prev_line_beg[ i + op ] ) {
             _error( "incoherent spacing between the beginning of this line and the previous one" );
             break;
         }
     }
 
-    prev_line_beg = curr_tok_content;
+    prev_line_beg = tc;
 
     prev_token_is_touching = false;
     pending_new_line = true;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_variable() {
-    Node *tok = _new_node( Node::Type::Variable, curr_tok_content );
+void TokFromTxt::_on_variable( const char *end ) {
+    Node *tok = _new_variable( _full_tok_content( end ) );
     _append_token( tok, { .max_nb_children = 0 } );
 
     prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_operator() {
+void TokFromTxt::_on_comment( const char *end ) {
+    _start_new_token( end );
+}
+
+void TokFromTxt::_on_operator( const char *end ) {
     auto use_operator = [&]( OperatorTrie::OperatorData *od, Node *tok_call ) -> void {
         if ( od->take_left ) {
             // try to take a token
@@ -395,10 +294,10 @@ void TokFromTxt::_on_operator() {
         } );
     };
 
-    StrView str = curr_tok_content;
+    StrView str = _full_tok_content( end );
     while ( OperatorTrie::OperatorData *od = operator_trie->symbol_op( str ) ) {
-        Node *tok_func = _new_node( Node::Type::Variable, od->name );
         Node *tok_call = _new_node( Node::Type::ParenthesisCall );
+        Node *tok_func = _new_variable( od->name );
         tok_call->add_child( tok_func );
 
         use_operator( od, tok_call );
@@ -407,18 +306,20 @@ void TokFromTxt::_on_operator() {
         pending_new_line = false;
         pending_comma = false;
 
-        curr_tok_src_refs.back().beg += od->str.size();
+        curr_tok_src_off += od->str.size();
         str.remove_prefix( od->str.size() );
     }
 
     if ( ! str.empty() )
         _error( va_string( "there's no registered operator in '$0' or subparts of it.", str ) );
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_number() {
+void TokFromTxt::_on_number( const char *end ) {
     // CALL( number, "..." )
-    Node *tok_func = _new_node( Node::Type::Variable, "number" );
     Node *tok_call = _new_node( Node::Type::ParenthesisCall );
+    Node *tok_func = _new_variable( "number" );
     tok_call->add_child( tok_func );
 
     // seen as a variable
@@ -427,10 +328,31 @@ void TokFromTxt::_on_number() {
     prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_space() {
+void TokFromTxt::_on_string( const char *end ) {
+    // // CALL( number, "..." )
+    // Node *tok_func = _new_node( Node::Type::Variable, "number" );
+    // Node *tok_call = _new_node( Node::Type::ParenthesisCall );
+    // tok_call->add_child( tok_func );
+
+    // // seen as a variable
+    // _append_token( tok_call, { .max_nb_children = 0 } );
+
+    // prev_token_is_touching = true;
+    // pending_new_line = false;
+    // pending_comma = false;
+    TODO;
+
+    _start_new_token( end );
+}
+
+void TokFromTxt::_on_space( const char *end ) {
     prev_token_is_touching = false;
+
+    _start_new_token( end );
 }
 
 bool TokFromTxt::_take_node( Node *token, const TakingInfo &ti ) {

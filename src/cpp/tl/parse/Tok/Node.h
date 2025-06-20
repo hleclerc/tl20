@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../../support/memory/PoolVec.h"
 #include "../../support/memory/PoolStr.h"
 #include "../../support/string/StrRef.h"
 #include "../../support/Displayer.h"
@@ -13,14 +12,14 @@ namespace Tok {
 class Node {
 public:
     enum class      Type            { ParenthesisCall, BracketCall, BraceCall, Variable, String, Root };
-    struct          SrcRef          { StrRef url; PI beg, end; };
    
     void            repl_in_graph_by( Node *token );
     void            add_child       ( Node *child );
     Str             condensed       () const;
     void            display         ( Displayer &ds ) const;
     
-    PoolVec<SrcRef> src_refs;       ///<
+    StrRef          beg_src_url;    ///<
+    PI              beg_src_off;    ///<
     Type            type;           ///<
 
     PoolStr         string_content; ///<

@@ -13,6 +13,7 @@ class StrRef {
 public:
     /**/     StrRef( const char *str );
     /**/     StrRef( const Str &str );
+    /**/     StrRef( StrView str );
     /**/     StrRef() : id( 0 ) {}
 
     void     display  ( Displayer &ds ) const;

@@ -1,803 +1,1472 @@
 
-    beg_root:
-        if ( cur == end ) { restart_jump = &&beg_root; return; }
-        c = *( cur++ );
+    on_variable: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_variable; return; }
+        const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 65 ) {
-                if ( c >= 96 ) {
-                    if ( c >= 123 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 97 ) {
-                            goto beg_variable;
+            if ( c >= 48 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_unauthch;
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            goto on_variable;
                         }
                     }
                 } else {
-                    if ( c >= 95 ) {
-                        goto beg_variable;
-                    } else {
+                    if ( c >= 65 ) {
                         if ( c >= 91 ) {
-                            goto beg_unauthch;
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_variable;
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            goto on_variable;
                         }
                     }
                 }
             } else {
-                if ( c >= 36 ) {
-                    if ( c >= 58 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 48 ) {
-                            goto beg_number;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 35 ) {
-                        goto beg_comment;
-                    } else {
-                        if ( c >= 34 ) {
-                            goto beg_string;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                }
-            }
-        }
-        if ( c < 0xC0 ) goto err_unexpected_continuation;
-        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_root; // 2 chars
-        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_root; // 3 chars
-        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_root; // 4 chars
-        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_root; // 5 chars
-        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_root; // 6 chars
-        if ( c < 0xFF ) goto err_unassigned_char;
-        goto after_eof
-
-    beg_variable:
-        if ( cur == end ) { restart_jump = &&beg_variable; return; }
-        c = *( cur++ );
-        if ( c < 0x80 ) {
-            if ( c >= 65 ) {
-                if ( c >= 96 ) {
-                    if ( c >= 123 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 97 ) {
-                            goto beg_variable;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 95 ) {
-                        goto beg_variable;
-                    } else {
-                        if ( c >= 91 ) {
-                            goto beg_unauthch;
-                        } else {
-                            goto beg_variable;
-                        }
-                    }
-                }
-            } else {
-                if ( c >= 36 ) {
-                    if ( c >= 58 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 48 ) {
-                            goto beg_number;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 35 ) {
-                        goto beg_comment;
-                    } else {
-                        if ( c >= 34 ) {
-                            goto beg_string;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                }
-            }
-        }
-        if ( c < 0xC0 ) goto err_unexpected_continuation;
-        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_variable; // 2 chars
-        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_variable; // 3 chars
-        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_variable; // 4 chars
-        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_variable; // 5 chars
-        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_variable; // 6 chars
-        if ( c < 0xFF ) goto err_unassigned_char;
-        goto after_eof
-
-    beg_comment:
-        if ( cur == end ) { restart_jump = &&beg_comment; return; }
-        c = *( cur++ );
-        if ( c < 0x80 ) {
-            if ( c >= 65 ) {
-                if ( c >= 96 ) {
-                    if ( c >= 123 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 97 ) {
-                            goto beg_variable;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 95 ) {
-                        goto beg_variable;
-                    } else {
-                        if ( c >= 91 ) {
-                            goto beg_unauthch;
-                        } else {
-                            goto beg_variable;
-                        }
-                    }
-                }
-            } else {
-                if ( c >= 36 ) {
-                    if ( c >= 58 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 48 ) {
-                            goto beg_number;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 35 ) {
-                        goto beg_comment;
-                    } else {
-                        if ( c >= 34 ) {
-                            goto beg_string;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                }
-            }
-        }
-        if ( c < 0xC0 ) goto err_unexpected_continuation;
-        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_comment; // 2 chars
-        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_comment; // 3 chars
-        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_comment; // 4 chars
-        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_comment; // 5 chars
-        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_comment; // 6 chars
-        if ( c < 0xFF ) goto err_unassigned_char;
-        goto after_eof
-
-    beg_number:
-        if ( cur == end ) { restart_jump = &&beg_number; return; }
-        c = *( cur++ );
-        if ( c < 0x80 ) {
-            if ( c >= 58 ) {
-                if ( c >= 96 ) {
-                    if ( c >= 123 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 97 ) {
-                            goto beg_variable;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                } else {
-                    if ( c >= 91 ) {
-                        if ( c >= 95 ) {
-                            goto beg_variable;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    } else {
-                        if ( c >= 65 ) {
-                            goto beg_variable;
-                        } else {
-                            goto beg_unauthch;
-                        }
-                    }
-                }
-            } else {
-                if ( c >= 46 ) {
-                    if ( c >= 48 ) {
-                        goto beg_number;
-                    } else {
-                        if ( c >= 47 ) {
-                            goto beg_unauthch;
-                        } else {
-                            goto beg_number;
-                        }
-                    }
-                } else {
+                if ( c >= 33 ) {
                     if ( c >= 35 ) {
                         if ( c >= 36 ) {
-                            goto beg_unauthch;
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_comment;
+                            _on_variable( cur - 1 );
+                            goto on_comment;
                         }
                     } else {
                         if ( c >= 34 ) {
-                            goto beg_string;
+                            _on_variable( cur - 1 );
+                            goto on_string;
                         } else {
-                            goto beg_unauthch;
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 32 ) {
+                            _on_variable( cur - 1 );
+                            goto on_space;
+                        } else {
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_variable( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            _on_variable( cur - 1 );
+                            goto on_unauthorized_char;
                         }
                     }
                 }
             }
         }
         if ( c < 0xC0 ) goto err_unexpected_continuation;
-        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_number; // 2 chars
-        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_number; // 3 chars
-        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_number; // 4 chars
-        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_number; // 5 chars
-        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_number; // 6 chars
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_variable; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_variable; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_variable; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_variable; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_variable; }// 6 chars
+        _on_variable( cur - 1 );
         if ( c < 0xFF ) goto err_unassigned_char;
-        goto after_eof
+        goto after_eof;
+    }
 
-    beg_string:
-        if ( cur == end ) { restart_jump = &&beg_string; return; }
-        c = *( cur++ );
+    cn21_variable: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_variable: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_variable: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_variable: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_variable: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_variable: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_variable: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_variable: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_variable: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_variable: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_variable: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_variable: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_variable: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_variable: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_variable: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_variable; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_number: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_number; return; }
+        const unsigned char c = *( cur++ );
         if ( c < 0x80 ) {
-            if ( c >= 65 ) {
-                if ( c >= 96 ) {
-                    if ( c >= 123 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 97 ) {
-                            goto beg_variable;
+            if ( c >= 47 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_unauthch;
+                            _on_number( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_number( cur - 1 );
+                            goto on_variable;
                         }
                     }
                 } else {
-                    if ( c >= 95 ) {
-                        goto beg_variable;
-                    } else {
+                    if ( c >= 65 ) {
                         if ( c >= 91 ) {
-                            goto beg_unauthch;
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_variable;
+                            _on_number( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            if ( c >= 48 ) {
+                                goto on_number;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         }
                     }
                 }
             } else {
-                if ( c >= 36 ) {
-                    if ( c >= 58 ) {
-                        goto beg_unauthch;
-                    } else {
-                        if ( c >= 48 ) {
-                            goto beg_number;
+                if ( c >= 34 ) {
+                    if ( c >= 36 ) {
+                        if ( c >= 46 ) {
+                            goto on_number;
                         } else {
-                            goto beg_unauthch;
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 35 ) {
+                            _on_number( cur - 1 );
+                            goto on_comment;
+                        } else {
+                            _on_number( cur - 1 );
+                            goto on_string;
                         }
                     }
                 } else {
-                    if ( c >= 35 ) {
-                        goto beg_comment;
-                    } else {
-                        if ( c >= 34 ) {
-                            goto beg_string;
+                    if ( c >= 32 ) {
+                        if ( c >= 33 ) {
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
                         } else {
-                            goto beg_unauthch;
+                            _on_number( cur - 1 );
+                            goto on_space;
+                        }
+                    } else {
+                        if ( c >= 11 ) {
+                            _on_number( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            if ( c >= 10 ) {
+                                _on_number( cur - 1 );
+                                goto on_new_line;
+                            } else {
+                                _on_number( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
                         }
                     }
                 }
             }
         }
         if ( c < 0xC0 ) goto err_unexpected_continuation;
-        if ( c < 0xE0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_string; // 2 chars
-        if ( c < 0xF0 ) curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_string; // 3 chars
-        if ( c < 0xF8 ) curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_string; // 4 chars
-        if ( c < 0xFC ) curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_string; // 5 chars
-        if ( c < 0xFE ) curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_string; // 6 chars
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_number; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_number; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_number; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_number; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_number; }// 6 chars
+        _on_number( cur - 1 );
         if ( c < 0xFF ) goto err_unassigned_char;
-        goto after_eof
+        goto after_eof;
+    }
 
-    cn21_root: // 2 chars
-        if ( cur == end ) { restart_jump = &&cn21_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn31_root: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn31_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn32_root: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn32_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn41_root: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn41_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn42_root: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn42_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn43_root: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn43_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn51_root: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn51_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn52_root: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn52_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn53_root: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn53_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn54_root: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn54_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn61_root: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn61_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn62_root: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn62_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn63_root: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn63_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn64_root: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn64_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn65_root: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn65_root; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn21_variable: // 2 chars
-        if ( cur == end ) { restart_jump = &&cn21_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn31_variable: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn31_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn32_variable: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn32_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn41_variable: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn41_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn42_variable: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn42_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn43_variable: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn43_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn51_variable: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn51_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn52_variable: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn52_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn53_variable: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn53_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn54_variable: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn54_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn61_variable: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn61_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn62_variable: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn62_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn63_variable: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn63_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn64_variable: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn64_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn65_variable: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn65_variable; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn21_comment: // 2 chars
-        if ( cur == end ) { restart_jump = &&cn21_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn31_comment: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn31_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn32_comment: // 3 chars
-        if ( cur == end ) { restart_jump = &&cn32_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn41_comment: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn41_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn42_comment: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn42_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn43_comment: // 4 chars
-        if ( cur == end ) { restart_jump = &&cn43_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn51_comment: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn51_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn52_comment: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn52_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn53_comment: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn53_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn54_comment: // 5 chars
-        if ( cur == end ) { restart_jump = &&cn54_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn61_comment: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn61_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn62_comment: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn62_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn63_comment: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn63_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn64_comment: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn64_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn65_comment: // 6 chars
-        if ( cur == end ) { restart_jump = &&cn65_comment; return; }
-        c = *( cur++ );
-        if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
-        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
-
-    cn21_number: // 2 chars
+    cn21_number: { // 2 chars
         if ( cur == end ) { restart_jump = &&cn21_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn31_number: // 3 chars
+    cn31_number: { // 3 chars
         if ( cur == end ) { restart_jump = &&cn31_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn32_number: // 3 chars
+    }
+    cn32_number: { // 3 chars
         if ( cur == end ) { restart_jump = &&cn32_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn41_number: // 4 chars
+    cn41_number: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn41_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn42_number: // 4 chars
+    }
+    cn42_number: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn42_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn43_number: // 4 chars
+    }
+    cn43_number: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn43_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn51_number: // 5 chars
+    cn51_number: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn51_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn52_number: // 5 chars
+    }
+    cn52_number: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn52_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn53_number: // 5 chars
+    }
+    cn53_number: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn53_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn54_number: // 5 chars
+    }
+    cn54_number: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn54_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn61_number: // 6 chars
+    cn61_number: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn61_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn62_number: // 6 chars
+    }
+    cn62_number: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn62_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn63_number: // 6 chars
+    }
+    cn63_number: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn63_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn64_number: // 6 chars
+    }
+    cn64_number: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn64_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn65_number: // 6 chars
+    }
+    cn65_number: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn65_number; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn21_string: // 2 chars
+    on_new_line: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 36 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_new_line( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_new_line( cur - 1 );
+                            goto on_variable;
+                        }
+                    }
+                } else {
+                    if ( c >= 65 ) {
+                        if ( c >= 91 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_new_line( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            if ( c >= 48 ) {
+                                _on_new_line( cur - 1 );
+                                goto on_number;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 14 ) {
+                    if ( c >= 34 ) {
+                        if ( c >= 35 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_comment;
+                        } else {
+                            _on_new_line( cur - 1 );
+                            goto on_string;
+                        }
+                    } else {
+                        if ( c >= 33 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            if ( c >= 32 ) {
+                                goto on_new_line;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 13 ) {
+                            goto on_new_line;
+                        } else {
+                            _on_new_line( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_new_line( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            if ( c >= 9 ) {
+                                goto on_new_line;
+                            } else {
+                                _on_new_line( cur - 1 );
+                                goto on_unauthorized_char;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_new_line; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_new_line; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_new_line; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_new_line; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_new_line; }// 6 chars
+        _on_new_line( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_new_line: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_new_line: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_new_line: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_new_line: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_new_line: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_new_line: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_new_line: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_new_line: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_new_line: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_new_line: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_new_line: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_new_line: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_new_line: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_new_line: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_new_line: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_new_line; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_operator: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 48 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_variable;
+                        }
+                    }
+                } else {
+                    if ( c >= 65 ) {
+                        if ( c >= 91 ) {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_number;
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 33 ) {
+                    if ( c >= 35 ) {
+                        if ( c >= 36 ) {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_comment;
+                        }
+                    } else {
+                        if ( c >= 34 ) {
+                            _on_operator( cur - 1 );
+                            goto on_string;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 32 ) {
+                            _on_operator( cur - 1 );
+                            goto on_space;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_operator( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            _on_operator( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_operator; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_operator; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_operator; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_operator; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_operator; }// 6 chars
+        _on_operator( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_operator: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_operator: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_operator: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_operator: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_operator: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_operator: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_operator: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_operator: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_operator: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_operator: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_operator: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_operator: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_operator: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_operator: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_operator: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_operator; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_string: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_string; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 48 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_variable;
+                        }
+                    }
+                } else {
+                    if ( c >= 65 ) {
+                        if ( c >= 91 ) {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_number;
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 33 ) {
+                    if ( c >= 35 ) {
+                        if ( c >= 36 ) {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_comment;
+                        }
+                    } else {
+                        if ( c >= 34 ) {
+                            _on_string( cur - 1 );
+                            goto on_string;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 32 ) {
+                            _on_string( cur - 1 );
+                            goto on_space;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_string( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            _on_string( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_string; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_string; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_string; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_string; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_string; }// 6 chars
+        _on_string( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_string: { // 2 chars
         if ( cur == end ) { restart_jump = &&cn21_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn31_string: // 3 chars
+    cn31_string: { // 3 chars
         if ( cur == end ) { restart_jump = &&cn31_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn32_string: // 3 chars
+    }
+    cn32_string: { // 3 chars
         if ( cur == end ) { restart_jump = &&cn32_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn41_string: // 4 chars
+    cn41_string: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn41_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn42_string: // 4 chars
+    }
+    cn42_string: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn42_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn43_string: // 4 chars
+    }
+    cn43_string: { // 4 chars
         if ( cur == end ) { restart_jump = &&cn43_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn51_string: // 5 chars
+    cn51_string: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn51_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn52_string: // 5 chars
+    }
+    cn52_string: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn52_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn53_string: // 5 chars
+    }
+    cn53_string: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn53_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn54_string: // 5 chars
+    }
+    cn54_string: { // 5 chars
         if ( cur == end ) { restart_jump = &&cn54_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
 
-    cn61_string: // 6 chars
+    cn61_string: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn61_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn62_string: // 6 chars
+    }
+    cn62_string: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn62_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn63_string: // 6 chars
+    }
+    cn63_string: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn63_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn64_string: // 6 chars
+    }
+    cn64_string: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn64_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-    cn65_string: // 6 chars
+    }
+    cn65_string: { // 6 chars
         if ( cur == end ) { restart_jump = &&cn65_string; return; }
-        c = *( cur++ );
+        const unsigned char c = *( cur++ );
         if ( ( c & 0b11000000 ) != 0b10000000 )
-            goto _err_expecting_continuation;
+            goto err_expecting_continuation;
         curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
-        goto beg_unauthch;
+    }
+    TODO;
+
+    on_comment: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 48 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_variable;
+                        }
+                    }
+                } else {
+                    if ( c >= 65 ) {
+                        if ( c >= 91 ) {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_number;
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 33 ) {
+                    if ( c >= 35 ) {
+                        if ( c >= 36 ) {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_comment;
+                        }
+                    } else {
+                        if ( c >= 34 ) {
+                            _on_comment( cur - 1 );
+                            goto on_string;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 32 ) {
+                            _on_comment( cur - 1 );
+                            goto on_space;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_comment( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            _on_comment( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_comment; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_comment; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_comment; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_comment; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_comment; }// 6 chars
+        _on_comment( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_comment: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_comment: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_comment: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_comment: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_comment: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_comment: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_comment: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_comment: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_comment: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_comment: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_comment: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_comment: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_comment: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_comment: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_comment: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_comment; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    on_space: {
+        if ( cur == end ) { curr_tok_stored_content.append( StrView( curr_tok_ptr_content, end ) ); restart_jump = &&on_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( c < 0x80 ) {
+            if ( c >= 48 ) {
+                if ( c >= 95 ) {
+                    if ( c >= 97 ) {
+                        if ( c >= 123 ) {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 96 ) {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_variable;
+                        }
+                    }
+                } else {
+                    if ( c >= 65 ) {
+                        if ( c >= 91 ) {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_variable;
+                        }
+                    } else {
+                        if ( c >= 58 ) {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_number;
+                        }
+                    }
+                }
+            } else {
+                if ( c >= 33 ) {
+                    if ( c >= 35 ) {
+                        if ( c >= 36 ) {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_comment;
+                        }
+                    } else {
+                        if ( c >= 34 ) {
+                            _on_space( cur - 1 );
+                            goto on_string;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                } else {
+                    if ( c >= 11 ) {
+                        if ( c >= 32 ) {
+                            _on_space( cur - 1 );
+                            goto on_space;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    } else {
+                        if ( c >= 10 ) {
+                            _on_space( cur - 1 );
+                            goto on_new_line;
+                        } else {
+                            _on_space( cur - 1 );
+                            goto on_unauthorized_char;
+                        }
+                    }
+                }
+            }
+        }
+        if ( c < 0xC0 ) goto err_unexpected_continuation;
+        if ( c < 0xE0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn21_space; }// 2 chars
+        if ( c < 0xF0 ) { curr_codepoint = c & ( 0xFF >> 3 ); goto cn31_space; }// 3 chars
+        if ( c < 0xF8 ) { curr_codepoint = c & ( 0xFF >> 4 ); goto cn41_space; }// 4 chars
+        if ( c < 0xFC ) { curr_codepoint = c & ( 0xFF >> 5 ); goto cn51_space; }// 5 chars
+        if ( c < 0xFE ) { curr_codepoint = c & ( 0xFF >> 6 ); goto cn61_space; }// 6 chars
+        _on_space( cur - 1 );
+        if ( c < 0xFF ) goto err_unassigned_char;
+        goto after_eof;
+    }
+
+    cn21_space: { // 2 chars
+        if ( cur == end ) { restart_jump = &&cn21_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn31_space: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn31_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn32_space: { // 3 chars
+        if ( cur == end ) { restart_jump = &&cn32_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn41_space: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn41_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn42_space: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn42_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn43_space: { // 4 chars
+        if ( cur == end ) { restart_jump = &&cn43_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn51_space: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn51_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn52_space: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn52_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn53_space: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn53_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn54_space: { // 5 chars
+        if ( cur == end ) { restart_jump = &&cn54_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;
+
+    cn61_space: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn61_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn62_space: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn62_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn63_space: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn63_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn64_space: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn64_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    cn65_space: { // 6 chars
+        if ( cur == end ) { restart_jump = &&cn65_space; return; }
+        const unsigned char c = *( cur++ );
+        if ( ( c & 0b11000000 ) != 0b10000000 )
+            goto err_expecting_continuation;
+        curr_codepoint = ( curr_codepoint << 6 ) | ( c & 0b00111111 );
+    }
+    TODO;

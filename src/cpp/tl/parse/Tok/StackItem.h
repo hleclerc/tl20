@@ -9,7 +9,7 @@ namespace Tok {
 
  */
 struct StackItem {
-    Node*   token;
+    Node*    token;
 
     int      closing_char;
 

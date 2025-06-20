@@ -11,6 +11,8 @@
 #include <sstream>
 #include <map>
 
+#define TL_DISPLAYER_IS_DEFINED
+
 BEG_TL_NAMESPACE
 class DisplayItem;
 
