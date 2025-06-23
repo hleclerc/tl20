@@ -78,7 +78,7 @@ void TokFromTxt::_parse( const char *cur, const char *end ) {
     #include "TokFromTxt.gen"
 }
 
-void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name, PI32 expected_closing ) {
+void TokFromTxt::_on_opening_paren( const char *end, Node::Type call_type, const char *func_name, PI32 expected_closing ) {
     if ( prev_token_is_touching ) { // `some_code( a, b )` -> `a` and `b` will be the children of `some_code`
         Node *token_func = _new_node( Node::Type::ParenthesisCall );
         bool took = _take_node( token_func, {
@@ -104,14 +104,16 @@ void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name,
     prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_closing_paren( PI32 c ) {
+void TokFromTxt::_on_closing_paren( const char *end, PI32 c ) {
     while ( token_stack.back().closing_char == 0 )
         _pop_stack_item();
 
     if ( token_stack.back().closing_char != c )
-        return _error( va_string( "'$0' has no correspondance", c ) );
+        return _error( va_string( "'$0' has no correspondance", char( c ) ) );
 
     // 
     StackItem &si = token_stack.back();
@@ -122,13 +124,17 @@ void TokFromTxt::_on_closing_paren( PI32 c ) {
     prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_backslash() {
+void TokFromTxt::_on_backslash( const char *end ) {
     TODO;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_semicolon() {
+void TokFromTxt::_on_semicolon( const char *end ) {
     // gp up
     while ( token_stack.back().closing_char == 0 && token_stack.back().on_a_new_line == false )
         _pop_stack_item();
@@ -140,9 +146,11 @@ void TokFromTxt::_on_semicolon() {
     prev_token_is_touching = false;
     pending_new_line = false;
     pending_comma = false;
+
+    _start_new_token( end );
 }
 
-void TokFromTxt::_on_comma() {
+void TokFromTxt::_on_comma( const char *end ) {
     prev_token_is_touching = false;
 
     if ( pending_new_line ) {
@@ -153,6 +161,8 @@ void TokFromTxt::_on_comma() {
     if ( pending_comma ) 
         return _error( "a comma just after another comma does not have a defined behavior." );
     pending_comma = true;
+
+    _start_new_token( end );
 }
 
 void TokFromTxt::_update_stack_after_newline() {
@@ -240,10 +250,11 @@ StrView TokFromTxt::_full_tok_content( const char *end ) {
 
 void TokFromTxt::_on_new_line( const char *end ) {
     StrView tc = _full_tok_content( end );
-    PI oc = tc.starts_with( '\n' );
-    PI op = prev_line_beg.starts_with( '\n' );
-    for( PI i = 0; i < std::min( tc.size() - oc, prev_line_beg.size() - op ); ++i ) {
-        if ( tc[ i + oc ] != prev_line_beg[ i + op ] ) {
+    while( tc.starts_with( '\n' ) || tc.starts_with( '\r' ) )
+        tc.remove_prefix( 1 );
+    for( PI i = 0; i < std::min( tc.size(), prev_line_beg.size() ); ++i ) {
+        if ( tc[ i ] != prev_line_beg[ i ] ) {
+            PE( int( tc[ i ] ), int( prev_line_beg[ i ] ), tc[ i ], prev_line_beg[ i ] );
             _error( "incoherent spacing between the beginning of this line and the previous one" );
             break;
         }

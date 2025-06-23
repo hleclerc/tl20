@@ -1,4 +1,5 @@
 from IntervalSet import IntervalSet
+import unicodedata
 import os
 
 # all the nodes
@@ -150,43 +151,62 @@ def insert( filename, txt_to_insert, beg_txt = "// beg generated code", end_txt 
         fout.write( txt[ end : ] )
 
 #
-import unicodedata
-def cat( c ):
+
+cn = 0
+def new_cn():
+    global cn
+    ocn = cn
+    cn += 1
+    return ocn
+unauthorized_cat = new_cn()
+parenthesis_cat = new_cn()
+backslash_cat = new_cn()
+semicolon_cat = new_cn()
+operator_cat = new_cn()
+comment_cat = new_cn()
+letter_cat = new_cn()
+number_cat = new_cn()
+comma_cat = new_cn()
+space_cat = new_cn()
+
+def cat_func( c ):
     # exceptions
     if c in "()[]{}":
-        return "parenthesis"
+        return parenthesis_cat
     if c == "\\":
-        return "backslash"
+        return backslash_cat
     if c == ";":
-        return "semicolon"
+        return semicolon_cat
     if c in "²³":
-        return "operator"
+        return operator_cat
     if c == "#":
-        return "comment"
+        return comment_cat
     if c in "_":
-        return "letter"
+        return letter_cat
     if c == ",":
-        return "comma"
+        return comma_cat
     if c in "\t\r":
-        return "space"
+        return space_cat
 
-    # use of unicodedata category
+    # use of unicodedata category with caching
     t = unicodedata.category( c )
     if t.startswith( "P" ) or t.startswith( "S" ):
-        return "operator"
+        return operator_cat
     if t.startswith( "L" ):
-        return "letter"
+        return letter_cat
     if t.startswith( "N" ):
-        return "number"
+        return number_cat
     if t.startswith( "Z" ):
-        return "space"
+        return space_cat
     
-    return "unauthorized"
+    return unauthorized_cat
+
+cat = [ cat_func( chr( c ) ) for c in range( 0xE01EF + 1 ) ]
 
 def intervals( lst ):
     res = []
     for c in range( 0xE01EF + 1 ):
-        if cat( chr(c) ) not in lst:
+        if cat[ c ] not in lst:
             continue
         if len( res ) == 0 or c != res[ -1 ][ 1 ] + 1:
             res.append( [ c, c ] )
@@ -195,11 +215,11 @@ def intervals( lst ):
     return res
 
 #
-alphanums = intervals( [ "letter", "number" ] )
-operators = intervals( [ "operator" ] )
-numbers = intervals( [ "number" ] )
-letters = intervals( [ "letter" ] )
-spaces = intervals( [ "space" ] )
+alphanums = intervals( [ letter_cat, number_cat ] )
+operators = intervals( [ operator_cat ] )
+numbers = intervals( [ number_cat ] )
+letters = intervals( [ letter_cat ] )
+spaces = intervals( [ space_cat ] )
 
 # main node entries =========================================
 unauthorized_char = Node( "unauthorized_char", defined_in_cpp = True ) # not authorized character
@@ -246,24 +266,24 @@ for b, e in letters:
 # new_line ======================================================
 new_line = Node( "new_line", exit_code = "_on_new_line( cur - OFF_END_CHAR );" )
 
-for b, e in intervals( [ "space" ] ):
+for b, e in intervals( [ space_cat ] ):
     new_line.add_next( new_line, b, e )
 
 # operator ======================================================
 operator = Node( "operator", exit_code = "_on_operator( cur - OFF_END_CHAR );" )
 
 # punctuation ===================================================
-op_parenthesis = Node( "op_parenthesis", exit_code = f'_on_opening_paren( Tok::Node::Type::ParenthesisCall, "operator ()", { ord( ')' ) } );' )
-op_bracket = Node( "op_bracket", exit_code = f'_on_opening_paren( Tok::Node::Type::BracketCall, "operator []", { ord( ']' ) } );' )
-op_brace = Node( "op_brace", exit_code = f'_on_opening_paren( Tok::Node::Type::BraceCall, "operator {{}}", { ord( '}' ) } );' )
+op_parenthesis = Node( "op_parenthesis", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::ParenthesisCall, "operator ()", { ord( ')' ) } );' )
+op_bracket = Node( "op_bracket", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::BracketCall, "operator []", { ord( ']' ) } );' )
+op_brace = Node( "op_brace", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::BraceCall, "operator {{}}", { ord( '}' ) } );' )
 
-cl_parenthesis = Node( "cl_parenthesis", exit_code = f'_on_closing_paren( CURR_CHAR );' )
-cl_bracket = Node( "cl_bracket", exit_code = f'_on_closing_paren( CURR_CHAR );' )
-cl_brace = Node( "cl_brace", exit_code = f'_on_closing_paren( CURR_CHAR );' )
+cl_parenthesis = Node( "cl_parenthesis", exit_code = "_on_closing_paren( cur - OFF_END_CHAR, ')' );" )
+cl_bracket = Node( "cl_bracket", exit_code = "_on_closing_paren( cur - OFF_END_CHAR, ']' );" )
+cl_brace = Node( "cl_brace", exit_code = "_on_closing_paren( cur - OFF_END_CHAR, '}' );" )
 
-backslash = Node( "backslash", exit_code = "_on_backslash();" )
-semicolon = Node( "semicolon", exit_code = "_on_semicolon();" )
-comma = Node( "comma", exit_code = "_on_comma();" )
+backslash = Node( "backslash", exit_code = "_on_backslash( cur - OFF_END_CHAR );" )
+semicolon = Node( "semicolon", exit_code = "_on_semicolon( cur - OFF_END_CHAR );" )
+comma = Node( "comma", exit_code = "_on_comma( cur - OFF_END_CHAR );" )
 
 # string ======================================================
 string   = Node( "string", exit_code = "_on_string( cur - OFF_END_CHAR );" )

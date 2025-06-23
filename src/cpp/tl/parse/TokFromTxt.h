@@ -31,10 +31,10 @@ private:
         
     enum {             eof                        = -1 }; ///< internal codes for _parse
                        
-    void               _on_opening_paren          ( Tok::Node::Type call_type, const char *func_name, PI32 expected_closing );
-    void               _on_closing_paren          ( PI32 c );
-    void               _on_semicolon              ();
-    void               _on_backslash              ();
+    void               _on_opening_paren          ( const char *end, Tok::Node::Type call_type, const char *func_name, PI32 expected_closing );
+    void               _on_closing_paren          ( const char *end, PI32 c );
+    void               _on_semicolon              ( const char *end );
+    void               _on_backslash              ( const char *end );
     void               _on_new_line               ( const char *end );
     void               _on_variable               ( const char *end );
     void               _on_operator               ( const char *end );
@@ -42,7 +42,7 @@ private:
     void               _on_number                 ( const char *end );
     void               _on_string                 ( const char *end );
     void               _on_space                  ( const char *end );
-    void               _on_comma                  ();
+    void               _on_comma                  ( const char *end );
     
     void               _update_stack_after_newline(); ///< update stack position after a new line
     void               _update_stack_after_comma  (); ///< update stack position after a comma
