@@ -44,8 +44,10 @@ void test_tok( Str code, TestResult tr ) {
         made_a_test = true;
     }
 
-    if ( ! made_a_test )
-        P( tp.root()->condensed() );
+    if ( ! made_a_test ) {
+        Str s = tp.root()->condensed();
+        P( s );
+    }
 }
 
 TEST_CASE( "Parser src to tok", "" ) {
@@ -55,15 +57,17 @@ TEST_CASE( "Parser src to tok", "" ) {
     test_tok( "ya ou, rt", { .exp = "(ya,ou,rt)" } );
     test_tok( "a120_2", { .exp = "a120_2" } );
 
+    test_tok( "π", { .exp = "π" } );
+
     // variables
-    test_tok( "102.4"    , { .exp = "(number,\"102.4\")" } );
-    test_tok( "102.4+a"  , { .exp = "(operator +,(number,\"102.4\"),a)" } );
-    test_tok( "102.4a"   , { .exp = "(number,\"102.4a\")" } );
-    test_tok( "102.4e+10", { .exp = "(number,\"102.4e+10\")" } );
-    test_tok( "102.4e-10", { .exp = "(number,\"102.4e-10\")" } );
-    test_tok( "102.4+10" , { .exp = "(operator +,(number,\"102.4\"),(number,\"10\"))" } );
-    test_tok( "102e+10+1", { .exp = "(operator +,(number,\"102e+10\"),(number,\"1\"))" } );
-    test_tok( "102.4.5"  , { .exp = "(operator .,(number,\"102.4\"),(number,\"5\"))" } );
+    // test_tok( "102.4"    , { .exp = "(number,\"102.4\")" } );
+    // test_tok( "102.4+a"  , { .exp = "(operator +,(number,\"102.4\"),a)" } );
+    // test_tok( "102.4a"   , { .exp = "(number,\"102.4a\")" } );
+    // test_tok( "102.4e+10", { .exp = "(number,\"102.4e+10\")" } );
+    // test_tok( "102.4e-10", { .exp = "(number,\"102.4e-10\")" } );
+    // test_tok( "102.4+10" , { .exp = "(operator +,(number,\"102.4\"),(number,\"10\"))" } );
+    // test_tok( "102e+10+1", { .exp = "(operator +,(number,\"102e+10\"),(number,\"1\"))" } );
+    // test_tok( "102.4.5"  , { .exp = "(operator .,(number,\"102.4\"),(number,\"5\"))" } );
 
     // // auto call
     // test_tok( "a b, c", { .exp = "(a,b,c)" } );

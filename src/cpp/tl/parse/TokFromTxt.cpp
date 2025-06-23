@@ -47,7 +47,7 @@ void TokFromTxt::_init() {
     // token_stack
     token_stack = { StackItem{
         .token = _new_node( Node::Type::Root ),
-        .closing_char = -1,
+        .closing_char = PI32( -1 ),
         .on_a_new_line = true,
         .newline_size = -1,
         .max_nb_children = std::numeric_limits<int>::max(),
@@ -66,19 +66,19 @@ void TokFromTxt::_parse( const char *cur, const char *end ) {
     goto *restart_jump;
 
     // specific labels =============================================================================================================
-    err_unexpected_continuation: _error( "a continuation byte was not expected here (invalid utf8)" ); goto after_eof;
-    err_expecting_continuation : _error( "a continuation byte was expected here (invalid utf8)" ); goto after_eof;
-    err_unassigned_char        : _error( "unassigned char (invalid utf8)" ); goto after_eof;
+    err_unexpected_continuation: _error( "a continuation byte was not expected here (invalid utf8)" ); goto on_eof;
+    err_expecting_continuation : _error( "a continuation byte was expected here (invalid utf8)" ); goto on_eof;
+    err_unassigned_char        : _error( "unassigned char (invalid utf8)" ); goto on_eof;
     
-    on_unauthorized_char       : _error( "unauthorized char" ); goto after_eof;
-    after_eof                  : restart_jump = &&after_eof; return;
+    on_unauthorized_char       : PE( curr_codepoint ); _error( "unauthorized char" ); goto on_eof;
+    on_eof                     : restart_jump = &&on_eof; return;
 
     // generated code ==============================================================================================================
     // (we use generated code to be able to handle correctly utf8 chars)
     #include "TokFromTxt.gen"
 }
 
-void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name, char expected_closing ) {
+void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name, PI32 expected_closing ) {
     if ( prev_token_is_touching ) { // `some_code( a, b )` -> `a` and `b` will be the children of `some_code`
         Node *token_func = _new_node( Node::Type::ParenthesisCall );
         bool took = _take_node( token_func, {
@@ -106,7 +106,7 @@ void TokFromTxt::_on_opening_paren( Node::Type call_type, const char *func_name,
     pending_comma = false;
 }
 
-void TokFromTxt::_on_closing_paren( char c ) {
+void TokFromTxt::_on_closing_paren( PI32 c ) {
     while ( token_stack.back().closing_char == 0 )
         _pop_stack_item();
 
@@ -122,6 +122,10 @@ void TokFromTxt::_on_closing_paren( char c ) {
     prev_token_is_touching = true;
     pending_new_line = false;
     pending_comma = false;
+}
+
+void TokFromTxt::_on_backslash() {
+    TODO;
 }
 
 void TokFromTxt::_on_semicolon() {

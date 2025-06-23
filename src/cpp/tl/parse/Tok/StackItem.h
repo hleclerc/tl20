@@ -11,7 +11,7 @@ namespace Tok {
 struct StackItem {
     Node*    token;
 
-    int      closing_char;
+    PI32     closing_char;
 
     bool     on_a_new_line;
     int      newline_size;

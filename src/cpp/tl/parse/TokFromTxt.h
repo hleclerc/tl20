@@ -31,9 +31,10 @@ private:
         
     enum {             eof                        = -1 }; ///< internal codes for _parse
                        
-    void               _on_opening_paren          ( Tok::Node::Type call_type, const char *func_name, char expected_closing );
-    void               _on_closing_paren          ( char c );
+    void               _on_opening_paren          ( Tok::Node::Type call_type, const char *func_name, PI32 expected_closing );
+    void               _on_closing_paren          ( PI32 c );
     void               _on_semicolon              ();
+    void               _on_backslash              ();
     void               _on_new_line               ( const char *end );
     void               _on_variable               ( const char *end );
     void               _on_operator               ( const char *end );
