@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "PNode.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
@@ -10,14 +10,14 @@ namespace Pst {
 */
 class Arg {
 public:
-    /**/            Arg    ( Tok::Node *token, Str name = {}, Node *node = nullptr );
+    /**/            Arg    ( Tok::TNode *token, Str name = {}, PNode *node = nullptr );
 
     void            display( Displayer &ds ) const;
-    void            write  ( Ast::Writer &aw ) const;
+    void            write  ( Ast &ast ) const;
 
-    Tok::Node*        token; 
+    Tok::TNode*     token; 
     Str             name;
-    Node*           node;
+    PNode*          node;
 };
 
 } // namespace Pst

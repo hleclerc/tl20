@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scope.h"
-#include "Node.h"
+#include "PNode.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
@@ -13,10 +13,10 @@ public:
     /* */         Block    ( Scope *parent_scope = nullptr, Scope::Type scope_type = Scope::Type::Immediate );
     
     void          display  ( Displayer &ds ) const;
-    void          write    ( Ast::Writer &aw ) const;
+    void          write    ( Ast &ast ) const;
 
     Scope         scope;
-    Vec<Node *>   nodes;
+    Vec<PNode *>  nodes;
 };
 
 } // namespace Pst

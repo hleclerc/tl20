@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "PNode.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
@@ -8,12 +8,12 @@ namespace Pst {
 /** 
     node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Node_String : public Node {
+class Node_String : public PNode {
 public:
-    /**/            Node_String  ( Tok::Node *token, const Str &content );
+    /**/            Node_String  ( Tok::TNode *token, const Str &content );
 
     virtual void    display      ( Displayer &ds ) const;
-    virtual void    write        ( Ast::Writer &aw ) const;
+    virtual void    write        ( Ast &ast ) const;
 
     Str             content;        ///< 
 };

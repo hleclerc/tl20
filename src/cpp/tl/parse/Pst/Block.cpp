@@ -10,7 +10,7 @@ void Block::display( Displayer &ds ) const {
     DS_OBJECT( Block, scope, nodes );
 }
 
-void Block::write( Ast::Writer &aw ) const {
+void Block::write( Ast &ast ) const {
     TODO;
 }
 

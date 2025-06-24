@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../support/common_types.h"
+#include "../../support/string/GString.h"
 #include <map>
 
 BEG_TL_NAMESPACE
@@ -17,7 +17,7 @@ enum class FuncType {
     For           , // as in `for ... in ..., ...`
 };
 
-std::map<Str,FuncType> *base_func_map();
+std::map<GString,FuncType> *base_func_map();
 
 } // namespace Pst
 END_TL_NAMESPACE

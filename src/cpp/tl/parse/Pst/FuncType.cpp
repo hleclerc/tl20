@@ -22,10 +22,10 @@ struct BaseFuncMap {
         func_map[ "for"             ] = FuncType::For;
     }
 
-    std::map<Str,FuncType> func_map;
+    std::map<GString,FuncType> func_map;
 };
 
-std::map<Str,FuncType> *base_func_map() {
+std::map<GString,FuncType> *base_func_map() {
     static BaseFuncMap bfm;
     return &bfm.func_map;
 }

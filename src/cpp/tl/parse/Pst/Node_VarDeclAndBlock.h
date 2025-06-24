@@ -12,12 +12,12 @@ namespace Pst {
 
     Used notably to create the first argument for `operator def`, ...
 */
-class Node_VarDeclAndBlock : public Node {
+class Node_VarDeclAndBlock : public PNode {
 public:
-    using           Node::Node;
+    using           PNode::PNode;
     
     virtual void    display     ( Displayer &ds ) const;
-    virtual void    write       ( Ast::Writer &aw ) const;
+    virtual void    write       ( Ast &ast ) const;
    
     VarDecl*        var_decl;   ///<
     Block*          block;      ///<

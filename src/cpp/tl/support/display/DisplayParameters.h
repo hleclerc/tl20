@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tl/support/tl_namespace.h>
+#include "../tl_namespace.h"
 
 BEG_TL_NAMESPACE
 

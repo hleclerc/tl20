@@ -3,14 +3,14 @@
 BEG_TL_NAMESPACE
 namespace Pst {
 
-Arg::Arg( Tok::Node *token, Str name, Node *node ) : token( token ), name( name ), node( node ) {
+Arg::Arg( Tok::TNode *token, Str name, PNode *node ) : token( token ), name( name ), node( node ) {
 }
 
 void Arg::display( Displayer &ds ) const {
     DS_OBJECT( Arg, name, node );
 }
 
-void Arg::write( Ast::Writer &aw ) const {
+void Arg::write( Ast &ast ) const {
     TODO;
 }
 

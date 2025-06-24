@@ -1,17 +1,16 @@
 #include "Node_Module.h"
-#include "tl/support/Displayer.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
 
-Node_Module::Node_Module( Tok::Node *token ) : Node( token ) {
+Node_Module::Node_Module( Tok::TNode *token ) : PNode( token ) {
 }
 
 void Node_Module::display( Displayer &ds ) const {
     DS_OBJECT( Node_Module, global_variables, block );
 }
 
-void Node_Module::write( Ast::Writer &aw ) const {
+void Node_Module::write( Ast &ast ) const {
     TODO;
 }
 

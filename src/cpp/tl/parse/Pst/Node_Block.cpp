@@ -3,14 +3,14 @@
 BEG_TL_NAMESPACE
 namespace Pst {
 
-Node_Block::Node_Block( Tok::Node *token, Scope *parent_scope, Scope::Type scope_type ) : Node( token ), block( parent_scope, scope_type ) {
+Node_Block::Node_Block( Tok::TNode *token, Scope *parent_scope, Scope::Type scope_type ) : Node( token ), block( parent_scope, scope_type ) {
 }
 
 void Node_Block::display( Displayer &ds ) const {
     ds << block;
 }
 
-void Node_Block::write( Ast::Writer &aw ) const {
+void Node_Block::write( Ast &ast ) const {
     TODO;
 }
 

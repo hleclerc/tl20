@@ -1,6 +1,7 @@
 #include <tl/support/containers/Opt.h>
 #include <tl/support/log/TestingLog.h>
 #include <tl/parse/TokFromTxt.h>
+#include <tl/parse/Ast/Ast.h>
 #include "catch_main.h"
 
 using namespace Tok;
@@ -14,9 +15,10 @@ struct TestResult {
 void test_tok( Str code, TestResult tr ) {
     Str file = "command_line";
     TestingLog log;
+    Ast ast;
 
     TokFromTxt tp( log );
-    tp.parse_txt( code, file );
+    tp.parse_txt( code, ast.new_AString( file ) );
     tp.parse_eof();
 
     bool made_a_test = false;
@@ -41,12 +43,12 @@ void test_tok( Str code, TestResult tr ) {
     }
 
     if ( tr.exp ) {
-        CHECK( tp.root()->condensed() == *tr.exp );
+        CHECK( tp.root()->condensed( true ) == *tr.exp );
         made_a_test = true;
     }
 
     if ( ! made_a_test ) {
-        Str s = tp.root()->condensed();
+        Str s = tp.root()->condensed( true );
         P( s );
     }
 }
@@ -104,5 +106,7 @@ TEST_CASE( "Parser src to tok", "" ) {
     test_tok( "( a )" , { .exp = "(operator (),a)" } );
     test_tok( "( a, b )" , { .exp = "(operator (),a,b)" } );
     test_tok( "( a + b )" , { .exp = "(operator (),(operator +,a,b))" } );
-    test_tok( "( a + )" , { .exp = "(operator (),(operator +,a))", .err_msgs = Vec<Str>{ "token was expecting an additional child." } } );
+    test_tok( "( a + )" , { .err_msgs = Vec<Str>{ "token was expecting an additional child." }, .exp = "(operator (),(operator +,a))" } );
+
+    test_tok( "a := b" , { .exp = "(operator :=,a,b)" } );
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Scope.h"
-#include "Node.h"
+#include "PNode.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
@@ -14,12 +14,12 @@ public:
     /**/            VarDecl( Scope *parent_scope );
 
     void            display( Displayer &ds ) const;
-    void            write  ( Ast::Writer &aw ) const;
+    void            write  ( Ast &ast ) const;
 
     PI              pos_in_parent_scope; ///<
     bool            is_a_func;           ///<
     Scope           scope;               ///< scope for the arguments (if function)
-    Tok::Node*        token; 
+    Tok::TNode*     token; 
 };
 
 } // namespace Pst

@@ -10,7 +10,7 @@ void VarDecl::display( Displayer &ds ) const {
     DS_OBJECT( VarDecl, pos_in_parent_scope, is_a_func );
 }
 
-void VarDecl::write( Ast::Writer &aw ) const {
+void VarDecl::write( Ast &ast ) const {
     TODO;
 }
 

@@ -21,35 +21,44 @@ void PstFromTok::display( Displayer &ds ) const {
     ds << root_node;
 }
 
-Node *PstFromTok::root() const {
+PNode *PstFromTok::root() const {
     return root_node;
 }
 
-void PstFromTok::parse( Tok::Node *root ) {
+void PstFromTok::parse( Tok::TNode *root ) {
     root_node = make_node( &base_scope, root );
 }
 
-Node *PstFromTok::make_node_variable( Pst::Scope *scope, Tok::Node *token ) {
-    Node_Variable *res = pool.create<Node_Variable>( token, scope, token->content );
+PNode *PstFromTok::make_node_variable( Scope *scope, Tok::TNode *token ) {
+    Node_Variable *res = pool.create<Node_Variable>( token, scope, token->variable_ref );
     variable_refs << res;
     return res;
 }
 
-Node *PstFromTok::make_node_string( Pst::Scope *scope, Tok::Node *token ) {
-    Node_String *res = pool.create<Node_String>( token, token->content );
+PNode *PstFromTok::make_node_module( Scope *scope, Tok::TNode *token ) {
+    Scope *new_scope = pool.create<Scope>( scope );
+
+
+    Node_Module *res = pool.create<Node_Module>( token );
+    res->block = make_block( new_scope, token, &res->global_variables );
     return res;
 }
 
-Node *PstFromTok::make_node_call( Pst::Scope *scope, Tok::Node *token ) {
+PNode *PstFromTok::make_node_string( Scope *scope, Tok::TNode *token ) {
+    Node_String *res = pool.create<Node_String>( token, token->string_content );
+    return res;
+}
+
+PNode *PstFromTok::make_node_call( Scope *scope, Tok::TNode *token ) {
     // result object
     Node_Call *call = pool.create<Node_Call>( token, scope );
 
     // func
-    Tok::Node *func = token->first_child;
+    Tok::TNode *func = token->first_child;
     call->func = make_node( &call->scope, func );
 
     // special args ?
-    Tok::Node *arg = func->next;
+    Tok::TNode *arg = func->next;
     if ( auto *v = dynamic_cast<Node_Variable *>( call->func ) ) {
         auto iter = call->scope.func_map->find( v->name );
         if ( iter != call->scope.func_map->end() ) {
@@ -110,25 +119,25 @@ Node *PstFromTok::make_node_call( Pst::Scope *scope, Tok::Node *token ) {
 
 }
 
-Node *PstFromTok::make_node( Pst::Scope *scope, Tok::Node *token ) {
+PNode *PstFromTok::make_node( Scope *scope, Tok::TNode *token ) {
     switch ( token->type ) {
-        case Tok::Node::Type::ParenthesisCall:
+        case Tok::TNode::Type::ParenthesisCall:
             return make_node_call( scope, token );
-        case Tok::Node::Type::BracketCall:
+        case Tok::TNode::Type::BracketCall:
             P( token );
             TODO;
-        case Tok::Node::Type::BraceCall:
+        case Tok::TNode::Type::BraceCall:
             P( token );
             TODO;
-        case Tok::Node::Type::Variable:
+        case Tok::TNode::Type::Variable:
             return make_node_variable( scope, token );
-        case Tok::Node::Type::String:
+        case Tok::TNode::Type::String:
             return make_node_string( scope, token );
     }
     return nullptr;
 }
 
-Arg PstFromTok::make_arg( Pst::Scope *scope, Tok::Node *token ) {
+Arg PstFromTok::make_arg( Scope *scope, Tok::TNode *token ) {
     Arg res( token );
 
     // named arg ?
@@ -146,14 +155,14 @@ Arg PstFromTok::make_arg( Pst::Scope *scope, Tok::Node *token ) {
 
 }
 
-VarDecl *PstFromTok::make_var_decl( Pst::Scope *scope, Tok::Node *token, bool func_by_default ) {
+VarDecl *PstFromTok::make_var_decl( Scope *scope, Tok::TNode *token, bool func_by_default ) {
     VarDecl *res = pool.create<VarDecl>( scope );
     res->is_a_func = func_by_default;
     res->token = token;
 
-    Tok::Node *var = token;
-    if ( var->type == Tok::Node::Type::Variable ) {
-        res->pos_in_parent_scope = scope->variable_names.push_back_ind( var->content );
+    Tok::TNode *var = token;
+    if ( var->type == Tok::TNode::Type::Variable ) {
+        res->pos_in_parent_scope = scope->variable_names.push_back_ind( var->variable_ref );
     } else {
         TODO;
     }
@@ -161,7 +170,7 @@ VarDecl *PstFromTok::make_var_decl( Pst::Scope *scope, Tok::Node *token, bool fu
     return res;
 }
 
-Block *PstFromTok::make_block( Pst::Scope *scope, Tok::Node *token, Vec<Str> *global_variables ) {
+Block *PstFromTok::make_block( Scope *scope, Tok::TNode *token, Vec<GString> *global_variables ) {
     Block *res = pool.create<Block>( scope );
     res->scope.global_variables = global_variables;
 

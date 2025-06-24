@@ -272,10 +272,13 @@ for b, e in intervals( [ space_cat ] ):
 # operator ======================================================
 operator = Node( "operator", exit_code = "_on_operator( cur - OFF_END_CHAR );" )
 
+for b, e in operators:
+    operator.add_next( operator, b, e )
+
 # punctuation ===================================================
-op_parenthesis = Node( "op_parenthesis", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::ParenthesisCall, "operator ()", { ord( ')' ) } );' )
-op_bracket = Node( "op_bracket", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::BracketCall, "operator []", { ord( ']' ) } );' )
-op_brace = Node( "op_brace", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::Node::Type::BraceCall, "operator {{}}", { ord( '}' ) } );' )
+op_parenthesis = Node( "op_parenthesis", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::TNode::Type::ParenthesisCall, "operator ()", { ord( ')' ) } );' )
+op_bracket = Node( "op_bracket", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::TNode::Type::BracketCall, "operator []", { ord( ']' ) } );' )
+op_brace = Node( "op_brace", exit_code = f'_on_opening_paren( cur - OFF_END_CHAR, Tok::TNode::Type::BraceCall, "operator {{}}", { ord( '}' ) } );' )
 
 cl_parenthesis = Node( "cl_parenthesis", exit_code = "_on_closing_paren( cur - OFF_END_CHAR, ')' );" )
 cl_bracket = Node( "cl_bracket", exit_code = "_on_closing_paren( cur - OFF_END_CHAR, ']' );" )

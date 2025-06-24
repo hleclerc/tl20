@@ -5,7 +5,6 @@
 #include <limits>
 
 #include "../support/P.h"
-#include "tl/support/common_types.h"
 
 BEG_TL_NAMESPACE
 using namespace Tok;
@@ -14,7 +13,7 @@ TokFromTxt::TokFromTxt( Log &log ) : log( log ) {
     _init();
 }
 
-void TokFromTxt::parse_txt( StrView content, StrRef src_url, PI src_off ) {
+void TokFromTxt::parse_txt( StrView content, AString src_url, PI src_off ) {
     curr_src_content = content.begin() - src_off;
     curr_src_url = src_url;
     
@@ -26,7 +25,7 @@ void TokFromTxt::parse_eof() {
     _parse( &eof, &eof + 1 );
 }
 
-Tok::Node *TokFromTxt::root() {
+Tok::TNode *TokFromTxt::root() {
     return token_stack.front().token;
 }
 
@@ -44,9 +43,13 @@ void TokFromTxt::_init() {
     prev_line_beg.clear();
     pool.clear();
 
+    // 
+    TNode *root = _new_node( TNode::Type::ParenthesisCall );
+    root->add_child( _new_variable( "module" ) );
+
     // token_stack
     token_stack = { StackItem{
-        .token = _new_node( Node::Type::Root ),
+        .token = root,
         .closing_char = PI32( -1 ),
         .on_a_new_line = true,
         .newline_size = -1,
@@ -78,9 +81,9 @@ void TokFromTxt::_parse( const char *cur, const char *end ) {
     #include "TokFromTxt.gen"
 }
 
-void TokFromTxt::_on_opening_paren( const char *end, Node::Type call_type, const char *func_name, PI32 expected_closing ) {
+void TokFromTxt::_on_opening_paren( const char *end, TNode::Type call_type, const char *func_name, PI32 expected_closing ) {
     if ( prev_token_is_touching ) { // `some_code( a, b )` -> `a` and `b` will be the children of `some_code`
-        Node *token_func = _new_node( Node::Type::ParenthesisCall );
+        TNode *token_func = _new_node( TNode::Type::ParenthesisCall );
         bool took = _take_node( token_func, {
             .max_nb_children = std::numeric_limits<int>::max(),
             .min_nb_children = 0,
@@ -89,8 +92,8 @@ void TokFromTxt::_on_opening_paren( const char *end, Node::Type call_type, const
         } );
         ASSERT( took );
     } else { // `some_code ( a, b ), c` -> `( a, b )` and `c` will be the children of `some_code`
-        Node *token_func = _new_node( Node::Type::ParenthesisCall );
-        Node *token_name = _new_variable( func_name );
+        TNode *token_func = _new_node( TNode::Type::ParenthesisCall );
+        TNode *token_name = _new_variable( func_name );
         token_func->add_child( token_name );
         _append_token( token_func, {
             .max_nb_children = std::numeric_limits<int>::max(),
@@ -184,9 +187,9 @@ void TokFromTxt::_update_stack_after_comma() {
         _pop_stack_item();
 }
     
-Node *TokFromTxt::_new_node( Node::Type type ) {
+TNode *TokFromTxt::_new_node( TNode::Type type ) {
     // create the new token
-    Node *token = pool.create<Node>();
+    TNode *token = pool.create<TNode>();
     // token->string_content = { pool, content };
     token->beg_src_url = curr_tok_src_url;
     token->beg_src_off = curr_tok_src_off;
@@ -194,14 +197,14 @@ Node *TokFromTxt::_new_node( Node::Type type ) {
     return token;
 }
 
-Node *TokFromTxt::_new_variable( StrRef variable_name ) {
-    Node *token = _new_node( Node::Type::Variable );
+TNode *TokFromTxt::_new_variable( GString variable_name ) {
+    TNode *token = _new_node( TNode::Type::Variable );
     token->variable_ref = variable_name;
     return token;
 }
 
-Node *TokFromTxt::_new_string( StrView content ) {
-    Node *token = _new_node( Node::Type::String );
+TNode *TokFromTxt::_new_string( StrView content ) {
+    TNode *token = _new_node( TNode::Type::String );
     token->string_content = { pool, content };
     return token;
 }
@@ -228,7 +231,7 @@ void TokFromTxt::_pop_stack_item() {
     token_stack.pop_back();
 }
 
-void TokFromTxt::_error( Str msg, Vec<Node *> tok ) {
+void TokFromTxt::_error( Str msg, Vec<TNode *> tok ) {
     log.msg( msg, {}, Log::Type::ERROR );
 }
 
@@ -270,7 +273,7 @@ void TokFromTxt::_on_new_line( const char *end ) {
 }
 
 void TokFromTxt::_on_variable( const char *end ) {
-    Node *tok = _new_variable( _full_tok_content( end ) );
+    TNode *tok = _new_variable( _full_tok_content( end ) );
     _append_token( tok, { .max_nb_children = 0 } );
 
     prev_token_is_touching = true;
@@ -285,7 +288,7 @@ void TokFromTxt::_on_comment( const char *end ) {
 }
 
 void TokFromTxt::_on_operator( const char *end ) {
-    auto use_operator = [&]( OperatorTrie::OperatorData *od, Node *tok_call ) -> void {
+    auto use_operator = [&]( OperatorTrie::OperatorData *od, TNode *tok_call ) -> void {
         if ( od->take_left ) {
             // try to take a token
             bool took = _take_node( tok_call, {
@@ -311,8 +314,8 @@ void TokFromTxt::_on_operator( const char *end ) {
 
     StrView str = _full_tok_content( end );
     while ( OperatorTrie::OperatorData *od = operator_trie->symbol_op( str ) ) {
-        Node *tok_call = _new_node( Node::Type::ParenthesisCall );
-        Node *tok_func = _new_variable( od->name );
+        TNode *tok_call = _new_node( TNode::Type::ParenthesisCall );
+        TNode *tok_func = _new_variable( od->name );
         tok_call->add_child( tok_func );
 
         use_operator( od, tok_call );
@@ -333,9 +336,9 @@ void TokFromTxt::_on_operator( const char *end ) {
 
 void TokFromTxt::_on_number( const char *end ) {
     // CALL( number, "..." )
-    Node *tok_call = _new_node( Node::Type::ParenthesisCall );
-    Node *tok_sval = _new_string( _full_tok_content( end ) );
-    Node *tok_func = _new_variable( "number" );
+    TNode *tok_call = _new_node( TNode::Type::ParenthesisCall );
+    TNode *tok_sval = _new_string( _full_tok_content( end ) );
+    TNode *tok_func = _new_variable( "number" );
     tok_call->add_child( tok_func );
     tok_call->add_child( tok_sval );
 
@@ -372,7 +375,7 @@ void TokFromTxt::_on_space( const char *end ) {
     _start_new_token( end );
 }
 
-bool TokFromTxt::_take_node( Node *token, const TakingInfo &ti ) {
+bool TokFromTxt::_take_node( TNode *token, const TakingInfo &ti ) {
     // find the first item that can be taken (according to ti.left_prio)
     while ( token_stack.size() > 2 && token_stack[ token_stack.size() - 2 ].prio > ti.left_prio && token_stack[ token_stack.size() - 2 ].closing_char == 0 )
         _pop_stack_item();
@@ -392,7 +395,7 @@ bool TokFromTxt::_take_node( Node *token, const TakingInfo &ti ) {
     return true;
 }
 
-void TokFromTxt::_append_token( Node *token, const AppendingInfo &pti ) {
+void TokFromTxt::_append_token( TNode *token, const AppendingInfo &pti ) {
     // update the stack
     if ( pending_new_line )
         _update_stack_after_newline();
@@ -401,7 +404,7 @@ void TokFromTxt::_append_token( Node *token, const AppendingInfo &pti ) {
 
     // make a call token if last stack item does not take children
     if ( token_stack.back().max_nb_children == 0 ) {
-        Node *token_call = _new_node( Node::Type::ParenthesisCall );
+        TNode *token_call = _new_node( TNode::Type::ParenthesisCall );
         bool took = _take_node( token_call, {
             .max_nb_children = std::numeric_limits<int>::max(),
             .min_nb_children = 0,

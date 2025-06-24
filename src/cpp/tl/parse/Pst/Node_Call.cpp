@@ -4,14 +4,14 @@
 BEG_TL_NAMESPACE
 namespace Pst {
 
-Node_Call::Node_Call( Tok::Node *token, Scope *parent_scope ) : Node( token ), scope( parent_scope ) {
+Node_Call::Node_Call( Tok::TNode *token, Scope *parent_scope ) : PNode( token ), scope( parent_scope ) {
 }
 
 void Node_Call::display( Displayer &ds ) const {
     DS_OBJECT( Node_Call, scope, func, args );
 }
 
-void Node_Call::write( Ast::Writer &aw ) const {
+void Node_Call::write( Ast &ast ) const {
     TODO;
 }
 

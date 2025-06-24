@@ -8,12 +8,12 @@ namespace Pst {
 /** 
     node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Node_Block : public Node {
+class Node_Block : public PNode {
 public:
-    /**/          Node_Block( Tok::Node *token, Scope *parent_scope = nullptr, Scope::Type scope_type = Scope::Type::Immediate );
+    /**/          Node_Block( Tok::TNode *token, Scope *parent_scope = nullptr, Scope::Type scope_type = Scope::Type::Immediate );
 
     virtual void  display   ( Displayer &ds ) const;
-    virtual void  write     ( Ast::Writer &aw ) const;
+    virtual void  write     ( Ast &ast ) const;
 
     Block         block;
 };

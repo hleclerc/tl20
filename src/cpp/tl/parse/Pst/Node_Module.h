@@ -8,14 +8,14 @@ namespace Pst {
 /** 
     node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Node_Module : public Node {
+class Node_Module : public PNode {
 public:
-    /**/          Node_Module( Tok::Node *token );
+    /**/          Node_Module( Tok::TNode *token );
 
     virtual void  display    ( Displayer &ds ) const;
-    virtual void  write      ( Ast::Writer &aw ) const;
+    virtual void  write      ( Ast &ast ) const;
 
-    Vec<Str>      global_variables;
+    Vec<GString>  global_variables;
     Block*        block;
 };
 

@@ -7,7 +7,7 @@ void Module::display( Displayer &ds ) const {
     DS_OBJECT( Module, global_variables, block );
 }
 
-void Module::write( Ast::Writer &aw ) const {
+void Module::write( Ast &ast ) const {
     TODO;
 }
 

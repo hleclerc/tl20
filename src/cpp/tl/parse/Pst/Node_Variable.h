@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Node.h"
+#include "PNode.h"
 
 BEG_TL_NAMESPACE
 namespace Pst {
@@ -9,16 +9,16 @@ class Scope;
 /** 
     node of a "pre ast" graph, used to make a final Ast for tokens
 */
-class Node_Variable : public Node {
+class Node_Variable : public PNode {
 public:
-    /**/            Node_Variable ( Tok::Node *token, Scope *scope, const Str &name );
+    /**/            Node_Variable ( Tok::TNode *token, Scope *scope, GString name );
 
     virtual void    display       ( Displayer &ds ) const;
-    virtual void    write         ( Ast::Writer &aw ) const;
+    virtual void    write         ( Ast &ast ) const;
 
     PI              nb_variables_in_scope_during_construction; ///< 
     Scope*          scope;        ///<
-    Str             name;         ///<
+    GString         name;         ///<
 
     PI              num_in_scope; ///< set in second phase of parsing
 };
