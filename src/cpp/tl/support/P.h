@@ -1,28 +1,43 @@
 #pragma once
 
 #include "string/read_arg_name.h"
-#include "Displayer.h"
+#include "display.h"
 #include "TODO.h"
 
 #include <iostream>
 #include <mutex>
+#include <tuple>
 
 BEG_TL_NAMESPACE
 template<class Value> std::string type_name();
 
+template<class Values>
+struct _RefObject {
+    void for_each_attribute( const auto &f ) const {
+        std::string_view cp_arg_names = arg_names;
+        std::apply( [&]( const auto &value ) {
+            f( read_arg_name( cp_arg_names ), value );
+        }, values );
+    }
+
+    std::string_view arg_names;
+    Values values;
+};
+
 void __print_with_mutex( std::ostream &os, const DisplayParameters &prf, std::string_view arg_names, const auto &...arg_values ) {
-    // create a root display item
-    Displayer ds;
-    ( ds.append_attribute( read_arg_name( arg_names ), arg_values ), ... );
+    // make a synthetic object that will a for_each_attribute method
+    auto tie = std::tie( arg_values... );
+    _RefObject<decltype( tie )> ro( arg_names, tie );
 
-    // make a string
-    Str out;
-    ds.write_to( out, prf );
+    Displayer dp;
+    dp.parameters = prf;
+    dp.os = &os;
 
-    // display it
+    // call display
     static std::mutex m;
     m.lock();    
-    os << out << std::endl;
+    display( dp, ro );
+    os << std::endl;
     m.unlock();
 }
 
@@ -34,10 +49,11 @@ void __print_with_mutex( std::ostream &os, const DisplayParameters &prf, std::st
 template<class... ArgValues>
 void __show( std::string_view arg_names, ArgValues &&...arg_values ) {
     // create a root display item
-    Displayer ds;
-    ( ds.append_attribute( read_arg_name( arg_names ), arg_values ), ... );
+    // Displayer ds;
+    // ( ds.append_attribute( read_arg_name( arg_names ), arg_values ), ... );
 
-    ds.show();
+    // ds.show();
+    TODO;
 }
 
 #ifndef P

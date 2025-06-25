@@ -14,4 +14,6 @@ Pour Displayer, on aimerait manipuler les items de façon plus précise. Ça ser
   Pour faire simple, on pourrait faire des new DisplayItem_Truc... mais il y a la question des maps pour les pointeurs.
   Rq: ça serait cool si on pouvait éviter de créer une représentation intermédiaire, par exemple en proposant directement un display qui utilise for_each_item, etc...
 
-  
+Pb de la mort: pour un objet polymorphique, on ne pourra pas utiliser for_each_attribute.
+    On revient au besoin de définir un display, au moins pour les classes polymorphiques
+    Prop: on passe par un displayer qui reçoit les strings, les paramètres, etc...

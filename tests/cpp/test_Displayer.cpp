@@ -17,7 +17,5 @@ TEST_CASE( "Displayer", "" ) {
     // Str res;
     // ds.write_to( res, { .ensure_endline = true } );
     // std::cout << res;
-    
-    display( std::cout, Pouet() );
-    std::cout << std::endl;
+    P( Pouet() );
 }
