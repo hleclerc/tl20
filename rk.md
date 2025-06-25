@@ -8,3 +8,10 @@ L'approche pourrait être d'avoir dans l'Ast une partie en construction après u
 
 Si on stocke des offsets, il faudrait un moyen d'accélérer la recherche lorsque les données sont fractionnées. 
     Ou alors, on se débrouille pour que les données soient contigues.
+
+
+Pour Displayer, on aimerait manipuler les items de façon plus précise. Ça serait tenté de manipuler directement de DisplayItem_Truc.
+  Pour faire simple, on pourrait faire des new DisplayItem_Truc... mais il y a la question des maps pour les pointeurs.
+  Rq: ça serait cool si on pouvait éviter de créer une représentation intermédiaire, par exemple en proposant directement un display qui utilise for_each_item, etc...
+
+  

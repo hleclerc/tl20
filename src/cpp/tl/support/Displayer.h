@@ -17,24 +17,25 @@ BEG_TL_NAMESPACE
 class DisplayItem;
 
 /**
- * @brief 
+ * @brief a factory to create DisplayItems.
  * 
+ * Basically, it contains
+ *   - a memory pool to store the created objects
+ *   - a pointer map to track items that have already been created
  */
 class Displayer {
 public:
-    using           Pointers        = std::map<Str,DisplayItem *>;
-    struct          Number          { Str numerator, denominator, shift, base_shift; }; ///< values are represented in base 10.
+    using           PointerMap      = std::map<Str,DisplayItem *>;
    
     /**/            Displayer       ();
     /**/           ~Displayer       ();
 
+    void            set_next_type   ( StrView type, bool is_virtual = false ); ///< set the type of the next item to be appended
     void            set_next_name   ( StrView name ); ///< set the name of the next item to be appended
-    void            set_next_head   ( StrView head ); ///< set the head of the next item to be appended
-    void            set_next_type   ( StrView type ); ///< set the type of the next item to be appended
     T_T Displayer&  operator<<      ( const T &value ) { display( *this, value ); return *this; }
     void            write_to        ( Str &out, const DisplayParameters &dp ) const;
     Str             as_Str          ( const DisplayParameters &dp ) const;
-    void            show            ( const DisplayParameters &dp = {} ) const;
+    void            show            ( const DisplayParameters &dp = {} ) const; ///< use graphviz to make a graph representation
 
     // helpers
     void            append_attribute( StrView name, const auto &value ) { set_next_name( name ); operator<<( value ); }
@@ -48,12 +49,8 @@ public:
 
     void            start_object    ();
     void            end_object      ();
-
-    DisplayItem*    last_container;
-    Str             next_head;
-    Str             next_name;
-    Str             next_type;
-    Pointers        pointers;
+    
+    PointerMap        pointers;
     BumpPointerPool pool;
 };
 
@@ -64,7 +61,7 @@ auto _for_each_attribute( auto &&func, std::string_view names, const auto &...va
 auto _append_attributes( Displayer &ds, std::string_view names, const auto &...values ) { ( ds.append_attribute( read_arg_name( names ), values ), ... ); }
 
 #define STD_TL_TYPE_INFO( NAME, INCL, ... ) public: void for_each_attribute( auto &&func ) const { _for_each_attribute( func, #__VA_ARGS__, ##__VA_ARGS__ ); }
-#define DS_OBJECT( TYPE, ... ) { ds.set_next_type( #TYPE ); ds.start_object(); _append_attributes( ds, #__VA_ARGS__, ##__VA_ARGS__ ); ds.end_object(); }
+#define DS_OBJECT( TYPE, ... ) { ds.set_next_type( #TYPE, std::is_polymorphic_v<TYPE> ); ds.start_object(); _append_attributes( ds, #__VA_ARGS__, ##__VA_ARGS__ ); ds.end_object(); }
 
 // =======================================================================================================================================
 void display( Displayer &ds, const Str&  str );

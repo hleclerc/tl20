@@ -1,6 +1,8 @@
 #pragma once
 
+#include "DisplayParameters.h"
 #include "../common_types.h"
+#include <ostream>
 
 BEG_TL_NAMESPACE
 
@@ -9,12 +11,16 @@ BEG_TL_NAMESPACE
 */
 class DisplayContext {
 public:
-    void write_beg_line( Str &out ) { out += '\n'; out += beg_line; }
+    using DpPtr         = const DisplayParameters *;
 
-    void incr          () { beg_line += "  "; }
-    void decr          () { beg_line.resize( beg_line.size() - 2 ); }
+    void  new_item      ( std::ostream &os );
 
-    Str  beg_line;
+    void  incr          ();
+    void  decr          ();
+
+    bool  first_item    = true;
+    Str   beg_line      = {};
+    DpPtr dp            = nullptr;
 };
 
 END_TL_NAMESPACE

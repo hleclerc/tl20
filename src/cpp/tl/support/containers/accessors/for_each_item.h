@@ -5,6 +5,7 @@
 
 BEG_TL_NAMESPACE
 
+/// generic way to find items of an objects. Tries a.for_each_item(...), a.size(), ...
 void for_each_item( const auto &a, const auto &f ) requires ( requires { a.for_each_item( f ); } || requires { a.size(); a[ 0 ]; } || requires { a.begin(); a.end(); } ) {
     if constexpr ( requires { a.for_each_item( f ); } ) {
         a.for_each_item( f );

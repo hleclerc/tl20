@@ -1,4 +1,13 @@
+#include "tl/support/containers/Vec.h"
+#include "tl/support/display.h"
 #include "catch_main.h"
+#include <iostream>
+
+struct Pouet {
+    void for_each_attribute( auto &&func ) const { func( "a", a ); func( "b", b ); }
+    int a = 10;
+    Vec<int> b = { 1, 2 };
+};
 
 TEST_CASE( "Displayer", "" ) {
     // Displayer ds;
@@ -8,5 +17,7 @@ TEST_CASE( "Displayer", "" ) {
     // Str res;
     // ds.write_to( res, { .ensure_endline = true } );
     // std::cout << res;
-    P( 17, 987 );
+    
+    display( std::cout, Pouet() );
+    std::cout << std::endl;
 }

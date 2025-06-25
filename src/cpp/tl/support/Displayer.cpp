@@ -16,26 +16,20 @@ Displayer::Displayer() {
 Displayer::~Displayer() {
 }
 
+void Displayer::set_next_type( StrView type, bool is_virtual ) {
+    next_virtual_type = is_virtual;
+    next_type = type;
+}
+
 void Displayer::set_next_name( StrView name ) {
-    if ( next_name.empty() )
-        next_name = name;
-}
-
-void Displayer::set_next_head( StrView head ) {
-    if ( next_head.empty() )
-        next_head = head;
-}
-
-void Displayer::set_next_type( StrView type ) {
-    if ( next_type.empty() )
-        next_type = type;
+    next_name = name;
 }
 
 void Displayer::append_number( const Number &number ) {
     auto *res = pool.create<DisplayItem_Number>();
-    res->head = std::exchange( next_head, {} );
-    res->name = std::exchange( next_name, {} );
+    res->virtual_type = std::exchange( next_virtual_type, false );
     res->type = std::exchange( next_type, {} );
+    res->name = std::exchange( next_name, {} );
     last_container->append( res );
     
     res->denominator = number.denominator;
@@ -46,7 +40,7 @@ void Displayer::append_number( const Number &number ) {
 
 void Displayer::append_string( StrView str ) {
     auto *res = pool.create<DisplayItem_String>();
-    res->head = std::exchange( next_head, {} );
+    res->virtual_type = std::exchange( next_virtual_type, false );
     res->name = std::exchange( next_name, {} );
     res->type = std::exchange( next_type, {} );
     last_container->append( res );
@@ -84,7 +78,7 @@ void Displayer::append_pointer( bool valid, const Str &id, const std::function<v
         auto iter = pointers.find( id );
         if ( iter == pointers.end() ) {
             auto *res = pool.create<DisplayItem_Pointer>();
-            res->head = std::exchange( next_head, {} );
+            res->virtual_type = std::exchange( next_virtual_type, false );
             res->name = std::exchange( next_name, {} );
             res->type = std::exchange( next_type, {} );
 
@@ -108,7 +102,7 @@ void Displayer::append_pointer( bool valid, const Str &id, const std::function<v
 
 void Displayer::start_object() {
     auto *res = pool.create<DisplayItem_List>();
-    res->head = std::exchange( next_head, {} );
+    res->virtual_type = std::exchange( next_virtual_type, false );
     res->name = std::exchange( next_name, {} );
     res->type = std::exchange( next_type, {} );
     last_container->append( res );
@@ -125,10 +119,12 @@ void Displayer::end_object() {
 
 void Displayer::start_array() {
     auto *res = pool.create<DisplayItem_List>();
-    res->head = std::exchange( next_head, {} );
+    res->virtual_type = std::exchange( next_virtual_type, false );
     res->name = std::exchange( next_name, {} );
     res->type = std::exchange( next_type, {} );
     last_container->append( res );
+
+    res->is_an_object = false;
 
     res->parent = last_container;
     last_container = res;
