@@ -47,12 +47,11 @@ DTP UTP::~Opt() {
         value().~T();
 }
 
-DTP void UTP::display( Displayer &ds ) const {
-    if ( ok ) {
+DTP void UTP::display( auto &ds ) const {
+    if ( ok )
         ds << value();
-        return;
-    }
-    ds << "none";
+    else
+        ds << "none";
 }
 
 DTP UTP &UTP::operator=( const Opt<T> &that ) {

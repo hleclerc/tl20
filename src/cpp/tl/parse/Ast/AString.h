@@ -13,7 +13,7 @@ class AString {
 public:
     operator     StrView() const;
 
-    void         display( Displayer &ds ) const;
+    void         display( Displayer &dp ) const;
     PI           size   () const { return _size; }
 
 private:

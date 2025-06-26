@@ -16,7 +16,7 @@ class Node_VarDeclAndBlock : public PNode {
 public:
     using           PNode::PNode;
     
-    virtual void    display     ( Displayer &ds ) const;
+    virtual void    display     ( Displayer &dp ) const;
     virtual void    write       ( Ast &ast ) const;
    
     VarDecl*        var_decl;   ///<

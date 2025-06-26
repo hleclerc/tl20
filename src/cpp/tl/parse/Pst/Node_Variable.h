@@ -13,7 +13,7 @@ class Node_Variable : public PNode {
 public:
     /**/            Node_Variable ( Tok::TNode *token, Scope *scope, GString name );
 
-    virtual void    display       ( Displayer &ds ) const;
+    virtual void    display       ( Displayer &dp ) const;
     virtual void    write         ( Ast &ast ) const;
 
     PI              nb_variables_in_scope_during_construction; ///< 

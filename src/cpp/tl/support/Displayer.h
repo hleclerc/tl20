@@ -1,177 +1,147 @@
 #pragma once
 
-// #include "containers/accessors/for_each_attribute.h"
+#include "containers/accessors/for_each_attribute.h"
 #include "containers/accessors/for_each_item.h"
-#include "display/DisplayParameters.h"
-#include "memory/BumpPointerPool.h"
-#include "string/read_arg_name.h"
-#include "TODO.h"
+#include "containers/accessors/ptr_repr.h"
 
-#include <functional>
+#include "display/DisplayParameters.h"
+#include "display/DisplayContext.h"
+
+#include "string/read_arg_name.h"
+
+#include "common_macros.h"
+#include "ERROR.h"
+
 #include <sstream>
 #include <map>
 
-#define TL_DISPLAYER_IS_DEFINED
-
 BEG_TL_NAMESPACE
-class DisplayItem;
+class Displayer;
+void display_item( Displayer &dp, auto &&item );
 
 /**
- * @brief a factory to create DisplayItems.
- * 
- * Basically, it contains
- *   - a memory pool to store the created objects
- *   - a pointer map to track items that have already been created
- */
+
+*/
 class Displayer {
 public:
-    using           PointerMap      = std::map<Str,DisplayItem *>;
-   
-    /**/            Displayer       ();
-    /**/           ~Displayer       ();
+    using      Parameters       = DisplayParameters;
+    using      Context          = DisplayContext;
+    using      PtrVec           = std::vector<Str>;
+    using      PtrMap           = std::map<Str,PI>;
+    using      Os               = std::ostream;
+  
+    /* */      Displayer        ( std::ostream *os, const Parameters &parameters = {} ) : parameters( parameters ) { context.os = os; context.beg_line = parameters.beg_line; }
+  
+    Displayer& operator<<       ( auto &&item ) { display_item( *this, FORWARD( item ) ); return *this; }
 
-    void            set_next_type   ( StrView type, bool is_virtual = false ); ///< set the type of the next item to be appended
-    void            set_next_name   ( StrView name ); ///< set the name of the next item to be appended
-    T_T Displayer&  operator<<      ( const T &value ) { display( *this, value ); return *this; }
-    void            write_to        ( Str &out, const DisplayParameters &dp ) const;
-    Str             as_Str          ( const DisplayParameters &dp ) const;
-    void            show            ( const DisplayParameters &dp = {} ) const; ///< use graphviz to make a graph representation
-
-    // helpers
-    void            append_attribute( StrView name, const auto &value ) { set_next_name( name ); operator<<( value ); }
-    void            append_pointer  ( bool valid, const Str &id, const std::function<void()> &cb );
-    void            append_number   ( const Number &number );
-    void            append_string   ( StrView str );
-    void            append_array    ( const std::function<void()> &cb );
-
-    void            start_array     ();
-    void            end_array       ();
-
-    void            start_object    ();
-    void            end_object      ();
-    
-    PointerMap        pointers;
-    BumpPointerPool pool;
+    void       write_ptr_content() { for( PI i = 0; i < pointer_vec.size(); ++i ) { new_item(); os() << pointer_vec[ i ]; } }
+    Context    exchange_context ( Os *os ) { Context out = context; context.beg_line = parameters.beg_line; context.os = os; return out; }
+    void       write_attr_name  ( StrView name ) { os() << name << ": "; }
+    void       new_item         () { if ( ! std::exchange( context.first_item, false ) ) os() << "\n"; os() << context.beg_line; }
+    void       incr             () { context.beg_line += "  "; }
+    void       decr             () { context.beg_line.resize( context.beg_line.size() - 2 ); }
+    Os&        os               () { return *context.os; }
+ 
+ 
+    PtrMap     pointer_map;     ///< id -> num 
+    PtrVec     pointer_vec;     ///< num -> pointed data repr
+    Parameters parameters;      ///<
+    Context    context;         ///<
 };
 
-T_T Str pointer_repr( const T *ptr ) { return std::to_string( PI( ptr ) ); }
+// declarations
+void display_object( Displayer &dp, auto &&item );
+void display_array ( Displayer &dp, auto &&item );
+void display_ptr   ( Displayer &dp, auto &&item );
 
-// STD_TL_TYPE_INFO
-auto _for_each_attribute( auto &&func, std::string_view names, const auto &...values ) { ( func( read_arg_name( names ), values ), ... ); }
-auto _append_attributes( Displayer &ds, std::string_view names, const auto &...values ) { ( ds.append_attribute( read_arg_name( names ), values ), ... ); }
-
-#define STD_TL_TYPE_INFO( NAME, INCL, ... ) public: void for_each_attribute( auto &&func ) const { _for_each_attribute( func, #__VA_ARGS__, ##__VA_ARGS__ ); }
-#define DS_OBJECT( TYPE, ... ) { ds.set_next_type( #TYPE, std::is_polymorphic_v<TYPE> ); ds.start_object(); _append_attributes( ds, #__VA_ARGS__, ##__VA_ARGS__ ); ds.end_object(); }
-
-// =======================================================================================================================================
-void display( Displayer &ds, const Str&  str );
-void display( Displayer &ds, StrView     str );
-void display( Displayer &ds, const char* str );
-void display( Displayer &ds, char        str );
-
-void display( Displayer &ds, PI64        val );
-void display( Displayer &ds, PI32        val );
-void display( Displayer &ds, PI16        val );
-void display( Displayer &ds, PI8         val );
-
-void display( Displayer &ds, SI64        val );
-void display( Displayer &ds, SI32        val );
-void display( Displayer &ds, SI16        val );
-void display( Displayer &ds, SI8         val );
-
-void display( Displayer &ds, bool        val );
-
-void display( Displayer &ds, FP80        val );
-void display( Displayer &ds, FP64        val );
-void display( Displayer &ds, FP32        val );
-
-void display( Displayer &ds, const void* val );
-void display( Displayer &ds, void*       val );
-
-// // std::variant
-// template<class... A>
-// void display( Displayer &ds, const std::variant<A...> &value ) {
-//     std::visit( [&]( const auto &v ) {
-//         return ds.new_display_item( v );
-//     }, value );
-// }
-
-// generic
-template<class T>
-void display( Displayer &ds, const T &value ) {
-    // value.display
-    if constexpr( requires { value.display( ds ); } ) {
-        value.display( ds );
-        return;
-    }
-
-    // for_each_attribute (for objects)
-    else if constexpr( requires { value.for_each_attribute( []( const auto &, const auto & ) {} ); } ) {
-        ds.start_object();
-        value.for_each_attribute( [&]( const auto &name, const auto &attr ) {
-            ds.set_next_name( name );
-            ds << attr;
-        } );
-        ds.end_object();
-        return;
-    }
-
-    // for_each_item (for arrays)
-    else if constexpr( requires { for_each_item( value, []( const auto & ) {} ); } ) {
-        ds.start_array();
-        for_each_item( value, [&]( const auto &value ) {
-            ds << value;
-        } );
-        ds.end_array();
-        return;
-    }
-
-    // *value
-    else if constexpr( requires { bool( value ), *value; } ) {
-        ds.append_pointer( bool( value ), pointer_repr( value ), [&]() { ds << *value; } );
-        return;
-    }
-
-    // value.to_string
-    else if constexpr( requires { value.to_string(); } ) {
-        ds << value.to_string();
-        return;
-    }
-
-    // os << ...
-    else if constexpr( requires ( std::ostream &os ) { os << value; } ) {
-        std::ostringstream ss;
-        ss << value;
-        ds << ss.str();
-        return;
-    }
-
-    // apply( ... );
-    else if constexpr( requires { std::apply( []( const auto &...items ) {}, value ); } ) {
-        ds.start_array();
-        std::apply( [&]( const auto &...items ) {
-            ( ds << ... << items );
-        }, value );
-        ds.end_array();
-        return;
-    }
-
-    // T::template_type_name() (for empty structures)
-    else if constexpr( requires { T::template_type_name(); } ) {
-        // return ds.display( T::template_type_name() );
-        TODO;
-    }
-
-    // T::type_name() (for empty structures)
-    else if constexpr( requires { T::type_name(); } ) {
-        // return ds.display( T::type_name() );
-        TODO;
-    }
-
-    // value.display again (to get an error message)
+/// display content of a generic item. Can be surdefined if the default definition is not good enough
+void display_item( Displayer &dp, auto &&item ) {
+    if constexpr ( requires { for_each_attribute( item, [&]( StrView, const auto & ) {} ); } )
+        display_object( dp, item );
+    else if constexpr ( requires { for_each_item( item, [&]( const auto & ) {} ); } )
+        display_array( dp, item );
+    else if constexpr ( requires { item.display( dp ); } )
+        item.display( dp );
+    else if constexpr ( requires { ptr_repr( item ); } )
+        display_ptr( dp, item );
+    else if constexpr ( requires { dp.os() << item; } )
+        dp.os() << item;
     else
-        return value.display( ds );
+        ERROR( "found no way to display object" );
 }
 
+inline void display_item( Displayer &dp, const char *str ) {
+    dp.os() << str;
+}
+
+inline void display_item( Displayer &dp, const Str &str ) {
+    dp.os() << str;
+}
+
+inline void display_item( Displayer &dp, StrView str ) {
+    dp.os() << str;
+}
+
+/// display 
+void display( Displayer &dp, auto &&item ) {
+    display_item( dp, FORWARD( item ) );
+    dp.write_ptr_content();
+}
+
+// definitions
+void display_attributes( Displayer &dp, StrView attr_names, auto &&...attr_values ) {
+    auto get_item = [&]( const auto &attr_value ) {
+        dp.new_item();
+        dp.write_attr_name( read_arg_name( attr_names ) );
+        display_item( dp, attr_value );
+    };
+
+    dp.incr();
+    ( get_item( attr_values ), ... );
+    dp.decr();
+}
+
+void display_object( Displayer &dp, auto &&item ) {
+    dp.incr();
+    for_each_attribute( item, [&]( StrView name, const auto &value ) {
+        dp.new_item();
+        dp.write_attr_name( name );
+        display_item( dp, value );
+    } );
+    dp.decr();
+}
+
+void display_array( Displayer &dp, auto &&item ) {
+    dp.incr();
+    for_each_item( item, [&]( const auto &value ) {
+        dp.new_item();
+        display_item( dp, value );
+    } );
+    dp.decr();
+}
+
+void display_ptr( Displayer &dp, auto &&item ) {
+    if ( Opt<Str> pr = ptr_repr( item ) ) {
+        auto iter = dp.pointer_map.find( *pr );
+        if ( iter == dp.pointer_map.end() ) {
+            // pointed data
+            std::ostringstream ss;
+            DisplayContext oc = dp.exchange_context( &ss );
+            display_item( dp, *item );
+            dp.context = oc;
+            
+            // $id
+            PI ind = dp.pointer_vec.size();
+            iter = dp.pointer_map.insert( iter, { *pr, ind } );
+            dp.pointer_vec.push_back( "$" + std::to_string( ind ) + ": " + ss.str() );
+        }
+
+        dp.os() << "$" << iter->second;
+    } else
+        dp << "null";
+}
+
+#define DS_OBJECT( NAME, ... ) \
+    display_attributes( dp, #__VA_ARGS__, __VA_ARGS__ )
 
 END_TL_NAMESPACE

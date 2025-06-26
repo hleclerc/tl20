@@ -17,7 +17,7 @@ public:
     void            repl_in_graph_by( TNode *token );
     void            add_child       ( TNode *child );
     Str             condensed       ( bool only_the_args = false ) const;
-    void            display         ( Displayer &ds ) const;
+    void            display         ( Displayer &dp ) const;
     
     AString         beg_src_url;    ///< url of the source containing the first char
     PI              beg_src_off;    ///< offset of the first char in the source

@@ -11,7 +11,7 @@ namespace Tok {
 */
 class OperatorTrie {
 public:
-    struct        OperatorData            { void display( Displayer &ds ) const; Str str, name; int priority, take_left = 0; bool l2r = true; int min_rch = 1, max_rch = 1; };
+    struct        OperatorData            { void display( Displayer &dp ) const; Str str, name; int priority, take_left = 0; bool l2r = true; int min_rch = 1, max_rch = 1; };
     using         LetterMap               = std::map<Str,OperatorData *>;
     struct        CharMap                 { ~CharMap(); CharMap *prev, *next[ 256 ]; OperatorData *operator_data; };
             

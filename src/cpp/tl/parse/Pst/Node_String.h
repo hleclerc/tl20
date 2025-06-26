@@ -12,7 +12,7 @@ class Node_String : public PNode {
 public:
     /**/            Node_String  ( Tok::TNode *token, const Str &content );
 
-    virtual void    display      ( Displayer &ds ) const;
+    virtual void    display      ( Displayer &dp ) const;
     virtual void    write        ( Ast &ast ) const;
 
     Str             content;        ///< 

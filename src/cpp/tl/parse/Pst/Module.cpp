@@ -3,7 +3,7 @@
 BEG_TL_NAMESPACE
 namespace Pst {
 
-void Module::display( Displayer &ds ) const {
+void Module::display( Displayer &dp ) const {
     DS_OBJECT( Module, global_variables, block );
 }
 

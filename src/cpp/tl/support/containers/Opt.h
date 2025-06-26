@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Displayer.h"
+#include "../common_macros.h"
 
 BEG_TL_NAMESPACE
 
@@ -17,7 +17,7 @@ public:
 
     /**/    ~Opt          ();
     
-    void     display      ( Displayer &ds ) const;
+    void     display      ( auto &ds ) const;
 
     Opt&     operator=    ( const Opt<T> &that );
     Opt&     operator=    ( Opt<T> &&that );
@@ -25,8 +25,8 @@ public:
     Opt&     operator=    ( T &&that );
 
     explicit operator bool() const;
-    const T *operator->   () const;
-    const T &operator*    () const;
+    const T* operator->   () const;
+    const T& operator*    () const;
 
     void     clear        ();
 
@@ -40,4 +40,4 @@ private:
 
 END_TL_NAMESPACE
 
-#include "Opt.tcc"
+#include "Opt.cxx"

@@ -7,8 +7,8 @@ AString::operator StrView() const {
     return { _ast->strings.data() + _offset, _size };
 }
 
-void AString::display( Displayer &ds ) const {
-    ds << operator StrView();
+void AString::display( Displayer &dp ) const {
+    dp << operator StrView();
 }
 
 END_TL_NAMESPACE

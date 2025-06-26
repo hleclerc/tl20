@@ -19,7 +19,7 @@ public:
     void              parse             ( Pst::Node *node );
     Ast::CRepr        crepr             ();
 
-    void              display           ( Displayer &ds ) const;
+    void              display           ( Displayer &dp ) const;
   
 private:      
     Log&              log;

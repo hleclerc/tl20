@@ -17,3 +17,5 @@ Pour Displayer, on aimerait manipuler les items de façon plus précise. Ça ser
 Pb de la mort: pour un objet polymorphique, on ne pourra pas utiliser for_each_attribute.
     On revient au besoin de définir un display, au moins pour les classes polymorphiques
     Prop: on passe par un displayer qui reçoit les strings, les paramètres, etc...
+
+    

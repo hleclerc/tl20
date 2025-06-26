@@ -12,7 +12,7 @@ class Node_Block : public PNode {
 public:
     /**/          Node_Block( Tok::TNode *token, Scope *parent_scope = nullptr, Scope::Type scope_type = Scope::Type::Immediate );
 
-    virtual void  display   ( Displayer &ds ) const;
+    virtual void  display   ( Displayer &dp ) const;
     virtual void  write     ( Ast &ast ) const;
 
     Block         block;

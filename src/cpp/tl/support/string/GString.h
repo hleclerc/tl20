@@ -14,7 +14,7 @@ public:
     /**/     GString( StrView str );
     /**/     GString() : id( 0 ) {}
 
-    void     display  ( Displayer &ds ) const;
+    void     display  ( Displayer &dp ) const;
     operator StrView  () const;
 
     bool     operator==( const GString &that ) const { return id == that.id; }

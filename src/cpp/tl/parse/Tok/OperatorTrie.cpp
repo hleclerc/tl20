@@ -98,8 +98,8 @@ OperatorTrie::CharMap::~CharMap() {
     delete operator_data;
 } 
 
-void OperatorTrie::OperatorData::display( Displayer &ds ) const {
-    ds << name;
+void OperatorTrie::OperatorData::display( Displayer &dp ) const {
+    dp << name;
 }
 
 void OperatorTrie::register_letter_operator( OperatorData *operator_data ) {

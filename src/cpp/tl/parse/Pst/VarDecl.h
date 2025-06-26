@@ -13,7 +13,7 @@ class VarDecl {
 public:
     /**/            VarDecl( Scope *parent_scope );
 
-    void            display( Displayer &ds ) const;
+    void            display( Displayer &dp ) const;
     void            write  ( Ast &ast ) const;
 
     PI              pos_in_parent_scope; ///<

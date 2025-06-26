@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../tl_namespace.h"
+#include "../common_types.h"
 
 BEG_TL_NAMESPACE
 
@@ -13,10 +13,11 @@ public:
     static DisplayParameters compact       () { return { .add_spaces_for_reading = false, .skip_if_default_value = true }; }
 
     bool   always_display_delimiters = false;
-    bool   add_spaces_for_reading = true;
-    bool   skip_if_default_value = false;
-    bool   ensure_endline = false;
-    bool   use_new_lines = false;
+    bool   add_spaces_for_reading    = true;
+    bool   skip_if_default_value     = false;
+    bool   ensure_endline            = false;
+    bool   use_new_lines             = false;
+    Str    beg_line                  = {};
 };
 
 END_TL_NAMESPACE

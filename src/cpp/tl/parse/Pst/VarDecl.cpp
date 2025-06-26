@@ -6,7 +6,7 @@ namespace Pst {
 VarDecl::VarDecl( Scope *parent_scope ) : scope( parent_scope ) {
 }
 
-void VarDecl::display( Displayer &ds ) const {
+void VarDecl::display( Displayer &dp ) const {
     DS_OBJECT( VarDecl, pos_in_parent_scope, is_a_func );
 }
 

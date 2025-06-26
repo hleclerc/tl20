@@ -6,7 +6,7 @@ namespace Pst {
 Node_Module::Node_Module( Tok::TNode *token ) : PNode( token ) {
 }
 
-void Node_Module::display( Displayer &ds ) const {
+void Node_Module::display( Displayer &dp ) const {
     DS_OBJECT( Node_Module, global_variables, block );
 }
 

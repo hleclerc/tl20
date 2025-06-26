@@ -6,7 +6,7 @@ namespace Pst {
 Arg::Arg( Tok::TNode *token, Str name, PNode *node ) : token( token ), name( name ), node( node ) {
 }
 
-void Arg::display( Displayer &ds ) const {
+void Arg::display( Displayer &dp ) const {
     DS_OBJECT( Arg, name, node );
 }
 

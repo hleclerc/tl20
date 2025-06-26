@@ -26,9 +26,7 @@ void test_pst( Str code ) {
     // ap.parse( pt.root() );
 
     // P( pt.root() );
-    Displayer ds;
-    pt.root()->display( ds );
-    P( ds.as_Str( DisplayParameters::for_debug_info() ) );
+    P( pt.root() );
 }
 
 TEST_CASE( "Parser src to ap", "" ) {

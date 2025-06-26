@@ -23,7 +23,7 @@ public:
     void               parse             ( Tok::TNode *token );
     void               write             ( Ast &ast ) const;
  
-    void               display           ( Displayer &ds ) const;
+    void               display           ( Displayer &dp ) const;
     Pst::PNode*        root              () const;
      
 private:       

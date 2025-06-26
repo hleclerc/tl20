@@ -19,7 +19,7 @@ public:
     /**/                Scope       ( Scope *parent = nullptr, Type type = Type::Immediate );
 
     Str                 condensed   () const;
-    void                display     ( Displayer &ds ) const;
+    void                display     ( Displayer &dp ) const;
     // virtual void     write       ( Ast &ast ) const;
     
     PI                  nb_variables_in_parents_during_creation;

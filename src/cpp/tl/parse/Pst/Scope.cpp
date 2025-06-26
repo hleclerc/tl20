@@ -13,7 +13,7 @@ Str Scope::condensed() const {
     return "";
 }
 
-void Scope::display( Displayer &ds ) const {
+void Scope::display( Displayer &dp ) const {
     DS_OBJECT( Scope, variable_names, references );
 }
 

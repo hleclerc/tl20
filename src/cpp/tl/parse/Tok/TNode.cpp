@@ -81,8 +81,8 @@ Str TNode::condensed( bool only_the_args ) const {
     }
 }
 
-void TNode::display( Displayer &ds ) const {
-    ds << condensed();
+void TNode::display( Displayer &dp ) const {
+    dp << condensed();
 }
 
 } // namespace Tok

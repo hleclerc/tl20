@@ -6,12 +6,11 @@ BEG_TL_NAMESPACE
 
 template<class T>
 std::string to_string( T &&val, const DisplayParameters &dp = {} ) {
-    Displayer ds;
-    ds << val;
+    std::ostringstream ss;
+    Displayer ds( &ss, dp );
+    display( ds, val );
 
-    Str ss;
-    ds.write_to( ss, dp );
-    return ss;
+    return ss.str();
 }
 
 END_TL_NAMESPACE

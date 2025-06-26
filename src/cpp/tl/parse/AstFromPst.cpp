@@ -16,7 +16,7 @@ AstFromPst::AstFromPst( Log &log, BumpPointerPool &pool ) : pool( pool ), log( l
     module.block.scope.func_map = base_func_map();
 }
 
-void AstFromPst::display( Displayer &ds ) const {
+void AstFromPst::display( Displayer &dp ) const {
     ds << module;
 }
 

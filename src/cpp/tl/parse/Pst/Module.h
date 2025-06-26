@@ -9,7 +9,7 @@ namespace Pst {
 */
 class Module {
 public:
-    virtual void    display  ( Displayer &ds ) const;
+    virtual void    display  ( Displayer &dp ) const;
     virtual void    write    ( Ast &ast ) const;
 
     Vec<Str>        global_variables;

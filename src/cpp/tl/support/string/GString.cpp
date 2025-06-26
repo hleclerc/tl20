@@ -42,8 +42,8 @@ GString::operator StrView() const {
     return str_vec[ id ];
 }
 
-void GString::display( Displayer &ds ) const {
-    ds << operator StrView();
+void GString::display( Displayer &dp ) const {
+    dp << operator StrView();
 }
 
 

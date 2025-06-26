@@ -6,7 +6,7 @@ namespace Pst {
 Node_Block::Node_Block( Tok::TNode *token, Scope *parent_scope, Scope::Type scope_type ) : Node( token ), block( parent_scope, scope_type ) {
 }
 
-void Node_Block::display( Displayer &ds ) const {
+void Node_Block::display( Displayer &dp ) const {
     ds << block;
 }
 

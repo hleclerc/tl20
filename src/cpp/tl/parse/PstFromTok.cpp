@@ -17,8 +17,8 @@ PstFromTok::PstFromTok( Log &log ) : log( log ) {
     root_node = nullptr;
 }
 
-void PstFromTok::display( Displayer &ds ) const {
-    ds << root_node;
+void PstFromTok::display( Displayer &dp ) const {
+    dp << root_node;
 }
 
 PNode *PstFromTok::root() const {

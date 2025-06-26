@@ -12,7 +12,7 @@ class Arg {
 public:
     /**/            Arg    ( Tok::TNode *token, Str name = {}, PNode *node = nullptr );
 
-    void            display( Displayer &ds ) const;
+    void            display( Displayer &dp ) const;
     void            write  ( Ast &ast ) const;
 
     Tok::TNode*     token; 

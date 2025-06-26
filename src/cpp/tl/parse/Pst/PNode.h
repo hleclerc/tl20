@@ -14,7 +14,7 @@ public:
     /**/            PNode     ( Tok::TNode *token );
     virtual        ~PNode     ();
 
-    virtual void    display  ( Displayer &ds ) const = 0;
+    virtual void    display  ( Displayer &dp ) const = 0;
     virtual void    write    ( Ast &ast ) const = 0;
 
     Tok::TNode*     token; 
